@@ -1,4 +1,4 @@
-Plugin(source='addons/scripting/MovementAPI.sp')
+Plugin(source='scripting/MovementAPI.sp')
 
 Package(name='MovementAPI',
         plugins=['MovementAPI'],
