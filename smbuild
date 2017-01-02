@@ -1,0 +1,8 @@
+Plugin(source='addons/scripting/MovementAPI.sp')
+
+Package(name='MovementAPI',
+        plugins=['MovementAPI'],
+        filegroups={
+            '.':['README.md', 'LICENSE'],
+        },
+)
