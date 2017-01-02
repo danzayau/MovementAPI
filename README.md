@@ -6,7 +6,10 @@ This plugin provides an API for player movement including forwards, natives, and
 
 ============================
 
-### Tested Against
- * SourceMod 1.7 Latest
- * SourceMod 1.8 Latest
- * SourceMod 1.9 Latest
+### Requirements
+
+ * **Tested Against**: SourceMod 1.7 Latest, SourceMod 1.8 Latest, SourceMod 1.9 Latest
+ 
+### Installation
+
+ * Extract ```MovementAPI.zip``` to ```csgo/``` in your server directory.
