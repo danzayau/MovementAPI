@@ -3,6 +3,7 @@
 	Miscellaneous, non-specific functions.
 */
 
+
 void GetGroundOrigin(int client, float groundOrigin[3]) {
 	float startPosition[3], endPosition[3];
 	GetClientAbsOrigin(client, startPosition);
@@ -26,10 +27,6 @@ public bool TraceEntityFilterPlayers(int entity, int contentsMask, any data) {
 	return (entity != data && entity >= 1 && entity <= MaxClients);
 }
 
-bool PlayerIsDucking(int client) {
-	return (GetEntProp(client, Prop_Send, "m_bDucked") || GetEntProp(client, Prop_Send, "m_bDucking"));
-}
-
 bool PlayerIsOnGround(int client) {
 	if (GetEntityFlags(client) & FL_ONGROUND) {
 		return true;
@@ -37,16 +34,9 @@ bool PlayerIsOnGround(int client) {
 	return false;
 }
 
-bool PlayerIsOnLadder(int client) {
-	return GetEntityMoveType(client) == MOVETYPE_LADDER;
-}
-
-bool PlayerIsNoclipping(int client) {
-	return GetEntityMoveType(client) == MOVETYPE_NOCLIP;
-}
-
-bool PlayerIsTurningLeft(float newYaw, float oldYaw) {
-	return (newYaw > oldYaw && newYaw < oldYaw + 180 || newYaw < oldYaw - 180);
+bool PlayerIsTurningLeft(int client) {
+	return (gF_EyeAngles[client][1] > gF_OldEyeAngles[client][1] && gF_EyeAngles[client][1] < gF_OldEyeAngles[client][1] + 180
+		 || gF_EyeAngles[client][1] < gF_OldEyeAngles[client][1] - 180);
 }
 
 float CalculateHorizontalDistance(float pointA[3], float pointB[3]) {

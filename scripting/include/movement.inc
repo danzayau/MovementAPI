@@ -3,7 +3,8 @@
 	Author: DanZay
 */
 
-/*=====  Double Include Prevention  ======*/
+
+/*======  Double Include Prevention  ======*/
 #if defined _movement_included_
 #endinput
 #endif
@@ -11,16 +12,7 @@
 
 
 
-/*=====  Forwards  ======*/
-
-/**
- * Called when the player leaves the ground.
- *
- * @param client			Client entity index.
- * @param jumped			True if the player jumped to leave the ground.
- * @noreturn
- */
-forward void OnPlayerLeaveGround(int client, bool jumped);
+/*======  Forwards  ======*/
 
 /**
  * Called when the player touches the ground.
@@ -28,11 +20,77 @@ forward void OnPlayerLeaveGround(int client, bool jumped);
  * @param client			Client entity index.
  * @noreturn
  */
-forward void OnPlayerTouchGround(int client);
+forward void OnStartTouchGround(int client);
+
+/**
+ * Called when the player leaves the ground.
+ *
+ * @param client			Client entity index.
+ * @param jumped			True if the player jumped to leave the ground.
+ * @param ducked			True if the player ducked at the same time.
+ * @noreturn
+ */
+forward void OnStopTouchGround(int client, bool jumped, bool ducked);
+
+/**
+ * Called when the player starts ducking.
+ *
+ * @param client			Client entity index.
+ * @noreturn
+ */
+forward void OnStartDucking(int client);
+
+/**
+ * Called when the player stops ducking.
+ *
+ * @param client			Client entity index.
+ * @noreturn
+ */
+forward void OnStopDucking(int client);
+
+/**
+ * Called when the player starts touching a ladders.
+ *
+ * @param client			Client entity index.
+ * @noreturn
+ */
+forward void OnStartTouchLadder(int client);
+
+/**
+ * Called when the player stops touching a ladder.
+ *
+ * @param client			Client entity index.
+ * @noreturn
+ */
+forward void OnStopTouchLadder(int client);
+
+/**
+ * Called when the player starts noclipping.
+ *
+ * @param client			Client entity index.
+ * @noreturn
+ */
+forward void OnStartNoclipping(int client);
+
+/**
+ * Called when the player stops noclipping.
+ *
+ * @param client			Client entity index.
+ * @noreturn
+ */
+forward void OnStopNoclipping(int client);
 
 
 
-/*=====  Natives  ======*/
+/*======  Natives  ======*/
+
+/**
+ * Gets which buttons the players are pressing.
+ *
+ * @param client    		Client entity index.
+ * @return        			The bitsum of buttons that the player is pressing.
+ */
+native bool Movement_GetButtons(int client);
 
 /**
  * Gets the origin of the the player.
@@ -41,7 +99,7 @@ forward void OnPlayerTouchGround(int client);
  * @param origin			Origin vector buffer.
  * @noreturn
  */
-native void Movement_GetOrigin(int client, float origin[3]);
+native void Movement_GetOrigin(int client, float buffer[3]);
 
 /**
  * Gets the origin of the ground beneath the player (more accurate than origin when on ground).
@@ -50,7 +108,7 @@ native void Movement_GetOrigin(int client, float origin[3]);
  * @param origin			Ground origin vector buffer.
  * @noreturn
  */
-native void Movement_GetGroundOrigin(int client, float origin[3]);
+native void Movement_GetGroundOrigin(int client, float buffer[3]);
 
 /**
  * Gets the distance between the player's origin and the ground beneath.
@@ -67,7 +125,7 @@ native float Movement_GetDistanceToGround(int client);
  * @param velocity			Velocity vector buffer.
  * @noreturn
  */
-native void Movement_GetVelocity(int client, float velocity[3]);
+native void Movement_GetVelocity(int client, float buffer[3]);
 
 /**
  * Changes the velocity of the player.
@@ -95,6 +153,23 @@ native float Movement_GetSpeed(int client);
 native bool Movement_GetOnGround(int client);
 
 /**
+ * Gets the player's move type.
+ *
+ * @param client    		Client entity index.
+ * @return        			The player's move type
+ */
+native MoveType Movement_GetMoveType(int client);
+
+/**
+ * Sets the player's move type.
+ *
+ * @param client    		Client entity index.
+ * @param moveType			What to set the player's move type to.
+ * @noreturn
+ */
+native void Movement_SetMoveType(int client, MoveType moveType);
+
+/**
  * Gets whether or not the player is on a ladder.
  *
  * @param client    		Client entity index.
@@ -117,30 +192,6 @@ native bool Movement_GetNoclipping(int client);
  * @return        			Whether or not the player is ducking/ducked.
  */
 native bool Movement_GetDucking(int client);
-
-/**
- * Gets whether or not the player just started ducking.
- *
- * @param client    		Client entity index.
- * @return        			Whether or not the player just started ducking.
- */
-native bool Movement_GetJustDucked(int client);
-
-/**
- * Gets whether or not the player just jumped to leave the ground.
- *
- * @param client    		Client entity index.
- * @return        			Whether or not the player just jumped to leave the ground.
- */
-native bool Movement_GetJustJumped(int client);
-
-/**
- * Gets whether or not the player just landed (touched the ground).
- *
- * @param client    		Client entity index.
- * @return 					Whether or not the player just landed (touched the ground).
- */
-native bool Movement_GetJustLanded(int client);
 
 /**
  * Gets the player's last takeoff speed (horizontal).
@@ -166,13 +217,13 @@ native float Movement_SetTakeoffSpeed(int client, float value);
  * @param origin			Takeoff origin vector buffer.
  * @noreturn
  */
-native void Movement_GetTakeoffOrigin(int client, float origin[3]);
+native void Movement_GetTakeoffOrigin(int client, float buffer[3]);
 
 /**
- * Gets the time of the player's last takeoff.
+ * Gets the tick of the player's last takeoff (leaving the ground).
  *
  * @param client    		Client entity index.
- * @return        			The time of the last takeoff of the player.
+ * @return        			The tick of the last takeoff of the player.
  */
 native int Movement_GetTakeoffTick(int client);
 
@@ -191,15 +242,23 @@ native float Movement_GetLandingSpeed(int client);
  * @param origin			Landing origin vector buffer.
  * @noreturn
  */
-native void Movement_GetLandingOrigin(int client, float origin[3]);
+native void Movement_GetLandingOrigin(int client, float buffer[3]);
 
 /**
- * Gets the time of the player's last landing.
+ * Gets the tick of the player's last landing.
+ *
+ * @param client    		Client entity index.
+ * @return        			The tick of the last landing of the player.
+ */
+native int Movement_GetLandingTick(int client);
+
+/**
+ * Gets the tick of the player's last jump.
  *
  * @param client    		Client entity index.
  * @return        			The time of the last landing of the player.
  */
-native int Movement_GetLandingTick(int client);
+native int Movement_GetJumpTick(int client);
 
 /**
  * Gets the maximum height of the player's last jump.
@@ -260,6 +319,15 @@ native float Movement_GetDuckSpeed(int client);
 native void Movement_SetDuckSpeed(int client, float value);
 
 /**
+ * Gets the eye angles of the player.
+ *
+ * @param client			Client entity index.
+ * @param velocity			Velocity vector buffer.
+ * @noreturn
+ */
+native void Movement_GetEyeAngles(int client, float buffer[3]);
+
+/**
  * Gets whether or not the player is turning their aim horizontally.
  *
  * @param client    		Client entity index.
@@ -285,7 +353,7 @@ native bool Movement_GetTurningRight(int client);
 
 
 
-/*=====  Methodmap  ======*/
+/*======  Methodmap  ======*/
 
 methodmap MovementPlayer __nullable__ {
 	public MovementPlayer(int id) {
@@ -298,12 +366,18 @@ methodmap MovementPlayer __nullable__ {
 		}
 	}
 	
-	public void GetOrigin(float origin[3]) {
-		Movement_GetOrigin(this.id, origin);
+	property int buttons {
+		public get() {
+			return Movement_GetButtons(this.id);
+		}
 	}
 	
-	public void GetGroundOrigin(float origin[3]) {
-		Movement_GetGroundOrigin(this.id, origin);
+	public void GetOrigin(float buffer[3]) {
+		Movement_GetOrigin(this.id, buffer);
+	}
+	
+	public void GetGroundOrigin(float buffer[3]) {
+		Movement_GetGroundOrigin(this.id, buffer);
 	}
 	
 	property float distanceToGround {
@@ -312,12 +386,12 @@ methodmap MovementPlayer __nullable__ {
 		}
 	}
 	
-	public void GetVelocity(float velocity[3]) {
-		Movement_GetVelocity(this.id, velocity);
+	public void GetVelocity(float buffer[3]) {
+		Movement_GetVelocity(this.id, buffer);
 	}
 	
-	public void SetVelocity(float velocity[3]) {
-		Movement_SetVelocity(this.id, velocity);
+	public void SetVelocity(float buffer[3]) {
+		Movement_SetVelocity(this.id, buffer);
 	}
 	
 	property float speed {
@@ -332,7 +406,16 @@ methodmap MovementPlayer __nullable__ {
 		}
 	}
 	
-	property bool ladder {
+	property MoveType moveType {
+		public get() {
+			return Movement_GetMoveType(this.id);
+		}
+		public set(MoveType moveType) {
+			Movement_SetMoveType(this.id, moveType);
+		}
+	}
+	
+	property bool onLadder {
 		public get() {
 			return Movement_GetOnLadder(this.id);
 		}
@@ -350,24 +433,6 @@ methodmap MovementPlayer __nullable__ {
 		}
 	}
 	
-	property bool justDucked {
-		public get() {
-			return Movement_GetJustDucked(this.id);
-		}
-	}
-	
-	property bool justJumped {
-		public get() {
-			return Movement_GetJustJumped(this.id);
-		}
-	}
-	
-	property bool justLanded {
-		public get() {
-			return Movement_GetJustLanded(this.id);
-		}
-	}
-	
 	property float takeoffSpeed {
 		public get() {
 			return Movement_GetTakeoffSpeed(this.id);
@@ -377,8 +442,8 @@ methodmap MovementPlayer __nullable__ {
 		}
 	}
 	
-	public void GetTakeoffOrigin(float origin[3]) {
-		Movement_GetTakeoffOrigin(this.id, origin);
+	public void GetTakeoffOrigin(float buffer[3]) {
+		Movement_GetTakeoffOrigin(this.id, buffer);
 	}
 	
 	property int takeoffTick {
@@ -393,13 +458,19 @@ methodmap MovementPlayer __nullable__ {
 		}
 	}
 	
-	public void GetLandingOrigin(float origin[3]) {
-		Movement_GetLandingOrigin(this.id, origin);
+	public void GetLandingOrigin(float buffer[3]) {
+		Movement_GetLandingOrigin(this.id, buffer);
 	}
 	
 	property int landingTick {
 		public get() {
 			return Movement_GetLandingTick(this.id);
+		}
+	}
+	
+	property int jumpTick {
+		public get() {
+			return Movement_GetJumpTick(this.id);
 		}
 	}
 	
@@ -437,6 +508,10 @@ methodmap MovementPlayer __nullable__ {
 		public set(float value) {
 			Movement_SetDuckSpeed(this.id, value);
 		}
+	}
+	
+	public void GetEyeAngles(float buffer[3]) {
+		Movement_GetEyeAngles(this.id, buffer);
 	}
 	
 	property bool turning {
