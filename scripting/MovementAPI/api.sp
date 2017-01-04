@@ -4,7 +4,8 @@
 */
 
 
-// Forwards
+/*=====  Forwards  ======*/
+
 Handle gH_Forward_OnLeaveGround;
 Handle gH_Forward_OnTouchGround;
 
@@ -28,7 +29,8 @@ void Call_OnPlayerTouchGround(int client) {
 }
 
 
-// Natives
+
+/*=====  Natives  ======*/
 
 void CreateNatives() {
 	CreateNative("Movement_GetOrigin", Native_GetOrigin);

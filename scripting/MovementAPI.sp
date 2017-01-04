@@ -15,7 +15,9 @@ Plugin myinfo =
 };
 
 
-// Global Variables
+
+/*=====  Global Variables  ======*/
+
 float gF_Origin[MAXPLAYERS + 1][3];
 float gF_GroundOrigin[MAXPLAYERS + 1][3];
 
@@ -55,15 +57,19 @@ bool gB_TurningLeft[MAXPLAYERS + 1];
 bool gB_TurningRight[MAXPLAYERS + 1];
 
 
-// Includes
-#include "misc.sp"
-#include "api.sp"
+
+/*=====  Includes  ======*/
+
+#include "MovementAPI/misc.sp"
+#include "MovementAPI/api.sp"
 
 
-// Functions
+
+/*=====  Events  ======*/
+
 public void OnPluginStart() {
 	CreateGlobalForwards();
-	HookEvent("player_jump", Event_Jump, EventHookMode_Pre);
+	HookEvent("player_jump", OnPlayerJump, EventHookMode_Pre);
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
@@ -168,7 +174,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	return Plugin_Continue;
 }
 
-public void Event_Jump(Event event, const char[] name, bool dontBroadcast) {
+public void OnPlayerJump(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	gB_JustJumped[client] = true;
 } 

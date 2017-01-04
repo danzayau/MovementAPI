@@ -3,15 +3,15 @@
 	Author: DanZay
 */
 
-
-/*	Double-include prevention	*/
+/*=====  Double Include Prevention  ======*/
 #if defined _movement_included_
 #endinput
 #endif
 #define _movement_included_
 
 
-// Forwards
+
+/*=====  Forwards  ======*/
 
 /**
  * Called when the player leaves the ground.
@@ -31,7 +31,8 @@ forward void OnPlayerLeaveGround(int client, bool jumped);
 forward void OnPlayerTouchGround(int client);
 
 
-// Natives
+
+/*=====  Natives  ======*/
 
 /**
  * Gets the origin of the the player.
@@ -283,7 +284,8 @@ native bool Movement_GetTurningLeft(int client);
 native bool Movement_GetTurningRight(int client);
 
 
-// Method Map
+
+/*=====  Methodmap  ======*/
 
 methodmap MovementPlayer __nullable__ {
 	public MovementPlayer(int id) {
