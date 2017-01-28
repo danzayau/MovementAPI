@@ -8,7 +8,6 @@ void CreateNatives() {
 	CreateNative("Movement_GetOrigin", Native_GetOrigin);
 	CreateNative("Movement_SetOrigin", Native_SetOrigin);
 	CreateNative("Movement_GetGroundOrigin", Native_GetGroundOrigin);
-	CreateNative("Movement_GetDistanceToGround", Native_GetDistanceToGround);
 	CreateNative("Movement_GetVelocity", Native_GetVelocity);
 	CreateNative("Movement_SetVelocity", Native_SetVelocity);
 	CreateNative("Movement_GetSpeed", Native_GetSpeed);
@@ -29,6 +28,7 @@ void CreateNatives() {
 	CreateNative("Movement_GetJumpMaxHeight", Native_GetJumpMaxHeight);
 	CreateNative("Movement_GetJumpDistance", Native_GetJumpDistance);
 	CreateNative("Movement_GetJumpOffset", Native_GetJumpOffset);
+	CreateNative("Movement_GetHitPerf", Native_GetHitPerf);
 	CreateNative("Movement_GetVelocityModifier", Native_GetVelocityModifier);
 	CreateNative("Movement_SetVelocityModifier", Native_SetVelocityModifier);
 	CreateNative("Movement_GetDuckSpeed", Native_GetDuckSpeed);
@@ -51,10 +51,6 @@ public int Native_SetOrigin(Handle plugin, int numParams) {
 
 public int Native_GetGroundOrigin(Handle plugin, int numParams) {
 	SetNativeArray(2, gF_GroundOrigin[GetNativeCell(1)], 3);
-}
-
-public int Native_GetDistanceToGround(Handle plugin, int numParams) {
-	return view_as<int>(gF_DistanceToGround[GetNativeCell(1)]);
 }
 
 public int Native_GetVelocity(Handle plugin, int numParams) {
@@ -137,6 +133,10 @@ public int Native_GetJumpDistance(Handle plugin, int numParams) {
 
 public int Native_GetJumpOffset(Handle plugin, int numParams) {
 	return view_as<int>(gF_JumpOffset[GetNativeCell(1)]);
+}
+
+public int Native_GetHitPerf(Handle plugin, int numParams) {
+	return view_as<int>(gB_HitPerf[GetNativeCell(1)]);
 }
 
 public int Native_GetVelocityModifier(Handle plugin, int numParams) {

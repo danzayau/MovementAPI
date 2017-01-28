@@ -8,7 +8,7 @@ void GetGroundOrigin(int client, float groundOrigin[3]) {
 	float startPosition[3], endPosition[3];
 	GetClientAbsOrigin(client, startPosition);
 	endPosition = startPosition;
-	endPosition[2] = startPosition[2] - 1024.0;
+	endPosition[2] = startPosition[2] - 16.0;
 	Handle trace = TR_TraceHullFilterEx(
 		startPosition, 
 		endPosition, 
@@ -19,6 +19,10 @@ void GetGroundOrigin(int client, float groundOrigin[3]) {
 		client);
 	if (TR_DidHit(trace)) {
 		TR_GetEndPosition(groundOrigin, trace);
+		groundOrigin[2] = groundOrigin[2] - 0.03125; // Offset the error (unknown why it is inaccurate)
+	}
+	else {
+		groundOrigin = NULL_VECTOR;
 	}
 	CloseHandle(trace);
 }

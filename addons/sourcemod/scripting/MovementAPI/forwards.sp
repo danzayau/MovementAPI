@@ -15,7 +15,7 @@ Handle gH_Forward_OnStopNoclipping;
 
 void CreateGlobalForwards() {
 	gH_Forward_OnStartTouchGround = CreateGlobalForward("OnStartTouchGround", ET_Event, Param_Cell);
-	gH_Forward_OnStopTouchGround = CreateGlobalForward("OnStopTouchGround", ET_Event, Param_Cell, Param_Cell, Param_Cell);
+	gH_Forward_OnStopTouchGround = CreateGlobalForward("OnStopTouchGround", ET_Event, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
 	gH_Forward_OnStartDucking = CreateGlobalForward("OnStartDucking", ET_Event, Param_Cell);
 	gH_Forward_OnStopDucking = CreateGlobalForward("OnStopDucking", ET_Event, Param_Cell);
 	gH_Forward_OnStartTouchLadder = CreateGlobalForward("OnStartTouchLadder", ET_Event, Param_Cell);
@@ -81,6 +81,7 @@ void Call_OnStopTouchGround(int client) {
 	Call_PushCell(client);
 	Call_PushCell(gB_JustJumped[client]);
 	Call_PushCell(gB_JustDucked[client]);
+	Call_PushCell(gB_HitPerf[client]);
 	Call_Finish();
 	gB_JustJumped[client] = false; // Handled event_jump
 }

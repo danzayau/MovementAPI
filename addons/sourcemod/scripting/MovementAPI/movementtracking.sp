@@ -20,8 +20,6 @@ void UpdateVariables(int client) {
 	GetClientAbsOrigin(client, gF_Origin[client]);
 	GetGroundOrigin(client, gF_GroundOrigin[client]);
 	
-	gF_DistanceToGround[client] = gF_Origin[client][2] - gF_GroundOrigin[client][2];
-	
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", gF_Velocity[client]);
 	gF_Speed[client] = SquareRoot(Pow(gF_Velocity[client][0], 2.0) + Pow(gF_Velocity[client][1], 2.0));
 	gB_Ducking[client] = (GetEntProp(client, Prop_Send, "m_bDucked") || GetEntProp(client, Prop_Send, "m_bDucking"));
@@ -85,21 +83,28 @@ void ResetVariables(int client) {
 	gF_Velocity[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gF_Speed[client] = 0.0;
 	
-	gB_Ducking[client] = false;
 	gB_OnLadder[client] = false;
 	gB_OnGround[client] = false;
 	gB_Noclipping[client] = false;
 	
+	gB_Ducking[client] = false;
+	
 	gB_LandedAtLeastOnce[client] = false;
+	
 	gF_TakeoffOrigin[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gF_TakeoffSpeed[client] = 0.0;
 	gI_TakeoffTick[client] = 0;
+	
 	gF_LandingOrigin[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gF_LandingSpeed[client] = 0.0;
 	gI_LandingTick[client] = 0;
+	
+	gI_JumpTick[client] = 0;
 	gF_JumpMaxHeight[client] = 0.0;
 	gF_JumpDistance[client] = 0.0;
 	gF_JumpOffset[client] = 0.0;
+	
+	gB_HitPerf[client] = false;
 	
 	gB_Turning[client] = false;
 	gB_TurningLeft[client] = false;
