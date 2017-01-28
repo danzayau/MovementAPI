@@ -10,7 +10,7 @@ Plugin myinfo =
 	name = "Player Movement API", 
 	author = "DanZay", 
 	description = "API plugin for player movement.", 
-	version = "0.3.0", 
+	version = "0.4.0", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
@@ -20,8 +20,6 @@ Plugin myinfo =
 
 float gF_Origin[MAXPLAYERS + 1][3];
 float gF_GroundOrigin[MAXPLAYERS + 1][3];
-
-float gF_DistanceToGround[MAXPLAYERS + 1];
 
 float gF_Velocity[MAXPLAYERS + 1][3];
 float gF_Speed[MAXPLAYERS + 1];
@@ -48,6 +46,8 @@ int gI_JumpTick[MAXPLAYERS + 1];
 float gF_JumpMaxHeight[MAXPLAYERS + 1];
 float gF_JumpDistance[MAXPLAYERS + 1];
 float gF_JumpOffset[MAXPLAYERS + 1];
+
+bool gB_HitPerf[MAXPLAYERS + 1];
 
 float gF_VelocityModifier[MAXPLAYERS + 1];
 float gF_DuckSpeed[MAXPLAYERS + 1];
@@ -111,4 +111,5 @@ public void OnPlayerJump(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	gB_JustJumped[client] = true;
 	gI_JumpTick[client] = GetGameTickCount();
+	gB_HitPerf[client] = gI_JumpTick[client] <= (gI_LandingTick[client] + 1);
 } 

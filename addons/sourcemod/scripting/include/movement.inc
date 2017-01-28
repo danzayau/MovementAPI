@@ -1,7 +1,7 @@
 /* 	Movement API Include File
 	Author: DanZay
 	
-	Plugin Version: 0.3.0
+	Plugin Version: 0.4.0
 	Plugin Website: https://github.com/danzayau/MovementAPI	
 */
 
@@ -30,9 +30,10 @@ forward void OnStartTouchGround(int client);
  * @param client			Client entity index.
  * @param jumped			True if the player jumped to leave the ground.
  * @param ducked			True if the player ducked at the same time.
+ * @param landed			True if the player just landed (e.g. perfect bunnyhop).
  * @noreturn
  */
-forward void OnStopTouchGround(int client, bool jumped, bool ducked);
+forward void OnStopTouchGround(int client, bool jumped, bool ducked, bool landed);
 
 /**
  * Called when the player starts ducking.
@@ -106,20 +107,13 @@ native void Movement_SetOrigin(int client, float buffer[3]);
 
 /**
  * Gets the origin of the ground beneath the player (more accurate than origin when on ground).
+ * Ground origin is NULL_VECTOR ({0.0, 0.0, 0.0}) if ground is more than 16 units below player origin.
  *
  * @param client			Client entity index.
  * @param origin			Ground origin vector buffer.
  * @noreturn
  */
 native void Movement_GetGroundOrigin(int client, float buffer[3]);
-
-/**
- * Gets the distance between the player's origin and the ground beneath.
- *
- * @param client			Client entity index.
- * @return					The distance from the player's origin to the ground.
- */
-native float Movement_GetDistanceToGround(int client);
 
 /**
  * Gets the velocity vector of the player.
@@ -288,6 +282,14 @@ native float Movement_GetJumpDistance(int client);
 native float Movement_GetJumpOffset(int client);
 
 /**
+ * Gets whether or not the player's last jump was a perfect bunnyhop.
+ *
+ * @param client    		Client entity index.
+ * @return        			Whether or not the player's last jump wasThe vertical distance of the player's last jump.
+ */
+native bool Movement_GetHitPerf(int client);
+
+/**
  * Gets "m_flVelocityModifier" of the player.
  *
  * @param client    		Client entity index.
@@ -388,12 +390,6 @@ methodmap MovementPlayer __nullable__ {
 	
 	public void GetGroundOrigin(float buffer[3]) {
 		Movement_GetGroundOrigin(this.id, buffer);
-	}
-	
-	property float distanceToGround {
-		public get() {
-			return Movement_GetDistanceToGround(this.id);
-		}
 	}
 	
 	public void GetVelocity(float buffer[3]) {
@@ -499,6 +495,12 @@ methodmap MovementPlayer __nullable__ {
 	property float jumpOffset {
 		public get() {
 			return Movement_GetJumpOffset(this.id);
+		}
+	}
+	
+	property bool hitPerf {
+		public get() {
+			return Movement_GetHitPerf(this.id);
 		}
 	}
 	
