@@ -24,7 +24,7 @@ before_script:
     - cd addons/sourcemod/scripting/
     - chmod +x spcomp
     - PATH+=":$PWD"
-    - cp ../../../scripting/include/* include/
+    - cp ../../../addons/sourcemod/scripting/include/* include/
     - cd ../../..
 
 script:
