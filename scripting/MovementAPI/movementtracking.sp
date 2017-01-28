@@ -15,9 +15,7 @@ void UpdateOldVariables(int client) {
 }
 
 void UpdateVariables(int client) {
-	/*======  Update Independent Variables  ======*/
-	
-	gI_Buttons[client] = GetClientButtons(client);
+	/*==========  Update Independent Variables  ==========*/
 	
 	GetClientAbsOrigin(client, gF_Origin[client]);
 	GetGroundOrigin(client, gF_GroundOrigin[client]);
@@ -30,8 +28,6 @@ void UpdateVariables(int client) {
 	
 	gMT_MoveType[client] = GetEntityMoveType(client);
 	gB_OnGround[client] = PlayerIsOnGround(client);
-	gB_OnLadder[client] = (GetEntityMoveType(client) == MOVETYPE_LADDER);
-	gB_Noclipping[client] = (GetEntityMoveType(client) == MOVETYPE_NOCLIP);
 	
 	gF_VelocityModifier[client] = GetEntPropFloat(client, Prop_Send, "m_flVelocityModifier");
 	gF_DuckSpeed[client] = GetEntPropFloat(client, Prop_Send, "m_flDuckSpeed");
@@ -40,9 +36,12 @@ void UpdateVariables(int client) {
 	
 	
 	
-	/*======  Update Dependent Variables  ======*/
+	/*==========  Update Dependent Variables  ==========*/
 	
 	gB_JustDucked[client] = (gB_Ducking[client] && !gB_OldDucking[client]);
+	
+	gB_OnLadder[client] = (gMT_MoveType[client] == MOVETYPE_LADDER);
+	gB_Noclipping[client] = (gMT_MoveType[client] == MOVETYPE_NOCLIP);
 	
 	if (!gB_OnGround[client] && gB_OldOnGround[client] || !gB_OnLadder[client] && gB_OldOnLadder[client]) {
 		gF_TakeoffOrigin[client] = gF_OldGroundOrigin[client];

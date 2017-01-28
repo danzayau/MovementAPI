@@ -10,15 +10,13 @@ Plugin myinfo =
 	name = "Player Movement API", 
 	author = "DanZay", 
 	description = "API plugin for player movement.", 
-	version = "0.2", 
+	version = "0.3.0", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
 
 
-/*======  Global Variables  ======*/
-
-int gI_Buttons[MAXPLAYERS + 1];
+/*===============================  Global Variables  ===============================*/
 
 float gF_Origin[MAXPLAYERS + 1][3];
 float gF_GroundOrigin[MAXPLAYERS + 1][3];
@@ -71,7 +69,7 @@ bool gB_OldNoclipping[MAXPLAYERS + 1];
 float gF_OldEyeAngles[MAXPLAYERS + 1][3];
 
 
-/*======  Includes  ======*/
+/*===============================  Includes  ===============================*/
 
 #include "MovementAPI/movementtracking.sp"
 #include "MovementAPI/misc.sp"
@@ -80,7 +78,7 @@ float gF_OldEyeAngles[MAXPLAYERS + 1][3];
 
 
 
-/*======  Events  ======*/
+/*===============================  Events  ===============================*/
 
 public void OnPluginStart() {
 	CreateGlobalForwards();
