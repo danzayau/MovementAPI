@@ -5,8 +5,8 @@
 
 
 void CreateNatives() {
-	CreateNative("Movement_GetButtons", Native_GetButtons);
 	CreateNative("Movement_GetOrigin", Native_GetOrigin);
+	CreateNative("Movement_SetOrigin", Native_SetOrigin);
 	CreateNative("Movement_GetGroundOrigin", Native_GetGroundOrigin);
 	CreateNative("Movement_GetDistanceToGround", Native_GetDistanceToGround);
 	CreateNative("Movement_GetVelocity", Native_GetVelocity);
@@ -34,17 +34,19 @@ void CreateNatives() {
 	CreateNative("Movement_GetDuckSpeed", Native_GetDuckSpeed);
 	CreateNative("Movement_SetDuckSpeed", Native_SetDuckSpeed);
 	CreateNative("Movement_GetEyeAngles", Native_GetEyeAngles);
+	CreateNative("Movement_SetEyeAngles", Native_SetEyeAngles);
 	CreateNative("Movement_GetTurning", Native_GetTurning);
 	CreateNative("Movement_GetTurningLeft", Native_GetTurningLeft);
 	CreateNative("Movement_GetTurningRight", Native_GetTurningRight);
 }
 
-public int Native_GetButtons(Handle plugin, int numParams) {
-	return view_as<int>(gI_Buttons[GetNativeCell(1)]);
-}
-
 public int Native_GetOrigin(Handle plugin, int numParams) {
 	SetNativeArray(2, gF_Origin[GetNativeCell(1)], 3);
+}
+
+public int Native_SetOrigin(Handle plugin, int numParams) {
+	GetNativeArray(2, gF_Origin[GetNativeCell(1)], 3);
+	TeleportEntity(GetNativeCell(1), gF_Origin[GetNativeCell(1)], NULL_VECTOR, NULL_VECTOR);
 }
 
 public int Native_GetGroundOrigin(Handle plugin, int numParams) {
@@ -151,12 +153,17 @@ public int Native_GetDuckSpeed(Handle plugin, int numParams) {
 }
 
 public int Native_SetDuckSpeed(Handle plugin, int numParams) {
-	gF_VelocityModifier[GetNativeCell(1)] = GetNativeCell(2);
+	gF_DuckSpeed[GetNativeCell(1)] = GetNativeCell(2);
 	SetEntPropFloat(GetNativeCell(1), Prop_Send, "m_flDuckSpeed", GetNativeCell(2));
 }
 
 public int Native_GetEyeAngles(Handle plugin, int numParams) {
 	SetNativeArray(2, gF_EyeAngles[GetNativeCell(1)], 3);
+}
+
+public int Native_SetEyeAngles(Handle plugin, int numParams) {
+	GetNativeArray(2, gF_EyeAngles[GetNativeCell(1)], 3);
+	TeleportEntity(GetNativeCell(1), NULL_VECTOR, gF_EyeAngles[GetNativeCell(1)], NULL_VECTOR);
 }
 
 public int Native_GetTurning(Handle plugin, int numParams) {

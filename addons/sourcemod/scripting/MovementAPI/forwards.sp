@@ -26,7 +26,7 @@ void CreateGlobalForwards() {
 
 
 
-/*======  Call Checkers  ======*/
+/*===============================  Call Checkers  ===============================*/
 
 void TryCallForwards(int client) {
 	TryCallTouchGroundForwards(client);
@@ -74,7 +74,7 @@ void TryCallNoclipForwards(int client) {
 
 
 
-/*======  Callers  ======*/
+/*===============================  Callers  ===============================*/
 
 void Call_OnStopTouchGround(int client) {
 	Call_StartForward(gH_Forward_OnStopTouchGround);
