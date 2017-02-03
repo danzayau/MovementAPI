@@ -1,7 +1,7 @@
 /* 	Movement API Include File
 	Author: DanZay
 	
-	Plugin Version: 0.4.0
+	Plugin Version: 0.5.0
 	Plugin Website: https://github.com/danzayau/MovementAPI	
 */
 
@@ -191,6 +191,24 @@ native bool Movement_GetNoclipping(int client);
 native bool Movement_GetDucking(int client);
 
 /**
+ * Gets the origin vector of the player at the time of their last takeoff.
+ *
+ * @param client			Client entity index.
+ * @param origin			Last takeoff origin vector buffer.
+ * @noreturn
+ */
+native void Movement_GetTakeoffOrigin(int client, float buffer[3]);
+
+/**
+ * Gets the velocity vector of the player at the time of their last takeoff.
+ *
+ * @param client			Client entity index.
+ * @param origin			Last takeoff velocity vector buffer.
+ * @noreturn
+ */
+native void Movement_GetTakeoffVelocity(int client, float buffer[3]);
+
+/**
  * Gets the player's last takeoff speed (horizontal).
  *
  * @param client    		Client entity index.
@@ -199,22 +217,13 @@ native bool Movement_GetDucking(int client);
 native float Movement_GetTakeoffSpeed(int client);
 
 /**
- * Gets the player's last takeoff speed (horizontal).
+ * Sets the player's last takeoff speed (horizontal).
  *
  * @param client    		Client entity index.
  * @param value				The value to set the player's takeoff speed (horizontal) to.
  * @noreturn
  */
 native float Movement_SetTakeoffSpeed(int client, float value);
-
-/**
- * Gets the origin of last takeoff position of the player.
- *
- * @param client			Client entity index.
- * @param origin			Takeoff origin vector buffer.
- * @noreturn
- */
-native void Movement_GetTakeoffOrigin(int client, float buffer[3]);
 
 /**
  * Gets the tick of the player's last takeoff (leaving the ground).
@@ -225,21 +234,30 @@ native void Movement_GetTakeoffOrigin(int client, float buffer[3]);
 native int Movement_GetTakeoffTick(int client);
 
 /**
- * Gets the player's last landing speed (horizontal).
- *
- * @param client    		Client entity index.
- * @return        			The last landing speed of the player (horizontal).
- */
-native float Movement_GetLandingSpeed(int client);
-
-/**
- * Gets the origin of last landing position of the player.
+ * Gets the origin vector of the player at the time of their last landing.
  *
  * @param client			Client entity index.
  * @param origin			Last landing origin vector buffer.
  * @noreturn
  */
 native void Movement_GetLandingOrigin(int client, float buffer[3]);
+
+/**
+ * Gets the velocity vector of the player at the time of their last landing.
+ *
+ * @param client			Client entity index.
+ * @param origin			Last landing velocity vector buffer.
+ * @noreturn
+ */
+native void Movement_GetLandingVelocity(int client, float buffer[3]);
+
+/**
+ * Gets the player's last landing speed (horizontal).
+ *
+ * @param client    		Client entity index.
+ * @return        			The last landing speed of the player (horizontal).
+ */
+native float Movement_GetLandingSpeed(int client);
 
 /**
  * Gets the tick of the player's last landing.
@@ -439,6 +457,20 @@ methodmap MovementPlayer __nullable__ {
 		}
 	}
 	
+	public void GetTakeoffOrigin(float buffer[3]) {
+		Movement_GetTakeoffOrigin(this.id, buffer);
+	}
+	
+	public void GetTakeoffVelocity(float buffer[3]) {
+		Movement_GetTakeoffVelocity(this.id, buffer);
+	}
+	
+	property int takeoffTick {
+		public get() {
+			return Movement_GetTakeoffTick(this.id);
+		}
+	}
+	
 	property float takeoffSpeed {
 		public get() {
 			return Movement_GetTakeoffSpeed(this.id);
@@ -448,24 +480,18 @@ methodmap MovementPlayer __nullable__ {
 		}
 	}
 	
-	public void GetTakeoffOrigin(float buffer[3]) {
-		Movement_GetTakeoffOrigin(this.id, buffer);
+	public void GetLandingOrigin(float buffer[3]) {
+		Movement_GetLandingOrigin(this.id, buffer);
 	}
 	
-	property int takeoffTick {
-		public get() {
-			return Movement_GetTakeoffTick(this.id);
-		}
+	public void GetLandingVelocity(float buffer[3]) {
+		Movement_GetLandingVelocity(this.id, buffer);
 	}
 	
 	property float landingSpeed {
 		public get() {
 			return Movement_GetLandingSpeed(this.id);
 		}
-	}
-	
-	public void GetLandingOrigin(float buffer[3]) {
-		Movement_GetLandingOrigin(this.id, buffer);
 	}
 	
 	property int landingTick {
