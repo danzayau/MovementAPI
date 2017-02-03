@@ -10,7 +10,7 @@ Plugin myinfo =
 	name = "Player Movement API", 
 	author = "DanZay", 
 	description = "API plugin for player movement.", 
-	version = "0.4.0", 
+	version = "0.5.0", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
@@ -35,10 +35,12 @@ bool gB_Ducking[MAXPLAYERS + 1];
 bool gB_LandedAtLeastOnce[MAXPLAYERS + 1];
 
 float gF_TakeoffOrigin[MAXPLAYERS + 1][3];
+float gF_TakeoffVelocity[MAXPLAYERS + 1][3];
 float gF_TakeoffSpeed[MAXPLAYERS + 1];
 int gI_TakeoffTick[MAXPLAYERS + 1];
 
 float gF_LandingOrigin[MAXPLAYERS + 1][3];
+float gF_LandingVelocity[MAXPLAYERS + 1][3];
 float gF_LandingSpeed[MAXPLAYERS + 1];
 int gI_LandingTick[MAXPLAYERS + 1];
 
@@ -61,6 +63,7 @@ bool gB_JustJumped[MAXPLAYERS + 1];
 bool gB_JustDucked[MAXPLAYERS + 1];
 
 float gF_OldGroundOrigin[MAXPLAYERS + 1][3];
+float gF_OldVelocity[MAXPLAYERS + 1][3];
 float gF_OldSpeed[MAXPLAYERS + 1];
 bool gB_OldDucking[MAXPLAYERS + 1];
 bool gB_OldOnGround[MAXPLAYERS + 1];
