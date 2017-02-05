@@ -5,12 +5,12 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-Plugin myinfo = 
+public Plugin myinfo = 
 {
 	name = "Player Movement API", 
 	author = "DanZay", 
 	description = "API plugin for player movement.", 
-	version = "0.5.0", 
+	version = "0.5.1", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
@@ -23,6 +23,7 @@ float gF_GroundOrigin[MAXPLAYERS + 1][3];
 
 float gF_Velocity[MAXPLAYERS + 1][3];
 float gF_Speed[MAXPLAYERS + 1];
+float gF_BaseVelocity[MAXPLAYERS + 1][3];
 
 bool gB_OnGround[MAXPLAYERS + 1];
 

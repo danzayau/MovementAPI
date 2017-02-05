@@ -23,10 +23,12 @@ void UpdateVariables(int client) {
 	
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", gF_Velocity[client]);
 	gF_Speed[client] = SquareRoot(Pow(gF_Velocity[client][0], 2.0) + Pow(gF_Velocity[client][1], 2.0));
-	gB_Ducking[client] = (GetEntProp(client, Prop_Send, "m_bDucked") || GetEntProp(client, Prop_Send, "m_bDucking"));
+	GetEntPropVector(client, Prop_Data, "m_vecBaseVelocity", gF_BaseVelocity[client]);
 	
 	gMT_MoveType[client] = GetEntityMoveType(client);
 	gB_OnGround[client] = PlayerIsOnGround(client);
+	
+	gB_Ducking[client] = (GetEntProp(client, Prop_Send, "m_bDucked") || GetEntProp(client, Prop_Send, "m_bDucking"));
 	
 	gF_VelocityModifier[client] = GetEntPropFloat(client, Prop_Send, "m_flVelocityModifier");
 	gF_DuckSpeed[client] = GetEntPropFloat(client, Prop_Send, "m_flDuckSpeed");
