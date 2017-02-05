@@ -11,6 +11,8 @@ void CreateNatives() {
 	CreateNative("Movement_GetVelocity", Native_GetVelocity);
 	CreateNative("Movement_SetVelocity", Native_SetVelocity);
 	CreateNative("Movement_GetSpeed", Native_GetSpeed);
+	CreateNative("Movement_GetBaseVelocity", Native_GetBaseVelocity);
+	CreateNative("Movement_SetBaseVelocity", Native_SetBaseVelocity);
 	CreateNative("Movement_GetOnGround", Native_GetOnGround);
 	CreateNative("Movement_GetMoveType", Native_GetMoveType);
 	CreateNative("Movement_SetMoveType", Native_SetMoveType);
@@ -66,6 +68,15 @@ public int Native_SetVelocity(Handle plugin, int numParams) {
 
 public int Native_GetSpeed(Handle plugin, int numParams) {
 	return view_as<int>(gF_Speed[GetNativeCell(1)]);
+}
+
+public int Native_GetBaseVelocity(Handle plugin, int numParams) {
+	SetNativeArray(2, gF_BaseVelocity[GetNativeCell(1)], 3);
+}
+
+public int Native_SetBaseVelocity(Handle plugin, int numParams) {
+	GetNativeArray(2, gF_BaseVelocity[GetNativeCell(1)], 3);
+	SetEntPropVector(GetNativeCell(1), Prop_Data, "m_vecBaseVelocity", gF_BaseVelocity[GetNativeCell(1)]);
 }
 
 public int Native_GetOnGround(Handle plugin, int numParams) {

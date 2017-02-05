@@ -1,7 +1,7 @@
 /* 	Movement API Include File
 	Author: DanZay
 	
-	Plugin Version: 0.5.0
+	Plugin Version: 0.5.1
 	Plugin Website: https://github.com/danzayau/MovementAPI	
 */
 
@@ -128,7 +128,7 @@ native void Movement_GetVelocity(int client, float buffer[3]);
  * Changes the velocity of the player (by teleporting them).
  *
  * @param client			Client entity index.
- * @param velocity			Velocity vector to set the player's velocity to.
+ * @param velocity			Vector to set the player's velocity to.
  * @noreturn
  */
 native void Movement_SetVelocity(int client, float velocity[3]);
@@ -140,6 +140,24 @@ native void Movement_SetVelocity(int client, float velocity[3]);
  * @return        			The horizontal speed of the player.
  */
 native float Movement_GetSpeed(int client);
+
+/**
+ * Gets the base velocity vector of the player.
+ *
+ * @param client			Client entity index.
+ * @param velocity			Base velocity vector buffer.
+ * @noreturn
+ */
+native void Movement_GetBaseVelocity(int client, float buffer[3]);
+
+/**
+ * Sets the base velocity of the player.
+ *
+ * @param client			Client entity index.
+ * @param velocity			Vector to set the player's base velocity to.
+ * @noreturn
+ */
+native void Movement_SetBaseVelocity(int client, float velocity[3]);
 
 /**
  * Gets whether or not the player is on the ground.
@@ -422,6 +440,14 @@ methodmap MovementPlayer __nullable__ {
 		public get() {
 			return Movement_GetSpeed(this.id);
 		}
+	}
+	
+	public void GetBaseVelocity(float buffer[3]) {
+		Movement_GetBaseVelocity(this.id, buffer);
+	}
+	
+	public void SetBaseVelocity(float baseVelocity[3]) {
+		Movement_SetBaseVelocity(this.id, baseVelocity);
 	}
 	
 	property bool onGround {
