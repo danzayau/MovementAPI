@@ -599,4 +599,10 @@ methodmap MovementPlayer __nullable__ {
 			return Movement_GetTurningRight(this.id);
 		}
 	}
+	
+	property int buttons {
+		public get() {
+			return GetClientButtons(this.id);
+		}
+	}
 } 
