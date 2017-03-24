@@ -44,14 +44,14 @@ void UpdateVariables(int client) {
 	gB_OnLadder[client] = (gMT_MoveType[client] == MOVETYPE_LADDER);
 	gB_Noclipping[client] = (gMT_MoveType[client] == MOVETYPE_NOCLIP);
 	
-	if (!gB_OnGround[client] && gB_OldOnGround[client] || !gB_OnLadder[client] && gB_OldOnLadder[client]) {
+	if (!gB_OnGround[client] && gB_OldOnGround[client] || !gB_OnLadder[client] && gB_OldOnLadder[client] || !gB_Noclipping[client] && gB_OldNoclipping[client]) {
 		gF_TakeoffOrigin[client] = gF_OldGroundOrigin[client];
 		gF_TakeoffVelocity[client] = gF_OldVelocity[client];
 		gF_TakeoffSpeed[client] = gF_OldSpeed[client];
 		gI_TakeoffTick[client] = GetGameTickCount() - 1;
 		gF_JumpMaxHeight[client] = 0.0;
 	}
-	else if (gB_OnGround[client] && !gB_OldOnGround[client] || gB_OnLadder[client] && !gB_OldOnLadder[client]) {
+	else if (gB_OnGround[client] && !gB_OldOnGround[client]) {
 		gF_LandingOrigin[client] = gF_GroundOrigin[client];
 		gF_LandingVelocity[client] = gF_OldVelocity[client];
 		gF_LandingSpeed[client] = gF_OldSpeed[client];

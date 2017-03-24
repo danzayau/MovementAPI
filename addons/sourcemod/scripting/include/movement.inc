@@ -1,7 +1,7 @@
 /* 	Movement API Include File
 	Author: DanZay
 	
-	Plugin Version: 0.5.1
+	Plugin Version: 0.5.2
 	Plugin Website: https://github.com/danzayau/MovementAPI	
 */
 
@@ -140,6 +140,14 @@ native void Movement_SetVelocity(int client, float velocity[3]);
  * @return        			The horizontal speed of the player.
  */
 native float Movement_GetSpeed(int client);
+
+/**
+ * Gets the vertical velocity of the player.
+ *
+ * @param client			Client entity index.
+ * @return        			The vertical velocity of the player.
+ */
+native float Movement_GetVerticalVelocity(int client);
 
 /**
  * Gets the base velocity vector of the player.
@@ -439,6 +447,12 @@ methodmap MovementPlayer __nullable__ {
 	property float speed {
 		public get() {
 			return Movement_GetSpeed(this.id);
+		}
+	}
+	
+	property float verticalVelocity {
+		public get() {
+			return Movement_GetVerticalVelocity(this.id);
 		}
 	}
 	
