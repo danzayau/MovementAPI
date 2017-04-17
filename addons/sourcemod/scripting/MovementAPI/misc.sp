@@ -1,10 +1,11 @@
-/*	misc.sp
+/*	
+	Miscellaneous
 
 	Miscellaneous, non-specific functions.
 */
 
-
-void GetGroundOrigin(int client, float groundOrigin[3]) {
+void GetGroundOrigin(int client, float groundOrigin[3])
+{
 	float startPosition[3], endPosition[3];
 	GetClientAbsOrigin(client, startPosition);
 	endPosition = startPosition;
@@ -17,38 +18,51 @@ void GetGroundOrigin(int client, float groundOrigin[3]) {
 		MASK_PLAYERSOLID, 
 		TraceEntityFilterPlayers, 
 		client);
-	if (TR_DidHit(trace)) {
+	if (TR_DidHit(trace))
+	{
 		TR_GetEndPosition(groundOrigin, trace);
 		groundOrigin[2] = groundOrigin[2] - 0.03125; // Offset the error (unknown why it is inaccurate)
 	}
-	else {
+	else
+	{
 		groundOrigin = NULL_VECTOR;
 	}
 	CloseHandle(trace);
 }
 
-public bool TraceEntityFilterPlayers(int entity, int contentsMask, any data) {
+public bool TraceEntityFilterPlayers(int entity, int contentsMask, any data)
+{
 	return (entity != data && entity >= 1 && entity <= MaxClients);
 }
 
-bool PlayerIsOnGround(int client) {
-	if (GetEntityFlags(client) & FL_ONGROUND) {
+bool PlayerIsOnGround(int client)
+{
+	if (GetEntityFlags(client) & FL_ONGROUND)
+	{
 		return true;
 	}
 	return false;
 }
 
-bool PlayerIsTurningLeft(int client) {
+bool PlayerIsTurning(int client)
+{
+	return gF_EyeAngles[client][1] != gF_OldEyeAngles[client][1];
+}
+
+bool PlayerIsTurningLeft(int client)
+{
 	return (gF_EyeAngles[client][1] > gF_OldEyeAngles[client][1] && gF_EyeAngles[client][1] < gF_OldEyeAngles[client][1] + 180
 		 || gF_EyeAngles[client][1] < gF_OldEyeAngles[client][1] - 180);
 }
 
-float CalculateHorizontalDistance(float pointA[3], float pointB[3]) {
+float CalculateHorizontalDistance(float pointA[3], float pointB[3])
+{
 	float jumpDistanceX = FloatAbs(pointA[0] - pointB[0]);
 	float jumpDistanceY = FloatAbs(pointA[1] - pointB[1]);
 	return SquareRoot(Pow(jumpDistanceX, 2.0) + Pow(jumpDistanceY, 2.0)) + 32.0;
 }
 
-float CalculateVerticalDistance(float startPoint[3], float endPoint[3]) {
+float CalculateVerticalDistance(float startPoint[3], float endPoint[3])
+{
 	return endPoint[2] - startPoint[2];
 } 
