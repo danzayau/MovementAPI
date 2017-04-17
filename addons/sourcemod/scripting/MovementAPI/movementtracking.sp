@@ -57,7 +57,7 @@ void UpdateVariables(int client)
 		gF_TakeoffVelocity[client] = gF_OldVelocity[client];
 		gF_TakeoffSpeed[client] = gF_OldSpeed[client];
 		gI_TakeoffTick[client] = GetGameTickCount();
-		gF_JumpMaxHeight[client] = 0.0;
+		gF_JumpMaxHeight[client] = gF_Origin[client][2] - gF_TakeoffOrigin[client][2];
 	}
 	else if (gB_OnGround[client] && !gB_OldOnGround[client])
 	{
@@ -69,7 +69,7 @@ void UpdateVariables(int client)
 		gF_JumpOffset[client] = CalculateVerticalDistance(gF_TakeoffOrigin[client], gF_GroundOrigin[client]);
 	}
 	
-	if (!gB_OnGround[client])
+	if (!gB_OnGround[client] && !gB_OnLadder[client] && !gB_Noclipping[client])
 	{
 		float currentJumpHeight = gF_Origin[client][2] - gF_TakeoffOrigin[client][2];
 		if (currentJumpHeight > gF_JumpMaxHeight[client])
