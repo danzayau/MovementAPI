@@ -4,7 +4,7 @@
 	Movement API global forward implementation.
 */
 
-Handle gH_Forward_OnClientPreThink;
+Handle gH_Forward_OnClientPostThink;
 Handle gH_Forward_OnStartTouchGround;
 Handle gH_Forward_OnStopTouchGround;
 Handle gH_Forward_OnStartDucking;
@@ -16,7 +16,7 @@ Handle gH_Forward_OnStopNoclipping;
 
 void CreateGlobalForwards()
 {
-	gH_Forward_OnClientPreThink = CreateGlobalForward("Movement_OnClientPreThink", ET_Ignore, Param_Cell);
+	gH_Forward_OnClientPostThink = CreateGlobalForward("Movement_OnClientPostThink", ET_Ignore, Param_Cell);
 	gH_Forward_OnStartTouchGround = CreateGlobalForward("Movement_OnStartTouchGround", ET_Ignore, Param_Cell);
 	gH_Forward_OnStopTouchGround = CreateGlobalForward("Movement_OnStopTouchGround", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
 	gH_Forward_OnStartDucking = CreateGlobalForward("Movement_OnStartDucking", ET_Ignore, Param_Cell);
@@ -92,9 +92,9 @@ void TryCallNoclipForwards(int client)
 
 /*===============================  Callers  ===============================*/
 
-void Call_OnClientPreThink(int client)
+void Call_OnClientPostThink(int client)
 {
-	Call_StartForward(gH_Forward_OnClientPreThink);
+	Call_StartForward(gH_Forward_OnClientPostThink);
 	Call_PushCell(client);
 	Call_Finish();
 }

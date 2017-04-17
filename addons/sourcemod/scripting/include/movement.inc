@@ -15,13 +15,13 @@
 
 /**
  * Called after MovementAPI has refreshed, which
- * is triggered by a PreThink hook on the client.
+ * is triggered by a PostThink hook on the client.
  * Only called if the client is alive.
  *
  * @param client			Client entity index.
  * @noreturn
  */
-forward void Movement_OnClientPreThink(int client);
+forward void Movement_OnClientPostThink(int client);
 
 /**
  * Called when the player touches the ground.
@@ -409,16 +409,7 @@ native bool Movement_GetTurningLeft(int client);
 native bool Movement_GetTurningRight(int client);
 
 /**
- * Gets the player's currently pressed buttons.
- *
- * @param client    		Client entity index.
- * @return        			Bitsum of buttons.
- */
-native int Movement_GetButtons(int client);
-
-/**
- * Gets the player's previously pressed buttons.
- * These buttons are 'old' during when OnPlayerRunCmd is called.
+ * Gets the player's previously processed buttons.
  *
  * @param client    		Client entity index.
  * @return        			Bitsum of old buttons.

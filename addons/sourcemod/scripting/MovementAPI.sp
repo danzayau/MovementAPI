@@ -94,7 +94,7 @@ public void OnPluginStart()
 {
 	CreateGlobalForwards();
 	HookEvent("player_spawn", OnPlayerSpawn, EventHookMode_Pre);
-	HookEvent("player_jump", OnPlayerJump, EventHookMode_Pre);
+	HookEvent("player_jump", OnPlayerJump, EventHookMode_Post);
 	if (gB_LateLoad)
 	{
 		OnLateLoad();
@@ -118,17 +118,17 @@ void OnLateLoad()
 
 public void OnClientPutInServer(int client)
 {
-	SDKHook(client, SDKHook_PreThink, OnClientPreThink);
+	SDKHook(client, SDKHook_PostThink, OnClientPostThink);
 }
 
-public void OnClientPreThink(int client)
+public void OnClientPostThink(int client)
 {
 	if (IsPlayerAlive(client))
 	{
 		UpdateOldVariables(client);
 		UpdateVariables(client);
 		TryCallForwards(client);
-		Call_OnClientPreThink(client);
+		Call_OnClientPostThink(client);
 	}
 }
 
