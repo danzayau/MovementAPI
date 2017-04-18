@@ -6,7 +6,7 @@ This plugin provides an API for player movement including forwards, natives, and
 
 ### Requirements
 
- * **Tested Using**: SourceMod 1.8 Latest
+ * **Tested Using**: SourceMod 1.8
  
 ### Plugin Installation
 
