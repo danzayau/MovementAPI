@@ -16,6 +16,7 @@
 /**
  * Called after MovementAPI has refreshed, which
  * is triggered by a PostThink hook on the client.
+ * This is called after all other MovementAPI forwards.
  * Only called if the client is alive.
  *
  * @param client			Client entity index.
