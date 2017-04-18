@@ -1,10 +1,13 @@
-/*	movementtracking.sp
+/*	
+	Movement Tracking
 
 	Movement tracking using variables.
 */
 
-
-void UpdateOldVariables(int client) {
+void UpdateOldVariables(int client)
+{
+	gB_JustTookOff[client] = false;
+	gF_OldOrigin[client] = gF_Origin[client];
 	gF_OldGroundOrigin[client] = gF_GroundOrigin[client];
 	gF_OldVelocity[client] = gF_Velocity[client];
 	gF_OldSpeed[client] = gF_Speed[client];
@@ -13,9 +16,11 @@ void UpdateOldVariables(int client) {
 	gB_OldOnLadder[client] = gB_OnLadder[client];
 	gB_OldNoclipping[client] = gB_Noclipping[client];
 	gF_OldEyeAngles[client] = gF_EyeAngles[client];
+	gI_OldButtons[client] = GetClientButtons(client);
 }
 
-void UpdateVariables(int client) {
+void UpdateVariables(int client)
+{
 	/*==========  Update Independent Variables  ==========*/
 	
 	GetClientAbsOrigin(client, gF_Origin[client]);
@@ -44,47 +49,47 @@ void UpdateVariables(int client) {
 	gB_OnLadder[client] = (gMT_MoveType[client] == MOVETYPE_LADDER);
 	gB_Noclipping[client] = (gMT_MoveType[client] == MOVETYPE_NOCLIP);
 	
-	if (!gB_OnGround[client] && gB_OldOnGround[client] || !gB_OnLadder[client] && gB_OldOnLadder[client] || !gB_Noclipping[client] && gB_OldNoclipping[client]) {
+	if (!gB_OnGround[client] && gB_OldOnGround[client])
+	{
+		gB_JustTookOff[client] = true;
 		gF_TakeoffOrigin[client] = gF_OldGroundOrigin[client];
 		gF_TakeoffVelocity[client] = gF_OldVelocity[client];
 		gF_TakeoffSpeed[client] = gF_OldSpeed[client];
-		gI_TakeoffTick[client] = GetGameTickCount() - 1;
-		gF_JumpMaxHeight[client] = 0.0;
+		gI_TakeoffTick[client] = GetGameTickCount();
+		gF_JumpMaxHeight[client] = gF_Origin[client][2] - gF_TakeoffOrigin[client][2];
 	}
-	else if (gB_OnGround[client] && !gB_OldOnGround[client]) {
+	else if (!gB_OnLadder[client] && gB_OldOnLadder[client]
+		 || !gB_Noclipping[client] && gB_OldNoclipping[client])
+	{
+		gB_JustTookOff[client] = true;
+		gF_TakeoffOrigin[client] = gF_OldOrigin[client];
+		gF_TakeoffVelocity[client] = gF_OldVelocity[client];
+		gF_TakeoffSpeed[client] = gF_OldSpeed[client];
+		gI_TakeoffTick[client] = GetGameTickCount();
+		gF_JumpMaxHeight[client] = gF_Origin[client][2] - gF_TakeoffOrigin[client][2];
+	}
+	else if (gB_OnGround[client] && !gB_OldOnGround[client])
+	{
 		gF_LandingOrigin[client] = gF_GroundOrigin[client];
 		gF_LandingVelocity[client] = gF_OldVelocity[client];
 		gF_LandingSpeed[client] = gF_OldSpeed[client];
-		gI_LandingTick[client] = GetGameTickCount() - 1;
-		if (gB_LandedAtLeastOnce[client]) {  // Prevent jumpstats from being wrong when spawning
-			gF_JumpDistance[client] = CalculateHorizontalDistance(gF_TakeoffOrigin[client], gF_GroundOrigin[client]);
-			gF_JumpOffset[client] = CalculateVerticalDistance(gF_TakeoffOrigin[client], gF_GroundOrigin[client]);
-		}
-		else {
-			gB_LandedAtLeastOnce[client] = true;
-		}
+		gI_LandingTick[client] = GetGameTickCount();
+		gF_JumpDistance[client] = CalculateHorizontalDistance(gF_TakeoffOrigin[client], gF_GroundOrigin[client]);
+		gF_JumpOffset[client] = CalculateVerticalDistance(gF_TakeoffOrigin[client], gF_GroundOrigin[client]);
 	}
 	
-	if (!gB_OnGround[client]) {
+	if (!gB_OnGround[client] && !gB_OnLadder[client] && !gB_Noclipping[client])
+	{
 		float currentJumpHeight = gF_Origin[client][2] - gF_TakeoffOrigin[client][2];
-		if (currentJumpHeight > gF_JumpMaxHeight[client]) {
+		if (currentJumpHeight > gF_JumpMaxHeight[client])
+		{
 			gF_JumpMaxHeight[client] = currentJumpHeight;
 		}
 	}
-	
-	if (gF_EyeAngles[client][1] != gF_OldEyeAngles[client][1]) {
-		gB_Turning[client] = true;
-		gB_TurningLeft[client] = PlayerIsTurningLeft(client);
-		gB_TurningRight[client] = !gB_TurningLeft[client];
-	}
-	else {
-		gB_Turning[client] = false;
-		gB_TurningLeft[client] = false;
-		gB_TurningRight[client] = false;
-	}
 }
 
-void ResetVariables(int client) {
+void ResetVariables(int client)
+{
 	gF_Velocity[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gF_Speed[client] = 0.0;
 	
@@ -94,8 +99,6 @@ void ResetVariables(int client) {
 	
 	gB_Ducking[client] = false;
 	
-	gB_LandedAtLeastOnce[client] = false;
-	
 	gF_TakeoffOrigin[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gF_TakeoffSpeed[client] = 0.0;
 	gI_TakeoffTick[client] = 0;
@@ -104,16 +107,11 @@ void ResetVariables(int client) {
 	gF_LandingSpeed[client] = 0.0;
 	gI_LandingTick[client] = 0;
 	
-	gI_JumpTick[client] = 0;
 	gF_JumpMaxHeight[client] = 0.0;
 	gF_JumpDistance[client] = 0.0;
 	gF_JumpOffset[client] = 0.0;
 	
 	gB_HitPerf[client] = false;
-	
-	gB_Turning[client] = false;
-	gB_TurningLeft[client] = false;
-	gB_TurningRight[client] = false;
 	
 	gB_JustJumped[client] = false;
 	gB_JustDucked[client] = false;
