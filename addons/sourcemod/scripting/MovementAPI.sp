@@ -61,6 +61,7 @@ bool gB_JustJumped[MAXPLAYERS + 1];
 bool gB_JustDucked[MAXPLAYERS + 1];
 
 bool gB_JustTookOff[MAXPLAYERS + 1];
+float gF_OldOrigin[MAXPLAYERS + 1][3];
 float gF_OldGroundOrigin[MAXPLAYERS + 1][3];
 float gF_OldVelocity[MAXPLAYERS + 1][3];
 float gF_OldSpeed[MAXPLAYERS + 1];
