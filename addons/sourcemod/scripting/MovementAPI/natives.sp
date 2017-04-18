@@ -73,6 +73,7 @@ public int Native_SetVelocity(Handle plugin, int numParams)
 	gF_Speed[GetNativeCell(1)] = SquareRoot(Pow(gF_Velocity[GetNativeCell(1)][0], 2.0) + Pow(gF_Velocity[GetNativeCell(1)][1], 2.0));
 	if (gB_JustTookOff[GetNativeCell(1)])
 	{
+		gF_TakeoffVelocity[GetNativeCell(1)] = gF_Velocity[GetNativeCell(1)];
 		gF_TakeoffSpeed[GetNativeCell(1)] = gF_Speed[GetNativeCell(1)];
 	}
 	TeleportEntity(GetNativeCell(1), NULL_VECTOR, NULL_VECTOR, gF_Velocity[GetNativeCell(1)]);

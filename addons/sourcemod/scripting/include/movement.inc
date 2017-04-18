@@ -133,6 +133,8 @@ native void Movement_GetVelocity(int client, float buffer[3]);
 
 /**
  * Changes the velocity of the player (by teleporting them).
+ * For convenience, this sets the takeoff velocity and takeoff speed
+ * values if this is done immediately after the player takes off.
  *
  * @param client			Client entity index.
  * @param velocity			Vector to set the player's velocity to.
