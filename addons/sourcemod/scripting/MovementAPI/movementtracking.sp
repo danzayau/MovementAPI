@@ -16,7 +16,6 @@ void UpdateOldVariables(int client)
 	gB_OldOnLadder[client] = gB_OnLadder[client];
 	gB_OldNoclipping[client] = gB_Noclipping[client];
 	gF_OldEyeAngles[client] = gF_EyeAngles[client];
-	gI_OldButtons[client] = GetClientButtons(client);
 }
 
 void UpdateVariables(int client)
@@ -116,6 +115,7 @@ void ResetVariables(int client)
 	gB_JustJumped[client] = false;
 	gB_JustDucked[client] = false;
 	
+	gI_OldButtons[client] = 0;
 	gF_OldGroundOrigin[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gF_OldSpeed[client] = 0.0;
 	gB_OldDucking[client] = false;

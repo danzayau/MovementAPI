@@ -25,6 +25,24 @@
 forward void Movement_OnClientPostThink(int client);
 
 /**
+ * Called when the player presses a button when alive.
+ *
+ * @param client			Client entity index.
+ * @param button			Button pressed e.g. IN_FORWARD, IN_LEFT.
+ * @noreturn
+ */
+forward void Movement_OnButtonPress(int client, int button);
+
+/**
+ * Called when the player releases a button when alive.
+ *
+ * @param client			Client entity index.
+ * @param button			Button released e.g. IN_FORWARD, IN_LEFT.
+ * @noreturn
+ */
+forward void Movement_OnButtonRelease(int client, int button);
+
+/**
  * Called when the player touches the ground.
  *
  * @param client			Client entity index.
@@ -411,14 +429,6 @@ native bool Movement_GetTurningLeft(int client);
  */
 native bool Movement_GetTurningRight(int client);
 
-/**
- * Gets the player's previously processed buttons.
- *
- * @param client    		Client entity index.
- * @return        			Bitsum of old buttons.
- */
-native int Movement_GetOldButtons(int client);
-
 
 
 /*===============================  Methodmap  ===============================*/
@@ -618,12 +628,6 @@ methodmap MovementPlayer __nullable__ {
 	property int buttons {
 		public get() {
 			return GetClientButtons(this.id);
-		}
-	}
-	
-	property int oldButtons {
-		public get() {
-			return Movement_GetOldButtons(this.id);
 		}
 	}
 	

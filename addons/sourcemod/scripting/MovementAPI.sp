@@ -6,6 +6,8 @@
 #pragma newdecls required
 #pragma semicolon 1
 
+#define MAX_BUTTONS 25
+
 
 
 public Plugin myinfo = 
@@ -13,7 +15,7 @@ public Plugin myinfo =
 	name = "Player Movement API", 
 	author = "DanZay", 
 	description = "API plugin for player movement.", 
-	version = "0.6.0", 
+	version = "0.7.0", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
@@ -122,15 +124,46 @@ public void OnClientPutInServer(int client)
 	SDKHook(client, SDKHook_PostThink, OnClientPostThink);
 }
 
+public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
+{
+	if (!IsPlayerAlive(client))
+	{
+		return Plugin_Continue;
+	}
+	
+	for (int i = 0; i < MAX_BUTTONS; i++)
+	{
+		int button = (1 << i);
+		
+		if (buttons & button)
+		{
+			if (!(gI_OldButtons[client] & button))
+			{
+				Call_OnButtonPress(client, button);
+			}
+		}
+		else if (gI_OldButtons[client] & button)
+		{
+			Call_OnButtonRelease(client, button);
+		}
+	}
+	
+	gI_OldButtons[client] = buttons;
+	
+	return Plugin_Continue;
+}
+
 public void OnClientPostThink(int client)
 {
-	if (IsPlayerAlive(client))
+	if (!IsPlayerAlive(client))
 	{
-		UpdateOldVariables(client);
-		UpdateVariables(client);
-		TryCallForwards(client);
-		Call_OnClientPostThink(client);
+		return;
 	}
+	
+	UpdateOldVariables(client);
+	UpdateVariables(client);
+	TryCallForwards(client);
+	Call_OnClientPostThink(client);
 }
 
 public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast)

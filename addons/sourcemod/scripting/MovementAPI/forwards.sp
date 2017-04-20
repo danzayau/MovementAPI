@@ -5,6 +5,8 @@
 */
 
 Handle gH_Forward_OnClientPostThink;
+Handle gH_Forward_OnButtonPress;
+Handle gH_Forward_OnButtonRelease;
 Handle gH_Forward_OnStartTouchGround;
 Handle gH_Forward_OnStopTouchGround;
 Handle gH_Forward_OnStartDucking;
@@ -17,6 +19,8 @@ Handle gH_Forward_OnStopNoclipping;
 void CreateGlobalForwards()
 {
 	gH_Forward_OnClientPostThink = CreateGlobalForward("Movement_OnClientPostThink", ET_Ignore, Param_Cell);
+	gH_Forward_OnButtonPress = CreateGlobalForward("Movement_OnButtonPress", ET_Ignore, Param_Cell, Param_Cell);
+	gH_Forward_OnButtonRelease = CreateGlobalForward("Movement_OnButtonRelease", ET_Ignore, Param_Cell, Param_Cell);
 	gH_Forward_OnStartTouchGround = CreateGlobalForward("Movement_OnStartTouchGround", ET_Ignore, Param_Cell);
 	gH_Forward_OnStopTouchGround = CreateGlobalForward("Movement_OnStopTouchGround", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
 	gH_Forward_OnStartDucking = CreateGlobalForward("Movement_OnStartDucking", ET_Ignore, Param_Cell);
@@ -96,6 +100,22 @@ void Call_OnClientPostThink(int client)
 {
 	Call_StartForward(gH_Forward_OnClientPostThink);
 	Call_PushCell(client);
+	Call_Finish();
+}
+
+void Call_OnButtonPress(int client, int button)
+{
+	Call_StartForward(gH_Forward_OnButtonPress);
+	Call_PushCell(client);
+	Call_PushCell(button);
+	Call_Finish();
+}
+
+void Call_OnButtonRelease(int client, int button)
+{
+	Call_StartForward(gH_Forward_OnButtonRelease);
+	Call_PushCell(client);
+	Call_PushCell(button);
 	Call_Finish();
 }
 
