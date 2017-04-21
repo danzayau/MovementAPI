@@ -15,13 +15,11 @@ public Plugin myinfo =
 	name = "Player Movement API", 
 	author = "DanZay", 
 	description = "API plugin for player movement.", 
-	version = "0.7.0", 
+	version = "0.7.1", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
 
-
-bool gB_LateLoad;
 
 float gF_Origin[MAXPLAYERS + 1][3];
 float gF_GroundOrigin[MAXPLAYERS + 1][3];
@@ -76,10 +74,10 @@ int gI_OldButtons[MAXPLAYERS + 1];
 
 
 
-#include "MovementAPI/movementtracking.sp"
 #include "MovementAPI/misc.sp"
 #include "MovementAPI/forwards.sp"
 #include "MovementAPI/natives.sp"
+#include "MovementAPI/tracking.sp"
 
 
 
@@ -89,7 +87,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 {
 	CreateNatives();
 	RegPluginLibrary("MovementAPI");
-	gB_LateLoad = late;
 	return APLRes_Success;
 }
 
@@ -97,32 +94,12 @@ public void OnPluginStart()
 {
 	CreateGlobalForwards();
 	HookEvent("player_spawn", OnPlayerSpawn, EventHookMode_Pre);
-	HookEvent("player_jump", OnPlayerJump, EventHookMode_Post);
-	if (gB_LateLoad)
-	{
-		OnLateLoad();
-	}
-}
-
-void OnLateLoad()
-{
-	for (int client = 1; client <= MaxClients; client++)
-	{
-		if (IsClientInGame(client))
-		{
-			OnClientPutInServer(client);
-		}
-	}
+	HookEvent("player_jump", OnPlayerJump, EventHookMode_Pre);
 }
 
 
 
 /*===============================  Client Forwards  ===============================*/
-
-public void OnClientPutInServer(int client)
-{
-	SDKHook(client, SDKHook_PostThink, OnClientPostThink);
-}
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
 {
@@ -131,39 +108,13 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		return Plugin_Continue;
 	}
 	
-	for (int i = 0; i < MAX_BUTTONS; i++)
-	{
-		int button = (1 << i);
-		
-		if (buttons & button)
-		{
-			if (!(gI_OldButtons[client] & button))
-			{
-				Call_OnButtonPress(client, button);
-			}
-		}
-		else if (gI_OldButtons[client] & button)
-		{
-			Call_OnButtonRelease(client, button);
-		}
-	}
-	
-	gI_OldButtons[client] = buttons;
-	
-	return Plugin_Continue;
-}
-
-public void OnClientPostThink(int client)
-{
-	if (!IsPlayerAlive(client))
-	{
-		return;
-	}
-	
+	UpdateButtons(client, buttons);
 	UpdateOldVariables(client);
 	UpdateVariables(client);
 	TryCallForwards(client);
-	Call_OnClientPostThink(client);
+	Call_OnClientUpdate(client);
+	
+	return Plugin_Continue;
 }
 
 public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast)

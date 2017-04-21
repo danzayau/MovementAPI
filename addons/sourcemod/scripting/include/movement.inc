@@ -14,15 +14,14 @@
 /*===============================  Forwards  ===============================*/
 
 /**
- * Called after MovementAPI has refreshed, which
- * is triggered by a PostThink hook on the client.
+ * Called after MovementAPI has refreshed (done during OnPlayerRunCmd).
  * This is called after all other MovementAPI forwards.
  * Only called if the client is alive.
  *
  * @param client			Client entity index.
  * @noreturn
  */
-forward void Movement_OnClientPostThink(int client);
+forward void Movement_OnClientUpdate(int client);
 
 /**
  * Called when the player presses a button when alive.
