@@ -117,7 +117,6 @@ void Call_OnStopTouchGround(int client)
 	Call_PushCell(gB_JustJumped[client]);
 	Call_Finish();
 	gB_JustJumped[client] = false; // Handled event_jump
-	PrintToChat(client, "%d", Movement_GetTakeoffTick(client));
 }
 
 void Call_OnStartTouchGround(int client)
@@ -125,7 +124,6 @@ void Call_OnStartTouchGround(int client)
 	Call_StartForward(gH_Forward_OnStartTouchGround);
 	Call_PushCell(client);
 	Call_Finish();
-	PrintToChat(client, "%d", Movement_GetLandingTick(client));
 }
 
 void Call_OnStopDucking(int client)
