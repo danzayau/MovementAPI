@@ -186,7 +186,7 @@ stock void Movement_GetEyeAngles(int client, float buffer[3])
  */
 stock void Movement_SetEyeAngles(int client, const float eyeAngles[3])
 {
-	TeleportEntity(GetNativeCell(1), NULL_VECTOR, eyeAngles, NULL_VECTOR);
+	TeleportEntity(client, NULL_VECTOR, eyeAngles, NULL_VECTOR);
 }
 
 /**
@@ -299,7 +299,7 @@ stock float Movement_GetDuckSpeed(int client)
  */
 stock void Movement_SetDuckSpeed(int client, float value)
 {
-	SetEntPropFloat(GetNativeCell(1), Prop_Send, "m_flDuckSpeed", GetNativeCell(2));
+	SetEntPropFloat(client, Prop_Send, "m_flDuckSpeed", value);
 }
 
 
