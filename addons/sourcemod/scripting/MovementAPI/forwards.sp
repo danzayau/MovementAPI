@@ -4,7 +4,6 @@
 	Movement API global forward implementation.
 */
 
-Handle gH_Forward_OnClientUpdate;
 Handle gH_Forward_OnButtonPress;
 Handle gH_Forward_OnButtonRelease;
 Handle gH_Forward_OnStartTouchGround;
@@ -18,11 +17,10 @@ Handle gH_Forward_OnStopNoclipping;
 
 void CreateGlobalForwards()
 {
-	gH_Forward_OnClientUpdate = CreateGlobalForward("Movement_OnClientUpdate", ET_Ignore, Param_Cell);
 	gH_Forward_OnButtonPress = CreateGlobalForward("Movement_OnButtonPress", ET_Ignore, Param_Cell, Param_Cell);
 	gH_Forward_OnButtonRelease = CreateGlobalForward("Movement_OnButtonRelease", ET_Ignore, Param_Cell, Param_Cell);
 	gH_Forward_OnStartTouchGround = CreateGlobalForward("Movement_OnStartTouchGround", ET_Ignore, Param_Cell);
-	gH_Forward_OnStopTouchGround = CreateGlobalForward("Movement_OnStopTouchGround", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
+	gH_Forward_OnStopTouchGround = CreateGlobalForward("Movement_OnStopTouchGround", ET_Ignore, Param_Cell, Param_Cell);
 	gH_Forward_OnStartDucking = CreateGlobalForward("Movement_OnStartDucking", ET_Ignore, Param_Cell);
 	gH_Forward_OnStopDucking = CreateGlobalForward("Movement_OnStopDucking", ET_Ignore, Param_Cell);
 	gH_Forward_OnStartTouchLadder = CreateGlobalForward("Movement_OnStartTouchLadder", ET_Ignore, Param_Cell);
@@ -37,43 +35,43 @@ void CreateGlobalForwards()
 
 void TryCallForwards(int client)
 {
-	TryCallTouchGroundForwards(client);
 	TryCallDuckingForwards(client);
+	TryCallTouchGroundForwards(client);
 	TryCallTouchLadderForwards(client);
 	TryCallNoclipForwards(client);
 }
 
-void TryCallTouchGroundForwards(int client)
-{
-	if (!gB_OldOnGround[client] && gB_OnGround[client])
-	{
-		Call_OnStartTouchGround(client);
-	}
-	else if (gB_OldOnGround[client] && !gB_OnGround[client])
-	{
-		Call_OnStopTouchGround(client);
-	}
-}
-
 void TryCallDuckingForwards(int client)
 {
-	if (!gB_OldDucking[client] && gB_Ducking[client])
+	if (Movement_GetDucking(client) && !gB_OldDucking[client])
 	{
 		Call_OnStartDucking(client);
 	}
-	else if (gB_OldDucking[client] && !gB_Ducking[client])
+	else if (!Movement_GetDucking(client) && gB_OldDucking[client])
 	{
 		Call_OnStopDucking(client);
 	}
 }
 
+void TryCallTouchGroundForwards(int client)
+{
+	if (Movement_GetOnGround(client) && !gB_OldOnGround[client])
+	{
+		Call_OnStartTouchGround(client);
+	}
+	else if (!Movement_GetOnGround(client) && gB_OldOnGround[client])
+	{
+		Call_OnStopTouchGround(client);
+	}
+}
+
 void TryCallTouchLadderForwards(int client)
 {
-	if (!gB_OldOnLadder[client] && gB_OnLadder[client])
+	if (Movement_GetOnLadder(client) && !(gMT_OldMoveType[client] == MOVETYPE_LADDER))
 	{
 		Call_OnStartTouchLadder(client);
 	}
-	else if (gB_OldOnLadder[client] && !gB_OnLadder[client])
+	else if (!Movement_GetOnLadder(client) && gMT_OldMoveType[client] == MOVETYPE_LADDER)
 	{
 		Call_OnStopTouchLadder(client);
 	}
@@ -82,11 +80,11 @@ void TryCallTouchLadderForwards(int client)
 
 void TryCallNoclipForwards(int client)
 {
-	if (!gB_OldNoclipping[client] && gB_Noclipping[client])
+	if (Movement_GetNoclipping(client) && !(gMT_OldMoveType[client] == MOVETYPE_NOCLIP))
 	{
 		Call_OnStartNoclipping(client);
 	}
-	else if (gB_OldNoclipping[client] && !gB_Noclipping[client])
+	else if (!Movement_GetNoclipping(client) && gMT_OldMoveType[client] == MOVETYPE_NOCLIP)
 	{
 		Call_OnStopNoclipping(client);
 	}
@@ -95,13 +93,6 @@ void TryCallNoclipForwards(int client)
 
 
 /*===============================  Callers  ===============================*/
-
-void Call_OnClientUpdate(int client)
-{
-	Call_StartForward(gH_Forward_OnClientUpdate);
-	Call_PushCell(client);
-	Call_Finish();
-}
 
 void Call_OnButtonPress(int client, int button)
 {
@@ -124,10 +115,9 @@ void Call_OnStopTouchGround(int client)
 	Call_StartForward(gH_Forward_OnStopTouchGround);
 	Call_PushCell(client);
 	Call_PushCell(gB_JustJumped[client]);
-	Call_PushCell(gB_JustDucked[client]);
-	Call_PushCell(gB_HitPerf[client]);
 	Call_Finish();
 	gB_JustJumped[client] = false; // Handled event_jump
+	PrintToChat(client, "%d", Movement_GetTakeoffTick(client));
 }
 
 void Call_OnStartTouchGround(int client)
@@ -135,6 +125,7 @@ void Call_OnStartTouchGround(int client)
 	Call_StartForward(gH_Forward_OnStartTouchGround);
 	Call_PushCell(client);
 	Call_Finish();
+	PrintToChat(client, "%d", Movement_GetLandingTick(client));
 }
 
 void Call_OnStopDucking(int client)

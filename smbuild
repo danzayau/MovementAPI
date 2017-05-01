@@ -1,7 +1,7 @@
-Plugin(source='addons/sourcemod/scripting/MovementAPI.sp')
+Plugin(source='addons/sourcemod/scripting/movementapi.sp')
 
-Package(name='MovementAPI',
-        plugins=['MovementAPI'],
+Package(name='movementapi',
+        plugins=['movementapi'],
         filegroups={
             '.':['README.md', 'LICENSE'],
         },
