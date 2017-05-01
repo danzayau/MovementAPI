@@ -302,32 +302,6 @@ stock void Movement_SetDuckSpeed(int client, float value)
 	SetEntPropFloat(GetNativeCell(1), Prop_Send, "m_flDuckSpeed", GetNativeCell(2));
 }
 
-/**
- * Gets the player's last takeoff speed (horizontal).
- *
- * @param client    		Client entity index.
- * @return        			Last takeoff speed of the player (horizontal).
- */
-stock float Movement_GetTakeoffSpeed(int client)
-{
-	float velocity[3];
-	Movement_GetTakeoffVelocity(client, velocity);
-	return CalcHorizontalSpeed(velocity);
-}
-
-/**
- * Gets the player's last landing speed (horizontal).
- *
- * @param client    		Client entity index.
- * @return        			Last landing speed of the player (horizontal).
- */
-stock float Movement_GetLandingSpeed(int client)
-{
-	float velocity[3];
-	Movement_GetLandingVelocity(client, velocity);
-	return CalcHorizontalSpeed(velocity);
-}
-
 
 
 /*===============================  Methodmap  ===============================*/

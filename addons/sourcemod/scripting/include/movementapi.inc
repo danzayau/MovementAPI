@@ -121,6 +121,19 @@ native void Movement_GetTakeoffOrigin(int client, float buffer[3]);
 native void Movement_GetTakeoffVelocity(int client, float buffer[3]);
 
 /**
+ * Gets the player's last takeoff speed (horizontal).
+ *
+ * @param client    		Client entity index.
+ * @return        			Last takeoff speed of the player (horizontal).
+ */
+stock float Movement_GetTakeoffSpeed(int client)
+{
+	float velocity[3];
+	Movement_GetTakeoffVelocity(client, velocity);
+	return CalcHorizontalSpeed(velocity);
+}
+
+/**
  * Gets the MovementAPI tick count at the time of the player's last takeoff.
  * Note: Not comparable to GetGameTickCount().
  *
@@ -146,6 +159,19 @@ native void Movement_GetLandingOrigin(int client, float buffer[3]);
  * @noreturn
  */
 native void Movement_GetLandingVelocity(int client, float buffer[3]);
+
+/**
+ * Gets the player's last landing speed (horizontal).
+ *
+ * @param client    		Client entity index.
+ * @return        			Last landing speed of the player (horizontal).
+ */
+stock float Movement_GetLandingSpeed(int client)
+{
+	float velocity[3];
+	Movement_GetLandingVelocity(client, velocity);
+	return CalcHorizontalSpeed(velocity);
+}
 
 /**
  * Gets the MovementAPI tick count at the time of the player's last landing.
