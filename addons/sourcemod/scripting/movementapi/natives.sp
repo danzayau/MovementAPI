@@ -51,15 +51,15 @@ public int Native_GetLandingTick(Handle plugin, int numParams)
 
 public int Native_GetTurning(Handle plugin, int numParams)
 {
-	return view_as<int>(PlayerIsTurning(GetNativeCell(1)));
+	return view_as<int>(gB_Turning[GetNativeCell(1)]);
 }
 
 public int Native_GetTurningLeft(Handle plugin, int numParams)
 {
-	return view_as<int>(PlayerIsTurningLeft(GetNativeCell(1)));
+	return view_as<int>(gB_TurningLeft[GetNativeCell(1)]);
 }
 
 public int Native_GetTurningRight(Handle plugin, int numParams)
 {
-	return view_as<int>(PlayerIsTurning(GetNativeCell(1)) && !PlayerIsTurningLeft(GetNativeCell(1)));
+	return view_as<int>(gB_Turning[GetNativeCell(1)] && !gB_TurningLeft[GetNativeCell(1)]);
 } 

@@ -33,6 +33,9 @@ float gF_TakeoffOrigin[MAXPLAYERS + 1][3];
 float gF_TakeoffVelocity[MAXPLAYERS + 1][3];
 int gI_TakeoffTick[MAXPLAYERS + 1];
 
+bool gB_Turning[MAXPLAYERS + 1];
+bool gB_TurningLeft[MAXPLAYERS + 1];
+
 bool gB_JustJumped[MAXPLAYERS + 1];
 
 float gF_OldOrigin[MAXPLAYERS + 1][3];
@@ -78,6 +81,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	UpdateButtons(client, buttons);
 	UpdateTakeoff(client);
 	UpdateLanding(client);
+	UpdateTurning(client);
 	TryCallForwards(client);
 	
 	UpdateOldVariables(client);
@@ -151,6 +155,15 @@ void UpdateLanding(int client)
 	}
 }
 
+void UpdateTurning(int client)
+{
+	float eyeAngles[3];
+	Movement_GetEyeAngles(client, eyeAngles);
+	gB_Turning[client] = eyeAngles[1] != gF_OldEyeAngles[client][1];
+	gB_TurningLeft[client] = (eyeAngles[1] > gF_OldEyeAngles[client][1] && eyeAngles[1] < gF_OldEyeAngles[client][1] + 180
+		 || eyeAngles[1] < gF_OldEyeAngles[client][1] - 180);
+}
+
 void UpdateOldVariables(int client)
 {
 	Movement_GetOrigin(client, gF_OldOrigin[client]);
@@ -194,19 +207,4 @@ void GetGroundOrigin(int client, float groundOrigin[3])
 public bool TraceEntityFilterPlayers(int entity, int contentsMask, any data)
 {
 	return (entity != data && entity >= 1 && entity <= MaxClients);
-}
-
-bool PlayerIsTurning(int client)
-{
-	float eyeAngles[3];
-	Movement_GetEyeAngles(client, eyeAngles);
-	return eyeAngles[1] != gF_OldEyeAngles[client][1];
-}
-
-bool PlayerIsTurningLeft(int client)
-{
-	float eyeAngles[3];
-	Movement_GetEyeAngles(client, eyeAngles);
-	return (eyeAngles[1] > gF_OldEyeAngles[client][1] && eyeAngles[1] < gF_OldEyeAngles[client][1] + 180
-		 || eyeAngles[1] < gF_OldEyeAngles[client][1] - 180);
 } 
