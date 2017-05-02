@@ -225,7 +225,7 @@ methodmap MovementAPIPlayer __nullable__ < MovementPlayer
 	
 	property bool hitPerf {
 		public get() {
-			Movement_GetHitPerf(this.id);
+			return Movement_GetHitPerf(this.id);
 		}
 	}
 	
