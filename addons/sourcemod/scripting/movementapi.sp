@@ -170,7 +170,6 @@ void UpdateTurning(int client)
 void UpdateOldVariables(int client, int buttons)
 {
 	Movement_GetOrigin(client, gF_OldOrigin[client]);
-	GetGroundOrigin(client, gF_OldGroundOrigin[client]);
 	Movement_GetVelocity(client, gF_OldVelocity[client]);
 	Movement_GetEyeAngles(client, gF_OldEyeAngles[client]);
 	
@@ -179,16 +178,21 @@ void UpdateOldVariables(int client, int buttons)
 	gMT_OldMoveType[client] = Movement_GetMoveType(client);
 	
 	gI_OldButtons[client] = buttons;
+	
+	if (Movement_GetOnGround(client))
+	{
+		GetGroundOrigin(client, gF_OldGroundOrigin[client]);
+	}
 }
 
 // Gets the origin of the ground beneath the player (more accurate than origin when on ground).
-// Ground origin is NULL_VECTOR ({0.0, 0.0, 0.0}) if ground is more than 4 units below player origin
+// Ground origin is NULL_VECTOR ({0.0, 0.0, 0.0}) if ground is more than 8 units below player origin
 void GetGroundOrigin(int client, float groundOrigin[3])
 {
 	float startPosition[3], endPosition[3];
 	GetClientAbsOrigin(client, startPosition);
 	endPosition = startPosition;
-	endPosition[2] = startPosition[2] - 4.0;
+	endPosition[2] = startPosition[2] - 8.0;
 	Handle trace = TR_TraceHullFilterEx(
 		startPosition, 
 		endPosition, 

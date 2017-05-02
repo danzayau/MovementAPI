@@ -51,6 +51,38 @@ stock float CalcHorizontalSpeed(const float velocity[3])
 }
 
 /**
+ * Adjusts a velocity vector's values to result in a certain horizontal
+ * speed, whilst maintaining the vertical velocity.
+ * It is safe to use the input vector as the buffer.
+ *
+ * @param velocity			Velocity vector.
+ * @param speed				Desired horizontal speed.
+ * @param buffer			Output vector buffer.
+ * @noreturn
+ */
+stock void AdjustVectorSpeed(const float velocity[3], float speed, float buffer[3])
+{
+	float newVelocity[3];
+	newVelocity = velocity;
+	newVelocity[2] = 0.0;
+	NormalizeVector(newVelocity, newVelocity);
+	ScaleVector(newVelocity, speed);
+	newVelocity[2] = velocity[2];
+	buffer = newVelocity;
+}
+
+/**
+ * Get's a players currently pressed buttons.
+ *
+ * @param client			Client entity index.
+ * @return					Bitsum of buttons.
+ */
+stock int Movement_GetButtons(int client)
+{
+	return GetClientButtons(client);
+}
+
+/**
  * Gets the origin of the the player.
  *
  * @param client			Client entity index.
@@ -114,6 +146,28 @@ stock float Movement_GetSpeed(int client)
 }
 
 /**
+ * Sets the player's horizontal speed.
+ *
+ * @param client    		Client entity index.
+ * @param speed				Desired horizontal speed of the player.
+ * @param applyBaseVel		Whether to apply base velocity as well.
+ * @noreturn
+ */
+stock void Movement_SetSpeed(int client, float speed, bool applyBaseVel = true)
+{
+	float velocity[3];
+	Movement_GetVelocity(client, velocity);
+	AdjustVectorSpeed(velocity, speed, velocity)
+	if (applyBaseVel)
+	{
+		float baseVelocity[3];
+		Movement_GetBaseVelocity(client, baseVelocity);
+		AddVectors(velocity, baseVelocity, velocity);
+	}
+	Movement_SetVelocity(client, velocity);
+}
+
+/**
  * Gets the vertical velocity of the player.
  *
  * @param client			Client entity index.
@@ -138,7 +192,7 @@ stock void Movement_SetVerticalVelocity(int client, float value)
 	float velocity[3];
 	Movement_GetVelocity(client, velocity);
 	velocity[2] = value;
-	Movement_SetVelocty(client, velocity);
+	Movement_SetVelocity(client, velocity);
 }
 
 /**
@@ -302,6 +356,29 @@ stock void Movement_SetDuckSpeed(int client, float value)
 	SetEntPropFloat(client, Prop_Send, "m_flDuckSpeed", value);
 }
 
+/**
+ * Gets player's gravity scale factor.
+ *
+ * @param client    		Client entity index.
+ * @return        			Gravity scale factor.
+ */
+stock float Movement_GetGravity(int client)
+{
+	return GetEntityGravity(client);
+}
+
+/**
+ * Sets the player's gravity scale factor.
+ *
+ * @param client    		Client entity index.
+ * @param value				Desired gravity scale factor.
+ * @noreturn
+ */
+stock void Movement_SetGravity(int client, float value)
+{
+	SetEntityGravity(client, value);
+}
+
 
 
 /*===============================  Methodmap  ===============================*/
@@ -314,6 +391,12 @@ methodmap MovementPlayer __nullable__ {
 	property int id {
 		public get() {
 			return view_as<int>(this);
+		}
+	}
+	
+	property int buttons {
+		public get() {
+			return Movement_GetButtons(this.id);
 		}
 	}
 	
@@ -337,11 +420,17 @@ methodmap MovementPlayer __nullable__ {
 		public get() {
 			return Movement_GetSpeed(this.id);
 		}
+		public set(float value) {
+			Movement_SetSpeed(this.id, value);
+		}
 	}
 	
 	property float verticalVelocity {
 		public get() {
 			return Movement_GetVerticalVelocity(this.id);
+		}
+		public set(float value) {
+			Movement_SetVerticalVelocity(this.id, value);
 		}
 	}
 	
@@ -412,18 +501,12 @@ methodmap MovementPlayer __nullable__ {
 		}
 	}
 	
-	property int buttons {
-		public get() {
-			return GetClientButtons(this.id);
-		}
-	}
-	
 	property float gravity {
 		public get() {
-			GetEntityGravity(this.id);
+			return Movement_GetGravity(this.id);
 		}
 		public set(float value) {
-			SetEntityGravity(this.id, value);
+			Movement_SetGravity(this.id, value);
 		}
 	}
 } 
