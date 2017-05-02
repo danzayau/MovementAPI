@@ -1,5 +1,5 @@
 /* 	
-	Movement API Include File
+	MovementAPI Include
 
 	Website: https://github.com/danzayau/MovementAPI	
 */
