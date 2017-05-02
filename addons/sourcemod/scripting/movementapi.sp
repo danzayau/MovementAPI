@@ -17,37 +17,33 @@ public Plugin myinfo =
 	name = "MovementAPI", 
 	author = "DanZay", 
 	description = "MovementAPI Plugin", 
-	version = "1.0.0", 
+	version = "0.8.0", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
 
 
 int gI_TickCount[MAXPLAYERS + 1];
+bool gB_JustJumped[MAXPLAYERS + 1];
 
 bool gB_HitPerf[MAXPLAYERS + 1];
-
 float gF_LandingOrigin[MAXPLAYERS + 1][3];
 float gF_LandingVelocity[MAXPLAYERS + 1][3];
 int gI_LandingTick[MAXPLAYERS + 1];
-
 float gF_TakeoffOrigin[MAXPLAYERS + 1][3];
 float gF_TakeoffVelocity[MAXPLAYERS + 1][3];
 int gI_TakeoffTick[MAXPLAYERS + 1];
-
 bool gB_Turning[MAXPLAYERS + 1];
 bool gB_TurningLeft[MAXPLAYERS + 1];
 
-bool gB_JustJumped[MAXPLAYERS + 1];
-
+int gI_OldButtons[MAXPLAYERS + 1];
 float gF_OldOrigin[MAXPLAYERS + 1][3];
 float gF_OldGroundOrigin[MAXPLAYERS + 1][3];
 float gF_OldVelocity[MAXPLAYERS + 1][3];
-bool gB_OldDucking[MAXPLAYERS + 1];
-bool gB_OldOnGround[MAXPLAYERS + 1];
-MoveType gMT_OldMoveType[MAXPLAYERS + 1];
 float gF_OldEyeAngles[MAXPLAYERS + 1][3];
-int gI_OldButtons[MAXPLAYERS + 1];
+bool gB_OldOnGround[MAXPLAYERS + 1];
+bool gB_OldDucking[MAXPLAYERS + 1];
+MoveType gMT_OldMoveType[MAXPLAYERS + 1];
 
 
 
@@ -130,11 +126,11 @@ void UpdateTakeoff(int client)
 		gI_TakeoffTick[client] = gI_TickCount[client] - 1;
 		gB_HitPerf[client] = gI_TakeoffTick[client] - gI_LandingTick[client] <= 1;
 	}
-	// Ekse if just took off a ladder or left noclip.
+	// Else if just took off a ladder or left noclip.
 	else if (!Movement_GetOnLadder(client) && gMT_OldMoveType[client] == MOVETYPE_LADDER
 		 || !Movement_GetNoclipping(client) && gMT_OldMoveType[client] == MOVETYPE_NOCLIP)
 	{
-		gF_TakeoffOrigin[client] = gF_OldOrigin[client];
+		gF_TakeoffOrigin[client] = gF_OldOrigin[client]; // Note this difference to the above
 		gF_TakeoffVelocity[client] = gF_OldVelocity[client];
 		gI_TakeoffTick[client] = gI_TickCount[client] - 1;
 		gB_HitPerf[client] = gI_TakeoffTick[client] - gI_LandingTick[client] <= 1;
@@ -152,7 +148,7 @@ void UpdateLanding(int client)
 	else if (Movement_GetOnLadder(client) && gMT_OldMoveType[client] != MOVETYPE_LADDER
 		 || Movement_GetNoclipping(client) && gMT_OldMoveType[client] != MOVETYPE_NOCLIP)
 	{
-		Movement_GetOrigin(client, gF_LandingOrigin[client]);
+		Movement_GetOrigin(client, gF_LandingOrigin[client]); // Note this difference to the above
 		gF_LandingVelocity[client] = gF_OldVelocity[client];
 		gI_LandingTick[client] = gI_TickCount[client] - 1;
 	}
@@ -163,30 +159,28 @@ void UpdateTurning(int client)
 	float eyeAngles[3];
 	Movement_GetEyeAngles(client, eyeAngles);
 	gB_Turning[client] = eyeAngles[1] != gF_OldEyeAngles[client][1];
-	gB_TurningLeft[client] = (eyeAngles[1] > gF_OldEyeAngles[client][1] && eyeAngles[1] < gF_OldEyeAngles[client][1] + 180
-		 || eyeAngles[1] < gF_OldEyeAngles[client][1] - 180);
+	gB_TurningLeft[client] = eyeAngles[1] > gF_OldEyeAngles[client][1] && eyeAngles[1] < gF_OldEyeAngles[client][1] + 180
+	 || eyeAngles[1] < gF_OldEyeAngles[client][1] - 180;
 }
 
 void UpdateOldVariables(int client, int buttons)
 {
+	gI_OldButtons[client] = buttons;
 	Movement_GetOrigin(client, gF_OldOrigin[client]);
 	Movement_GetVelocity(client, gF_OldVelocity[client]);
 	Movement_GetEyeAngles(client, gF_OldEyeAngles[client]);
-	
-	gB_OldDucking[client] = Movement_GetDucking(client);
 	gB_OldOnGround[client] = Movement_GetOnGround(client);
+	gB_OldDucking[client] = Movement_GetDucking(client);
 	gMT_OldMoveType[client] = Movement_GetMoveType(client);
-	
-	gI_OldButtons[client] = buttons;
-	
+	// Only update old ground origin if necessary
 	if (Movement_GetOnGround(client))
 	{
 		GetGroundOrigin(client, gF_OldGroundOrigin[client]);
 	}
 }
 
-// Gets the origin of the ground beneath the player (more accurate than origin when on ground).
-// Ground origin is NULL_VECTOR ({0.0, 0.0, 0.0}) if ground is more than 8 units below player origin
+// Gets the origin of the ground beneath the player (more useful than GetClientAbsOrigin).
+// Result is NULL_VECTOR if ground is more than 8 units below player origin
 void GetGroundOrigin(int client, float groundOrigin[3])
 {
 	float startPosition[3], endPosition[3];
@@ -204,7 +198,7 @@ void GetGroundOrigin(int client, float groundOrigin[3])
 	if (TR_DidHit(trace))
 	{
 		TR_GetEndPosition(groundOrigin, trace);
-		groundOrigin[2] = groundOrigin[2] - 0.03125; // Offset the error (unknown why it is inaccurate)
+		groundOrigin[2] = groundOrigin[2] - 0.03125; // Offset the error
 	}
 	else
 	{

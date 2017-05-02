@@ -1,23 +1,20 @@
 /*	
 	Natives
 
-	Movement API native implementation.
+	MovementAPI natives implementation.
 */
 
 void CreateNatives()
 {
 	CreateNative("Movement_GetHitPerf", Native_GetHitPerf);
-	
 	CreateNative("Movement_GetTakeoffOrigin", Native_GetTakeoffOrigin);
 	CreateNative("Movement_GetTakeoffVelocity", Native_GetTakeoffVelocity);
 	CreateNative("Movement_GetTakeoffSpeed", Native_GetTakeoffSpeed);
 	CreateNative("Movement_GetTakeoffTick", Native_GetTakeoffTick);
-	
 	CreateNative("Movement_GetLandingOrigin", Native_GetLandingOrigin);
 	CreateNative("Movement_GetLandingVelocity", Native_GetLandingVelocity);
 	CreateNative("Movement_GetLandingSpeed", Native_GetLandingSpeed);
 	CreateNative("Movement_GetLandingTick", Native_GetLandingTick);
-	
 	CreateNative("Movement_GetTurning", Native_GetTurning);
 	CreateNative("Movement_GetTurningLeft", Native_GetTurningLeft);
 	CreateNative("Movement_GetTurningRight", Native_GetTurningRight);

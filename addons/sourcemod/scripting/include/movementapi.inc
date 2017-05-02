@@ -16,84 +16,84 @@
 /*===============================  Forwards  ===============================*/
 
 /**
- * Called when the player presses a button when alive.
+ * Called when an alive player presses a button.
  *
- * @param client			Client entity index.
- * @param button			Button pressed e.g. IN_FORWARD, IN_LEFT.
+ * @param client		Client index.
+ * @param button		Button pressed e.g. IN_FORWARD, IN_LEFT.
  * @noreturn
  */
 forward void Movement_OnButtonPress(int client, int button);
 
 /**
- * Called when the player releases a button when alive.
+ * Called when an alive player releases a button.
  *
- * @param client			Client entity index.
- * @param button			Button released e.g. IN_FORWARD, IN_LEFT.
+ * @param client		Client index.
+ * @param button		Button released e.g. IN_FORWARD, IN_LEFT.
  * @noreturn
  */
 forward void Movement_OnButtonRelease(int client, int button);
 
 /**
- * Called when the player starts ducking.
+ * Called when a player starts ducking.
  *
- * @param client			Client entity index.
+ * @param client		Client index.
  * @noreturn
  */
 forward void Movement_OnStartDucking(int client);
 
 /**
- * Called when the player stops ducking.
+ * Called when a player stops ducking.
  *
- * @param client			Client entity index.
+ * @param client		Client index.
  * @noreturn
  */
 forward void Movement_OnStopDucking(int client);
 
 /**
- * Called when the player touches the ground.
+ * Called when a player touches the ground.
  *
- * @param client			Client entity index.
+ * @param client		Client index.
  * @noreturn
  */
 forward void Movement_OnStartTouchGround(int client);
 
 /**
- * Called when the player leaves the ground.
+ * Called when a player leaves the ground.
  *
- * @param client			Client entity index.
- * @param jumped			Whether player jumped to leave the ground.
+ * @param client		Client index.
+ * @param jumped		Whether player jumped to leave ground.
  * @noreturn
  */
 forward void Movement_OnStopTouchGround(int client, bool jumped);
 
 /**
- * Called when the player starts touching a ladders.
+ * Called when a player starts climbing a ladder.
  *
- * @param client			Client entity index.
+ * @param client		Client index.
  * @noreturn
  */
 forward void Movement_OnStartTouchLadder(int client);
 
 /**
- * Called when the player stops touching a ladder.
+ * Called when a player stops climbing a ladder.
  *
- * @param client			Client entity index.
+ * @param client		Client index.
  * @noreturn
  */
 forward void Movement_OnStopTouchLadder(int client);
 
 /**
- * Called when the player starts noclipping.
+ * Called when a player enters noclip.
  *
- * @param client			Client entity index.
+ * @param client		Client index.
  * @noreturn
  */
 forward void Movement_OnStartNoclipping(int client);
 
 /**
- * Called when the player stops noclipping.
+ * Called when a player leaves noclip.
  *
- * @param client			Client entity index.
+ * @param client		Client index.
  * @noreturn
  */
 forward void Movement_OnStopNoclipping(int client);
@@ -105,102 +105,102 @@ forward void Movement_OnStopNoclipping(int client);
 /**
  * Gets whether player's last takeoff was a perfect bunnyhop.
  *
- * @param client    		Client entity index.
- * @return        			Whether player's last takeoff was a perfect bunnyhop.
+ * @param client    	Client index.
+ * @return        		Whether player's last takeoff was a perfect bunnyhop.
  */
 native bool Movement_GetHitPerf(int client);
 
 /**
- * Gets the origin vector of the player at the time of their last takeoff.
+ * Gets the player's origin at the time of their last takeoff.
  *
- * @param client			Client entity index.
- * @param origin			Last takeoff origin vector buffer.
+ * @param client		Client index.
+ * @param result		Resultant vector.
  * @noreturn
  */
-native void Movement_GetTakeoffOrigin(int client, float buffer[3]);
+native void Movement_GetTakeoffOrigin(int client, float result[3]);
 
 /**
- * Gets the velocity vector of the player at the time of their last takeoff.
+ * Gets the player's velocity at the time of their last takeoff.
  *
- * @param client			Client entity index.
- * @param origin			Last takeoff velocity vector buffer.
+ * @param client		Client index.
+ * @param result		Resultant vector.
  * @noreturn
  */
-native void Movement_GetTakeoffVelocity(int client, float buffer[3]);
+native void Movement_GetTakeoffVelocity(int client, float result[3]);
 
 /**
- * Gets the player's last takeoff speed (horizontal).
+ * Gets the player's horizontal speed at the time of their last takeoff.
  *
- * @param client    		Client entity index.
- * @return        			Last takeoff speed of the player (horizontal).
+ * @param client    	Client index.
+ * @return        		Player's last takeoff speed.
  */
 native float Movement_GetTakeoffSpeed(int client);
 
 /**
- * Gets the MovementAPI tick count at the time of the player's last takeoff.
+ * Gets player's MovementAPI tick count at the time of their last takeoff.
  * Note: Not comparable to GetGameTickCount().
  *
- * @param client    		Client entity index.
- * @return        			MovementAPI tick count at time of player's last takeoff.
+ * @param client    	Client index.
+ * @return        		Player's last takeoff MovementAPI tick count.
  */
 native int Movement_GetTakeoffTick(int client);
 
 /**
- * Gets the origin vector of the player at the time of their last landing.
+ * Gets the player's origin at the time of their last landing.
  *
- * @param client			Client entity index.
- * @param origin			Last landing origin vector buffer.
+ * @param client		Client index.
+ * @param result		Resultant vector.
  * @noreturn
  */
-native void Movement_GetLandingOrigin(int client, float buffer[3]);
+native void Movement_GetLandingOrigin(int client, float result[3]);
 
 /**
- * Gets the velocity vector of the player at the time of their last landing.
+ * Gets the player's velocity at the time of their last landing.
  *
- * @param client			Client entity index.
- * @param origin			Last landing velocity vector buffer.
+ * @param client		Client index.
+ * @param result		Resultant vector.
  * @noreturn
  */
-native void Movement_GetLandingVelocity(int client, float buffer[3]);
+native void Movement_GetLandingVelocity(int client, float result[3]);
 
 /**
- * Gets the player's last landing speed (horizontal).
+ * Gets the player's horizontal speed at the time of their last landing.
  *
- * @param client    		Client entity index.
- * @return        			Last landing speed of the player (horizontal).
+ * @param client    	Client index.
+ * @return        		Last landing speed of the player (horizontal).
  */
 native float Movement_GetLandingSpeed(int client);
 
 /**
- * Gets the MovementAPI tick count at the time of the player's last landing.
+ * Gets player's MovementAPI tick count at the time of their last landing.
  * Note: Not comparable to GetGameTickCount().
  *
- * @param client    		Client entity index.
- * @return        			MovementAPI tick count at time of player's last landing.
+ * @param client    	Client index.
+ * @return        		Player's last takeoff MovementAPI tick count.
  */
 native int Movement_GetLandingTick(int client);
 
 /**
  * Gets whether player is turning their aim horizontally.
  *
- * @param client    		Client entity index.
- * @return        			Whether player is turning their aim horizontally.
+ * @param client    	Client index.
+ * @return        		Whether player is turning their aim horizontally.
  */
 native bool Movement_GetTurning(int client);
 
 /**
  * Gets whether player is turning their aim left.
  *
- * @param client    		Client entity index.
- * @return        			Whether player is turning their aim right.
+ * @param client    	Client index.
+ * @return        		Whether player is turning their aim left.
  */
 native bool Movement_GetTurningLeft(int client);
 
 /**
  * Gets whether player is turning their aim right.
  *
- * @param client    		Client entity index.
- * @return        			Whether player is turning their aim left.
+ * @param client    		Client index.
+ * @return        			Whether player is turning their aim right.
  */
 native bool Movement_GetTurningRight(int client);
 
@@ -208,17 +208,14 @@ native bool Movement_GetTurningRight(int client);
 
 /*===============================  Methodmap  ===============================*/
 
-methodmap MovementAPIPlayer __nullable__ < MovementPlayer
-{
-	public MovementAPIPlayer(int id)
-	{
+methodmap MovementAPIPlayer __nullable__ < MovementPlayer {
+	
+	public MovementAPIPlayer(int id) {
 		return view_as<MovementAPIPlayer>(id);
 	}
 	
-	property int id
-	{
-		public get()
-		{
+	property int id {
+		public get() {
 			return view_as<int>(this);
 		}
 	}
@@ -237,15 +234,15 @@ methodmap MovementAPIPlayer __nullable__ < MovementPlayer
 		Movement_GetTakeoffVelocity(this.id, buffer);
 	}
 	
-	property int takeoffTick {
-		public get() {
-			return Movement_GetTakeoffTick(this.id);
-		}
-	}
-	
 	property float takeoffSpeed {
 		public get() {
 			return Movement_GetTakeoffSpeed(this.id);
+		}
+	}
+	
+	property int takeoffTick {
+		public get() {
+			return Movement_GetTakeoffTick(this.id);
 		}
 	}
 	

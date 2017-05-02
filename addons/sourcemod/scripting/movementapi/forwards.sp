@@ -1,7 +1,7 @@
 /*	
 	Forwards
 
-	Movement API global forward implementation.
+	MovementAPI forwards implementation.
 */
 
 Handle gH_Forward_OnButtonPress;
