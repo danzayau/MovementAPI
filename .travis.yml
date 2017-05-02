@@ -5,9 +5,7 @@ addons:
         - lib32stdc++6  # needed for spcomp
 
 env:
-    - SMVERSION=1.7 # Legacy
-    - SMVERSION=1.8 # Stable
-    - SMVERSION=1.9 # Unstable
+    - SMVERSION=1.8
 
 before_script:
     # install smbuilder

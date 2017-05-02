@@ -1,5 +1,5 @@
 /* 	
-	Movement API Include File
+	Movement Library
 
 	Website: https://github.com/danzayau/MovementAPI	
 */
@@ -11,115 +11,56 @@
 
 
 
-/*===============================  Forwards  ===============================*/
+/*===============================  Stocks  ===============================*/
 
 /**
- * Called after MovementAPI has refreshed (done during OnPlayerRunCmd).
- * This is called after all other MovementAPI forwards.
- * Only called if the client is alive.
+ * Calculates the absolute horizontal distance between two points.
  *
- * @param client			Client entity index.
- * @noreturn
+ * @param startPoint		First point.
+ * @param endPoint			Second point.
+ * @return					Absolute horizontal distance between the points.
  */
-forward void Movement_OnClientUpdate(int client);
+stock float CalcHorizontalDistance(const float startPoint[3], const float endPoint[3])
+{
+	float jumpDistanceX = FloatAbs(endPoint[0] - startPoint[0]);
+	float jumpDistanceY = FloatAbs(endPoint[1] - startPoint[1]);
+	return SquareRoot(Pow(jumpDistanceX, 2.0) + Pow(jumpDistanceY, 2.0)) + 32.0;
+}
 
 /**
- * Called when the player presses a button when alive.
+ * Calculates the vertical distance from one point to another.
  *
- * @param client			Client entity index.
- * @param button			Button pressed e.g. IN_FORWARD, IN_LEFT.
- * @noreturn
+ * @param startPoint		First point.
+ * @param endPoint			Second point.
+ * @return					Vertical distance from first point to second point.
  */
-forward void Movement_OnButtonPress(int client, int button);
+stock float CalcVerticalDistance(const float startPoint[3], const float endPoint[3])
+{
+	return endPoint[2] - startPoint[2];
+}
 
 /**
- * Called when the player releases a button when alive.
+ * Calculates the absolute horizontal speed of a velocity vector.
  *
- * @param client			Client entity index.
- * @param button			Button released e.g. IN_FORWARD, IN_LEFT.
- * @noreturn
+ * @param velocity			Velocity vector.
+ * @return					Absolute horizontal speed of velocity vector.
  */
-forward void Movement_OnButtonRelease(int client, int button);
-
-/**
- * Called when the player touches the ground.
- *
- * @param client			Client entity index.
- * @noreturn
- */
-forward void Movement_OnStartTouchGround(int client);
-
-/**
- * Called when the player leaves the ground.
- *
- * @param client			Client entity index.
- * @param jumped			True if the player jumped to leave the ground.
- * @param ducked			True if the player ducked at the same time.
- * @param landed			True if the player just landed (e.g. perfect bunnyhop).
- * @noreturn
- */
-forward void Movement_OnStopTouchGround(int client, bool jumped, bool ducked, bool landed);
-
-/**
- * Called when the player starts ducking.
- *
- * @param client			Client entity index.
- * @noreturn
- */
-forward void Movement_OnStartDucking(int client);
-
-/**
- * Called when the player stops ducking.
- *
- * @param client			Client entity index.
- * @noreturn
- */
-forward void Movement_OnStopDucking(int client);
-
-/**
- * Called when the player starts touching a ladders.
- *
- * @param client			Client entity index.
- * @noreturn
- */
-forward void Movement_OnStartTouchLadder(int client);
-
-/**
- * Called when the player stops touching a ladder.
- *
- * @param client			Client entity index.
- * @noreturn
- */
-forward void Movement_OnStopTouchLadder(int client);
-
-/**
- * Called when the player starts noclipping.
- *
- * @param client			Client entity index.
- * @noreturn
- */
-forward void Movement_OnStartNoclipping(int client);
-
-/**
- * Called when the player stops noclipping.
- *
- * @param client			Client entity index.
- * @noreturn
- */
-forward void Movement_OnStopNoclipping(int client);
-
-
-
-/*===============================  Natives  ===============================*/
+stock float CalcHorizontalSpeed(const float velocity[3])
+{
+	return SquareRoot(Pow(velocity[0], 2.0) + Pow(velocity[1], 2.0));
+}
 
 /**
  * Gets the origin of the the player.
  *
  * @param client			Client entity index.
- * @param origin			Origin vector buffer.
+ * @param buffer			Origin vector buffer.
  * @noreturn
  */
-native void Movement_GetOrigin(int client, float buffer[3]);
+stock void Movement_GetOrigin(int client, float buffer[3])
+{
+	GetClientAbsOrigin(client, buffer);
+}
 
 /**
  * Changes the origin of the the player (by teleporting them).
@@ -128,26 +69,22 @@ native void Movement_GetOrigin(int client, float buffer[3]);
  * @param origin			Origin vector to set the player's origin to.
  * @noreturn
  */
-native void Movement_SetOrigin(int client, float buffer[3]);
-
-/**
- * Gets the origin of the ground beneath the player (more accurate than origin when on ground).
- * Ground origin is NULL_VECTOR ({0.0, 0.0, 0.0}) if ground is more than 16 units below player origin.
- *
- * @param client			Client entity index.
- * @param origin			Ground origin vector buffer.
- * @noreturn
- */
-native void Movement_GetGroundOrigin(int client, float buffer[3]);
+stock void Movement_SetOrigin(int client, const float origin[3])
+{
+	TeleportEntity(client, origin, NULL_VECTOR, NULL_VECTOR);
+}
 
 /**
  * Gets the velocity vector of the player.
  *
  * @param client			Client entity index.
- * @param velocity			Velocity vector buffer.
+ * @param buffer			Velocity vector buffer.
  * @noreturn
  */
-native void Movement_GetVelocity(int client, float buffer[3]);
+stock void Movement_GetVelocity(int client, float buffer[3])
+{
+	GetEntPropVector(client, Prop_Data, "m_vecVelocity", buffer);
+}
 
 /**
  * Changes the velocity of the player (by teleporting them).
@@ -158,233 +95,75 @@ native void Movement_GetVelocity(int client, float buffer[3]);
  * @param velocity			Vector to set the player's velocity to.
  * @noreturn
  */
-native void Movement_SetVelocity(int client, float velocity[3]);
+stock void Movement_SetVelocity(int client, const float velocity[3])
+{
+	TeleportEntity(client, NULL_VECTOR, NULL_VECTOR, velocity);
+}
 
 /**
  * Gets the player's horizontal speed.
  *
  * @param client    		Client entity index.
- * @return        			The horizontal speed of the player.
+ * @return        			Horizontal speed of the player.
  */
-native float Movement_GetSpeed(int client);
+stock float Movement_GetSpeed(int client)
+{
+	float velocity[3];
+	Movement_GetVelocity(client, velocity);
+	return CalcHorizontalSpeed(velocity);
+}
 
 /**
  * Gets the vertical velocity of the player.
  *
  * @param client			Client entity index.
- * @return        			The vertical velocity of the player.
+ * @return        			Vertical velocity of the player.
  */
-native float Movement_GetVerticalVelocity(int client);
+stock float Movement_GetVerticalVelocity(int client)
+{
+	float velocity[3];
+	Movement_GetVelocity(client, velocity);
+	return velocity[2];
+}
+
+/**
+ * Sets the vertical velocity of the player.
+ *
+ * @param client			Client entity index.
+ * @param value				Desired vertical velocity.
+ * @noreturn
+ */
+stock void Movement_SetVerticalVelocity(int client, float value)
+{
+	float velocity[3];
+	Movement_GetVelocity(client, velocity);
+	velocity[2] = value;
+	Movement_SetVelocty(client, velocity);
+}
 
 /**
  * Gets the base velocity vector of the player.
  *
  * @param client			Client entity index.
- * @param velocity			Base velocity vector buffer.
+ * @param buffer			Base velocity vector buffer.
  * @noreturn
  */
-native void Movement_GetBaseVelocity(int client, float buffer[3]);
+stock void Movement_GetBaseVelocity(int client, float buffer[3])
+{
+	GetEntPropVector(client, Prop_Data, "m_vecBaseVelocity", buffer);
+}
 
 /**
  * Sets the base velocity of the player.
  *
  * @param client			Client entity index.
- * @param velocity			Vector to set the player's base velocity to.
+ * @param baseVelocity		Vector to set the player's base velocity to.
  * @noreturn
  */
-native void Movement_SetBaseVelocity(int client, float velocity[3]);
-
-/**
- * Gets whether or not the player is on the ground.
- *
- * @param client    		Client entity index.
- * @return        			Whether or not the player is on the ground.
- */
-native bool Movement_GetOnGround(int client);
-
-/**
- * Gets the player's move type.
- *
- * @param client    		Client entity index.
- * @return        			The player's move type
- */
-native MoveType Movement_GetMoveType(int client);
-
-/**
- * Sets the player's move type.
- *
- * @param client    		Client entity index.
- * @param moveType			What to set the player's move type to.
- * @noreturn
- */
-native void Movement_SetMoveType(int client, MoveType moveType);
-
-/**
- * Gets whether or not the player is on a ladder.
- *
- * @param client    		Client entity index.
- * @return        			Whether or not the player is on a ladder.
- */
-native bool Movement_GetOnLadder(int client);
-
-/**
- * Gets whether or not the player is noclipping.
- *
- * @param client    		Client entity index.
- * @return        			Whether or not the player is noclipping.
- */
-native bool Movement_GetNoclipping(int client);
-
-/**
- * Gets whether or not the player is ducking/ducked.
- *
- * @param client    		Client entity index.
- * @return        			Whether or not the player is ducking/ducked.
- */
-native bool Movement_GetDucking(int client);
-
-/**
- * Gets the origin vector of the player at the time of their last takeoff.
- *
- * @param client			Client entity index.
- * @param origin			Last takeoff origin vector buffer.
- * @noreturn
- */
-native void Movement_GetTakeoffOrigin(int client, float buffer[3]);
-
-/**
- * Gets the velocity vector of the player at the time of their last takeoff.
- *
- * @param client			Client entity index.
- * @param origin			Last takeoff velocity vector buffer.
- * @noreturn
- */
-native void Movement_GetTakeoffVelocity(int client, float buffer[3]);
-
-/**
- * Gets the player's last takeoff speed (horizontal).
- *
- * @param client    		Client entity index.
- * @return        			The last takeoff speed of the player (horizontal).
- */
-native float Movement_GetTakeoffSpeed(int client);
-
-/**
- * Sets the player's last takeoff speed (horizontal).
- *
- * @param client    		Client entity index.
- * @param value				The value to set the player's takeoff speed (horizontal) to.
- * @noreturn
- */
-native float Movement_SetTakeoffSpeed(int client, float value);
-
-/**
- * Gets the tick of the player's last takeoff (leaving the ground).
- *
- * @param client    		Client entity index.
- * @return        			The tick of the last takeoff of the player.
- */
-native int Movement_GetTakeoffTick(int client);
-
-/**
- * Gets the origin vector of the player at the time of their last landing.
- *
- * @param client			Client entity index.
- * @param origin			Last landing origin vector buffer.
- * @noreturn
- */
-native void Movement_GetLandingOrigin(int client, float buffer[3]);
-
-/**
- * Gets the velocity vector of the player at the time of their last landing.
- *
- * @param client			Client entity index.
- * @param origin			Last landing velocity vector buffer.
- * @noreturn
- */
-native void Movement_GetLandingVelocity(int client, float buffer[3]);
-
-/**
- * Gets the player's last landing speed (horizontal).
- *
- * @param client    		Client entity index.
- * @return        			The last landing speed of the player (horizontal).
- */
-native float Movement_GetLandingSpeed(int client);
-
-/**
- * Gets the tick of the player's last landing.
- *
- * @param client    		Client entity index.
- * @return        			The tick of the last landing of the player.
- */
-native int Movement_GetLandingTick(int client);
-
-/**
- * Gets the maximum height of the player's last jump.
- *
- * @param client    		Client entity index.
- * @return        			The maximum height of the player's last jump.
- */
-native float Movement_GetJumpMaxHeight(int client);
-
-/**
- * Gets the distnace of the player's last jump.
- *
- * @param client    		Client entity index.
- * @return        			The horizontal distance of the player's last jump.
- */
-native float Movement_GetJumpDistance(int client);
-
-/**
- * Gets the height offset of the player's last jump.
- *
- * @param client    		Client entity index.
- * @return        			The vertical distance of the player's last jump.
- */
-native float Movement_GetJumpOffset(int client);
-
-/**
- * Gets whether or not the player's last jump was a perfect bunnyhop.
- *
- * @param client    		Client entity index.
- * @return        			Whether or not the player's last jump wasThe vertical distance of the player's last jump.
- */
-native bool Movement_GetHitPerf(int client);
-
-/**
- * Gets "m_flVelocityModifier" of the player.
- *
- * @param client    		Client entity index.
- * @return        			The value of the "m_flVelocityModifier".
- */
-native float Movement_GetVelocityModifier(int client);
-
-/**
- * Sets "m_flVelocityModifier" of the player.
- *
- * @param client    		Client entity index.
- * @param value				Value to set the player's velocity modifier to.
- * @noreturn
- */
-native void Movement_SetVelocityModifier(int client, float value);
-
-/**
- * Gets "m_flVelocityModifier" of the player.
- *
- * @param client    		Client entity index.
- * @return        			The value of the "m_flDuckSpeed".
- */
-native float Movement_GetDuckSpeed(int client);
-
-/**
- * Sets "m_flVelocityModifier" of the player.
- *
- * @param client    		Client entity index.
- * @param value				Value to set the player's duck speed to.
- * @noreturn
- */
-native void Movement_SetDuckSpeed(int client, float value);
+stock void Movement_SetBaseVelocity(int client, const float baseVelocity[3])
+{
+	SetEntPropVector(client, Prop_Data, "m_vecBaseVelocity", baseVelocity);
+}
 
 /**
  * Gets the eye angles of the player.
@@ -393,40 +172,135 @@ native void Movement_SetDuckSpeed(int client, float value);
  * @param buffer			Eye angles vector buffer.
  * @noreturn
  */
-native void Movement_GetEyeAngles(int client, float buffer[3]);
+stock void Movement_GetEyeAngles(int client, float buffer[3])
+{
+	GetClientEyeAngles(client, buffer);
+}
 
 /**
  * Changes the eye angles of the player (by teleporting them).
  *
  * @param client			Client entity index.
- * @param eyeAngles			Eye angles vector to set the player's eye angles to.
+ * @param eyeAngles			Desired eye angles vector.
  * @noreturn
  */
-native void Movement_SetEyeAngles(int client, float eyeAngles[3]);
+stock void Movement_SetEyeAngles(int client, const float eyeAngles[3])
+{
+	TeleportEntity(client, NULL_VECTOR, eyeAngles, NULL_VECTOR);
+}
 
 /**
- * Gets whether or not the player is turning their aim horizontally.
+ * Gets whether or not the player is on the ground.
  *
  * @param client    		Client entity index.
- * @return        			Whether or not the player is turning their aim horizontally.
+ * @return        			Whether player is on the ground.
  */
-native bool Movement_GetTurning(int client);
+stock bool Movement_GetOnGround(int client)
+{
+	return view_as<bool>(GetEntityFlags(client) & FL_ONGROUND);
+}
 
 /**
- * Gets whether or not the player is turning their aim left.
+ * Gets the player's move type.
  *
  * @param client    		Client entity index.
- * @return        			Whether or not the player is turning their aim right.
+ * @return        			Player's move type
  */
-native bool Movement_GetTurningLeft(int client);
+stock MoveType Movement_GetMoveType(int client)
+{
+	return GetEntityMoveType(client);
+}
 
 /**
- * Gets whether or not the player is turning their aim right.
+ * Gets whether or not the player is on a ladder.
  *
  * @param client    		Client entity index.
- * @return        			Whether or not the player is turning their aim left.
+ * @return        			Whether player is on a ladder.
  */
-native bool Movement_GetTurningRight(int client);
+stock bool Movement_GetOnLadder(int client)
+{
+	return Movement_GetMoveType(client) == MOVETYPE_LADDER;
+}
+
+/**
+ * Gets whether or not the player is noclipping.
+ *
+ * @param client    		Client entity index.
+ * @return        			Whether player is noclipping.
+ */
+stock bool Movement_GetNoclipping(int client)
+{
+	return Movement_GetMoveType(client) == MOVETYPE_NOCLIP;
+}
+
+/**
+ * Sets the player's move type.
+ *
+ * @param client    		Client entity index.
+ * @param moveType			Desired move type.
+ * @noreturn
+ */
+stock void Movement_SetMoveType(int client, MoveType moveType)
+{
+	SetEntityMoveType(client, moveType);
+}
+
+/**
+ * Gets whether or not the player is ducking/ducked.
+ *
+ * @param client    		Client entity index.
+ * @return        			Whether player is ducking/ducked.
+ */
+stock bool Movement_GetDucking(int client)
+{
+	return GetEntProp(client, Prop_Send, "m_bDucked") || GetEntProp(client, Prop_Send, "m_bDucking");
+}
+
+/**
+ * Gets "m_flVelocityModifier" of the player.
+ *
+ * @param client    		Client entity index.
+ * @return        			Value of "m_flVelocityModifier".
+ */
+stock float Movement_GetVelocityModifier(int client)
+{
+	return GetEntPropFloat(client, Prop_Send, "m_flVelocityModifier");
+}
+
+/**
+ * Sets "m_flVelocityModifier" of the player.
+ *
+ * @param client    		Client entity index.
+ * @param value				Desired velocity modifier.
+ * @noreturn
+ */
+stock void Movement_SetVelocityModifier(int client, float value)
+{
+	SetEntPropFloat(client, Prop_Send, "m_flVelocityModifier", value);
+}
+
+/**
+ * Gets "m_flDuckSpeed" of the player.
+ *
+ * @param client    		Client entity index.
+ * @return        			Value of "m_flDuckSpeed".
+ */
+stock float Movement_GetDuckSpeed(int client)
+{
+	return GetEntPropFloat(client, Prop_Send, "m_flDuckSpeed");
+}
+
+/**
+ * Sets "m_flDuckSpeed" of the player.
+ *
+ * @param client    		Client entity index.
+ * @param value				Desired duck speed.
+ * @noreturn
+ */
+stock void Movement_SetDuckSpeed(int client, float value)
+{
+	SetEntPropFloat(client, Prop_Send, "m_flDuckSpeed", value);
+}
 
 
 
@@ -449,10 +323,6 @@ methodmap MovementPlayer __nullable__ {
 	
 	public void SetOrigin(float origin[3]) {
 		Movement_SetOrigin(this.id, origin);
-	}
-	
-	public void GetGroundOrigin(float buffer[3]) {
-		Movement_GetGroundOrigin(this.id, buffer);
 	}
 	
 	public void GetVelocity(float buffer[3]) {
@@ -481,6 +351,14 @@ methodmap MovementPlayer __nullable__ {
 	
 	public void SetBaseVelocity(float baseVelocity[3]) {
 		Movement_SetBaseVelocity(this.id, baseVelocity);
+	}
+	
+	public void GetEyeAngles(float buffer[3]) {
+		Movement_GetEyeAngles(this.id, buffer);
+	}
+	
+	public void SetEyeAngles(float eyeAngles[3]) {
+		Movement_SetEyeAngles(this.id, eyeAngles);
 	}
 	
 	property bool onGround {
@@ -516,70 +394,6 @@ methodmap MovementPlayer __nullable__ {
 		}
 	}
 	
-	public void GetTakeoffOrigin(float buffer[3]) {
-		Movement_GetTakeoffOrigin(this.id, buffer);
-	}
-	
-	public void GetTakeoffVelocity(float buffer[3]) {
-		Movement_GetTakeoffVelocity(this.id, buffer);
-	}
-	
-	property int takeoffTick {
-		public get() {
-			return Movement_GetTakeoffTick(this.id);
-		}
-	}
-	
-	property float takeoffSpeed {
-		public get() {
-			return Movement_GetTakeoffSpeed(this.id);
-		}
-	}
-	
-	public void GetLandingOrigin(float buffer[3]) {
-		Movement_GetLandingOrigin(this.id, buffer);
-	}
-	
-	public void GetLandingVelocity(float buffer[3]) {
-		Movement_GetLandingVelocity(this.id, buffer);
-	}
-	
-	property float landingSpeed {
-		public get() {
-			return Movement_GetLandingSpeed(this.id);
-		}
-	}
-	
-	property int landingTick {
-		public get() {
-			return Movement_GetLandingTick(this.id);
-		}
-	}
-	
-	property float jumpMaxHeight {
-		public get() {
-			return Movement_GetJumpMaxHeight(this.id);
-		}
-	}
-	
-	property float jumpDistance {
-		public get() {
-			return Movement_GetJumpDistance(this.id);
-		}
-	}
-	
-	property float jumpOffset {
-		public get() {
-			return Movement_GetJumpOffset(this.id);
-		}
-	}
-	
-	property bool hitPerf {
-		public get() {
-			return Movement_GetHitPerf(this.id);
-		}
-	}
-	
 	property float velocityModifier {
 		public get() {
 			return Movement_GetVelocityModifier(this.id);
@@ -595,32 +409,6 @@ methodmap MovementPlayer __nullable__ {
 		}
 		public set(float value) {
 			Movement_SetDuckSpeed(this.id, value);
-		}
-	}
-	
-	public void GetEyeAngles(float buffer[3]) {
-		Movement_GetEyeAngles(this.id, buffer);
-	}
-	
-	public void SetEyeAngles(float eyeAngles[3]) {
-		Movement_SetEyeAngles(this.id, eyeAngles);
-	}
-	
-	property bool turning {
-		public get() {
-			return Movement_GetTurning(this.id);
-		}
-	}
-	
-	property bool turningLeft {
-		public get() {
-			return Movement_GetTurningLeft(this.id);
-		}
-	}
-	
-	property bool turningRight {
-		public get() {
-			return Movement_GetTurningRight(this.id);
 		}
 	}
 	
