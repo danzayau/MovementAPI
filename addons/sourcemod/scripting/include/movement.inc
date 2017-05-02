@@ -67,7 +67,7 @@ stock void AdjustVectorSpeed(const float velocity[3], float speed, float result[
 	NormalizeVector(newVelocity, newVelocity);
 	ScaleVector(newVelocity, speed);
 	newVelocity[2] = velocity[2];
-	buffer = newVelocity;
+	result = newVelocity;
 }
 
 /**
@@ -147,10 +147,10 @@ stock float Movement_GetSpeed(int client)
  *
  * @param client    	Client index.
  * @param value			New horizontal speed.
- * @param applyBaseVel	Whether to apply base velocity as well to prevent map boosters breaking.
+ * @param applyBaseVel	Whether to apply base velocity as well.
  * @noreturn
  */
-stock void Movement_SetSpeed(int client, float value, bool applyBaseVel = true)
+stock void Movement_SetSpeed(int client, float value, bool applyBaseVel = false)
 {
 	float velocity[3];
 	Movement_GetVelocity(client, velocity);
@@ -349,9 +349,9 @@ stock MoveType Movement_GetMoveType(int client)
  * @param moveType 		New move type.
  * @noreturn
  */
-stock MoveType Movement_SetMoveType(int client, MoveType moveType)
+stock void Movement_SetMoveType(int client, MoveType moveType)
 {
-	return SetEntityMoveType(client, moveType);
+	SetEntityMoveType(client, moveType);
 }
 
 /**
@@ -398,19 +398,19 @@ methodmap MovementPlayer __nullable__ {
 		}
 	}
 	
-	public void GetOrigin(float buffer[3]) {
-		Movement_GetOrigin(this.id, buffer);
+	public void GetOrigin(float result[3]) {
+		Movement_GetOrigin(this.id, result);
 	}
 	
-	public void SetOrigin(float origin[3]) {
+	public void SetOrigin(const float origin[3]) {
 		Movement_SetOrigin(this.id, origin);
 	}
 	
-	public void GetVelocity(float buffer[3]) {
-		Movement_GetVelocity(this.id, buffer);
+	public void GetVelocity(float result[3]) {
+		Movement_GetVelocity(this.id, result);
 	}
 	
-	public void SetVelocity(float velocity[3]) {
+	public void SetVelocity(const float velocity[3]) {
 		Movement_SetVelocity(this.id, velocity);
 	}
 	
@@ -432,19 +432,19 @@ methodmap MovementPlayer __nullable__ {
 		}
 	}
 	
-	public void GetBaseVelocity(float buffer[3]) {
-		Movement_GetBaseVelocity(this.id, buffer);
+	public void GetBaseVelocity(float result[3]) {
+		Movement_GetBaseVelocity(this.id, result);
 	}
 	
-	public void SetBaseVelocity(float baseVelocity[3]) {
+	public void SetBaseVelocity(const float baseVelocity[3]) {
 		Movement_SetBaseVelocity(this.id, baseVelocity);
 	}
 	
-	public void GetEyeAngles(float buffer[3]) {
-		Movement_GetEyeAngles(this.id, buffer);
+	public void GetEyeAngles(float result[3]) {
+		Movement_GetEyeAngles(this.id, result);
 	}
 	
-	public void SetEyeAngles(float eyeAngles[3]) {
+	public void SetEyeAngles(const float eyeAngles[3]) {
 		Movement_SetEyeAngles(this.id, eyeAngles);
 	}
 	
