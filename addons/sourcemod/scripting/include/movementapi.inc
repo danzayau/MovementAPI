@@ -1,5 +1,5 @@
 /* 	
-	MovementAPI Include
+	MovementAPI Plugin Include
 
 	Website: https://github.com/danzayau/MovementAPI	
 */
@@ -304,17 +304,14 @@ public SharedPlugin __pl_movementapi =
 public void __pl_movementapi_SetNTVOptional()
 {
 	MarkNativeAsOptional("MovementAPI_GetHitPerf");
-	
 	MarkNativeAsOptional("MovementAPI_GetTakeoffOrigin");
 	MarkNativeAsOptional("MovementAPI_GetTakeoffVelocity");
 	MarkNativeAsOptional("MovementAPI_GetTakeoffSpeed");
 	MarkNativeAsOptional("MovementAPI_GetTakeoffTick");
-	
 	MarkNativeAsOptional("MovementAPI_GetLandingOrigin");
 	MarkNativeAsOptional("MovementAPI_GetLandingVelocity");
 	MarkNativeAsOptional("MovementAPI_GetLandingSpeed");
 	MarkNativeAsOptional("MovementAPI_GetLandingTick");
-	
 	MarkNativeAsOptional("MovementAPI_GetTurning");
 	MarkNativeAsOptional("MovementAPI_GetTurningLeft");
 	MarkNativeAsOptional("MovementAPI_GetTurningRight");
