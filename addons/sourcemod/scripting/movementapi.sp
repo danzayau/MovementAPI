@@ -17,13 +17,15 @@ public Plugin myinfo =
 	name = "MovementAPI", 
 	author = "DanZay", 
 	description = "MovementAPI Plugin", 
-	version = "0.8.0", 
+	version = "1.0.0", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
 
 
 int gI_TickCount[MAXPLAYERS + 1];
+
+bool gB_HitPerf[MAXPLAYERS + 1];
 
 float gF_LandingOrigin[MAXPLAYERS + 1][3];
 float gF_LandingVelocity[MAXPLAYERS + 1][3];
@@ -127,6 +129,7 @@ void UpdateTakeoff(int client)
 		gF_TakeoffOrigin[client] = gF_OldGroundOrigin[client];
 		gF_TakeoffVelocity[client] = gF_OldVelocity[client];
 		gI_TakeoffTick[client] = gI_TickCount[client] - 1;
+		gB_HitPerf[client] = gI_TakeoffTick[client] - gI_LandingTick[client] <= 1;
 	}
 	// Ekse if just took off a ladder or left noclip.
 	else if (!Movement_GetOnLadder(client) && gMT_OldMoveType[client] == MOVETYPE_LADDER
@@ -135,6 +138,7 @@ void UpdateTakeoff(int client)
 		gF_TakeoffOrigin[client] = gF_OldOrigin[client];
 		gF_TakeoffVelocity[client] = gF_OldVelocity[client];
 		gI_TakeoffTick[client] = gI_TickCount[client] - 1;
+		gB_HitPerf[client] = gI_TakeoffTick[client] - gI_LandingTick[client] <= 1;
 	}
 }
 

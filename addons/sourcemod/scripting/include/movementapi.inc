@@ -103,6 +103,14 @@ forward void Movement_OnStopNoclipping(int client);
 /*===============================  Natives  ===============================*/
 
 /**
+ * Gets whether player's last takeoff was a perfect bunnyhop.
+ *
+ * @param client    		Client entity index.
+ * @return        			Whether player's last takeoff was a perfect bunnyhop.
+ */
+native bool Movement_GetHitPerf(int client);
+
+/**
  * Gets the origin vector of the player at the time of their last takeoff.
  *
  * @param client			Client entity index.
@@ -126,12 +134,7 @@ native void Movement_GetTakeoffVelocity(int client, float buffer[3]);
  * @param client    		Client entity index.
  * @return        			Last takeoff speed of the player (horizontal).
  */
-stock float Movement_GetTakeoffSpeed(int client)
-{
-	float velocity[3];
-	Movement_GetTakeoffVelocity(client, velocity);
-	return CalcHorizontalSpeed(velocity);
-}
+native float Movement_GetTakeoffSpeed(int client);
 
 /**
  * Gets the MovementAPI tick count at the time of the player's last takeoff.
@@ -166,12 +169,7 @@ native void Movement_GetLandingVelocity(int client, float buffer[3]);
  * @param client    		Client entity index.
  * @return        			Last landing speed of the player (horizontal).
  */
-stock float Movement_GetLandingSpeed(int client)
-{
-	float velocity[3];
-	Movement_GetLandingVelocity(client, velocity);
-	return CalcHorizontalSpeed(velocity);
-}
+native float Movement_GetLandingSpeed(int client);
 
 /**
  * Gets the MovementAPI tick count at the time of the player's last landing.
@@ -222,6 +220,12 @@ methodmap MovementAPIPlayer __nullable__ < MovementPlayer
 		public get()
 		{
 			return view_as<int>(this);
+		}
+	}
+	
+	property bool hitPerf {
+		public get() {
+			Movement_GetHitPerf(this.id);
 		}
 	}
 	
@@ -302,12 +306,16 @@ public SharedPlugin __pl_movementapi =
 #if !defined REQUIRE_PLUGIN
 public void __pl_movementapi_SetNTVOptional()
 {
+	MarkNativeAsOptional("MovementAPI_GetHitPerf");
+	
 	MarkNativeAsOptional("MovementAPI_GetTakeoffOrigin");
 	MarkNativeAsOptional("MovementAPI_GetTakeoffVelocity");
+	MarkNativeAsOptional("MovementAPI_GetTakeoffSpeed");
 	MarkNativeAsOptional("MovementAPI_GetTakeoffTick");
 	
 	MarkNativeAsOptional("MovementAPI_GetLandingOrigin");
 	MarkNativeAsOptional("MovementAPI_GetLandingVelocity");
+	MarkNativeAsOptional("MovementAPI_GetLandingSpeed");
 	MarkNativeAsOptional("MovementAPI_GetLandingTick");
 	
 	MarkNativeAsOptional("MovementAPI_GetTurning");
