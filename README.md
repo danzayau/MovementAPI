@@ -1,8 +1,8 @@
-# Movement API (CS:GO)
+# MovementAPI (CS:GO)
 
 [![Build Status](https://travis-ci.org/danzayau/MovementAPI.svg?branch=master)](https://travis-ci.org/danzayau/MovementAPI)
 
-An API for player movement in the form of a [function libary](addons/sourcemod/scripting/include/movement.inc) and an optional plugin with [helpful forwards and natives](addons/sourcemod/scripting/include/movementapi.inc).
+An API for player movement in the form of a [function stock libary](addons/sourcemod/scripting/include/movement.inc) and an optional plugin with [forwards and natives](addons/sourcemod/scripting/include/movementapi.inc).
 
 ### Requirements
 
