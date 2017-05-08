@@ -103,6 +103,14 @@ forward void Movement_OnStopNoclipping(int client);
 /*===============================  Natives  ===============================*/
 
 /**
+ * Gets whether player's last takeoff was a jump.
+ *
+ * @param client    	Client index.
+ * @return        		Whether player's last takeoff was a jump.
+ */
+native bool Movement_GetJumped(int client);
+
+/**
  * Gets whether player's last takeoff was a perfect bunnyhop.
  *
  * @param client    	Client index.
@@ -137,11 +145,10 @@ native void Movement_GetTakeoffVelocity(int client, float result[3]);
 native float Movement_GetTakeoffSpeed(int client);
 
 /**
- * Gets player's MovementAPI tick count at the time of their last takeoff.
- * Note: Not comparable to GetGameTickCount().
+ * Gets player's tick count at the time of their last takeoff.
  *
  * @param client    	Client index.
- * @return        		Player's last takeoff MovementAPI tick count.
+ * @return        		Player's last takeoff tick count.
  */
 native int Movement_GetTakeoffTick(int client);
 
@@ -172,11 +179,10 @@ native void Movement_GetLandingVelocity(int client, float result[3]);
 native float Movement_GetLandingSpeed(int client);
 
 /**
- * Gets player's MovementAPI tick count at the time of their last landing.
- * Note: Not comparable to GetGameTickCount().
+ * Gets player's tick count at the time of their last landing.
  *
  * @param client    	Client index.
- * @return        		Player's last takeoff MovementAPI tick count.
+ * @return        		Player's last takeoff tick count.
  */
 native int Movement_GetLandingTick(int client);
 
@@ -217,6 +223,12 @@ methodmap MovementAPIPlayer __nullable__ < MovementPlayer {
 	property int id {
 		public get() {
 			return view_as<int>(this);
+		}
+	}
+	
+	property bool jumped {
+		public get() {
+			return Movement_GetJumped(this.id);
 		}
 	}
 	

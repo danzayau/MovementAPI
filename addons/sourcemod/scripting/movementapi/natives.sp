@@ -6,6 +6,7 @@
 
 void CreateNatives()
 {
+	CreateNative("Movement_GetJumped", Native_GetJumped);
 	CreateNative("Movement_GetHitPerf", Native_GetHitPerf);
 	CreateNative("Movement_GetTakeoffOrigin", Native_GetTakeoffOrigin);
 	CreateNative("Movement_GetTakeoffVelocity", Native_GetTakeoffVelocity);
@@ -18,6 +19,11 @@ void CreateNatives()
 	CreateNative("Movement_GetTurning", Native_GetTurning);
 	CreateNative("Movement_GetTurningLeft", Native_GetTurningLeft);
 	CreateNative("Movement_GetTurningRight", Native_GetTurningRight);
+}
+
+public int Native_GetJumped(Handle plugin, int numParams)
+{
+	return gB_Jumped[GetNativeCell(1)];
 }
 
 public int Native_GetHitPerf(Handle plugin, int numParams)

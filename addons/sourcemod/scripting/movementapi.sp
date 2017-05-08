@@ -17,13 +17,13 @@ public Plugin myinfo =
 	name = "MovementAPI", 
 	author = "DanZay", 
 	description = "MovementAPI Plugin", 
-	version = "0.8.0", 
+	version = "0.8.1", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
 
 
-int gI_TickCount[MAXPLAYERS + 1];
+bool gB_Jumped[MAXPLAYERS + 1];
 bool gB_JustJumped[MAXPLAYERS + 1];
 
 bool gB_HitPerf[MAXPLAYERS + 1];
@@ -74,11 +74,9 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		return Plugin_Continue;
 	}
 	
-	gI_TickCount[client]++;
-	
 	UpdateButtons(client, buttons);
-	UpdateTakeoff(client);
-	UpdateLanding(client);
+	UpdateTakeoff(client, tickcount);
+	UpdateLanding(client, tickcount);
 	UpdateTurning(client);
 	TryCallForwards(client);
 	
@@ -116,41 +114,41 @@ void UpdateButtons(int client, int buttons)
 	}
 }
 
-void UpdateTakeoff(int client)
+void UpdateTakeoff(int client, int tickcount)
 {
 	// If just took off the ground.
 	if (!Movement_GetOnGround(client) && gB_OldOnGround[client])
 	{
 		gF_TakeoffOrigin[client] = gF_OldGroundOrigin[client];
 		gF_TakeoffVelocity[client] = gF_OldVelocity[client];
-		gI_TakeoffTick[client] = gI_TickCount[client] - 1;
-		gB_HitPerf[client] = gI_TakeoffTick[client] - gI_LandingTick[client] <= 1;
+		gI_TakeoffTick[client] = tickcount - 1;
+		gB_HitPerf[client] = gI_TakeoffTick[client] - gI_LandingTick[client] == 1;
 	}
 	// Else if just took off a ladder or left noclip.
-	else if (!Movement_GetOnLadder(client) && gMT_OldMoveType[client] == MOVETYPE_LADDER
-		 || !Movement_GetNoclipping(client) && gMT_OldMoveType[client] == MOVETYPE_NOCLIP)
+	else if (gMT_OldMoveType[client] == MOVETYPE_LADDER && !Movement_GetOnLadder(client)
+		 || gMT_OldMoveType[client] == MOVETYPE_NOCLIP && !Movement_GetNoclipping(client))
 	{
 		gF_TakeoffOrigin[client] = gF_OldOrigin[client]; // Note this difference to the above
 		gF_TakeoffVelocity[client] = gF_OldVelocity[client];
-		gI_TakeoffTick[client] = gI_TickCount[client] - 1;
-		gB_HitPerf[client] = gI_TakeoffTick[client] - gI_LandingTick[client] <= 1;
+		gI_TakeoffTick[client] = tickcount - 1;
+		gB_HitPerf[client] = gI_TakeoffTick[client] - gI_LandingTick[client] == 1;
 	}
 }
 
-void UpdateLanding(int client)
+void UpdateLanding(int client, int tickcount)
 {
-	if (Movement_GetOnGround(client) && !gB_OldOnGround[client])
+	if (!gB_OldOnGround[client] && Movement_GetOnGround(client))
 	{
 		GetGroundOrigin(client, gF_LandingOrigin[client]);
 		gF_LandingVelocity[client] = gF_OldVelocity[client];
-		gI_LandingTick[client] = gI_TickCount[client] - 1;
+		gI_LandingTick[client] = tickcount - 1;
 	}
 	else if (Movement_GetOnLadder(client) && gMT_OldMoveType[client] != MOVETYPE_LADDER
 		 || Movement_GetNoclipping(client) && gMT_OldMoveType[client] != MOVETYPE_NOCLIP)
 	{
 		Movement_GetOrigin(client, gF_LandingOrigin[client]); // Note this difference to the above
 		gF_LandingVelocity[client] = gF_OldVelocity[client];
-		gI_LandingTick[client] = gI_TickCount[client] - 1;
+		gI_LandingTick[client] = tickcount - 1;
 	}
 }
 

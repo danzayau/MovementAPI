@@ -112,6 +112,7 @@ void Call_OnButtonRelease(int client, int button)
 
 void Call_OnStopTouchGround(int client)
 {
+	gB_Jumped[client] = gB_JustJumped[client];
 	Call_StartForward(gH_Forward_OnStopTouchGround);
 	Call_PushCell(client);
 	Call_PushCell(gB_JustJumped[client]);

@@ -24,7 +24,7 @@ stock float CalcHorizontalDistance(const float point1[3], const float point2[3])
 {
 	float distanceX = FloatAbs(point2[0] - point1[0]);
 	float distanceY = FloatAbs(point2[1] - point1[1]);
-	return SquareRoot(Pow(distanceX, 2.0) + Pow(distanceY, 2.0)) + 32.0;
+	return SquareRoot(Pow(distanceX, 2.0) + Pow(distanceY, 2.0));
 }
 
 /**
