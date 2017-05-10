@@ -83,5 +83,6 @@ public int Native_GetTurningLeft(Handle plugin, int numParams)
 
 public int Native_GetTurningRight(Handle plugin, int numParams)
 {
-	return view_as<int>(gB_Turning[GetNativeCell(1)] && !gB_TurningLeft[GetNativeCell(1)]);
+	int client = GetNativeCell(1);
+	return view_as<int>(gB_Turning[client] && !gB_TurningLeft[client]);
 } 

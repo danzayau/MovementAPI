@@ -67,36 +67,14 @@ forward void Movement_OnStartTouchGround(int client);
 forward void Movement_OnStopTouchGround(int client, bool jumped);
 
 /**
- * Called when a player starts climbing a ladder.
+ * Called when the player's move type changes.
  *
  * @param client		Client index.
+ * @param oldMoveType	Player's old move type.
+ * @param newMoveType	Player's new move type.
  * @noreturn
  */
-forward void Movement_OnStartTouchLadder(int client);
-
-/**
- * Called when a player stops climbing a ladder.
- *
- * @param client		Client index.
- * @noreturn
- */
-forward void Movement_OnStopTouchLadder(int client);
-
-/**
- * Called when a player enters noclip.
- *
- * @param client		Client index.
- * @noreturn
- */
-forward void Movement_OnStartNoclipping(int client);
-
-/**
- * Called when a player leaves noclip.
- *
- * @param client		Client index.
- * @noreturn
- */
-forward void Movement_OnStopNoclipping(int client);
+forward void Movement_OnChangeMoveType(int client, MoveType oldMoveType, MoveType newMoveType);
 
 
 
@@ -315,17 +293,18 @@ public SharedPlugin __pl_movementapi =
 #if !defined REQUIRE_PLUGIN
 public void __pl_movementapi_SetNTVOptional()
 {
-	MarkNativeAsOptional("MovementAPI_GetHitPerf");
-	MarkNativeAsOptional("MovementAPI_GetTakeoffOrigin");
-	MarkNativeAsOptional("MovementAPI_GetTakeoffVelocity");
-	MarkNativeAsOptional("MovementAPI_GetTakeoffSpeed");
-	MarkNativeAsOptional("MovementAPI_GetTakeoffTick");
-	MarkNativeAsOptional("MovementAPI_GetLandingOrigin");
-	MarkNativeAsOptional("MovementAPI_GetLandingVelocity");
-	MarkNativeAsOptional("MovementAPI_GetLandingSpeed");
-	MarkNativeAsOptional("MovementAPI_GetLandingTick");
-	MarkNativeAsOptional("MovementAPI_GetTurning");
-	MarkNativeAsOptional("MovementAPI_GetTurningLeft");
-	MarkNativeAsOptional("MovementAPI_GetTurningRight");
+	MarkNativeAsOptional("Movement_GetJumped");
+	MarkNativeAsOptional("Movement_GetHitPerf");
+	MarkNativeAsOptional("Movement_GetTakeoffOrigin");
+	MarkNativeAsOptional("Movement_GetTakeoffVelocity");
+	MarkNativeAsOptional("Movement_GetTakeoffSpeed");
+	MarkNativeAsOptional("Movement_GetTakeoffTick");
+	MarkNativeAsOptional("Movement_GetLandingOrigin");
+	MarkNativeAsOptional("Movement_GetLandingVelocity");
+	MarkNativeAsOptional("Movement_GetLandingSpeed");
+	MarkNativeAsOptional("Movement_GetLandingTick");
+	MarkNativeAsOptional("Movement_GetTurning");
+	MarkNativeAsOptional("Movement_GetTurningLeft");
+	MarkNativeAsOptional("Movement_GetTurningRight");
 }
 #endif
