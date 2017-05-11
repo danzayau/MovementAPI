@@ -11,7 +11,18 @@
 
 #include <movement>
 
+/*
+	Terminology
 
+	Takeoff
+	Becoming airborne, including jumping, falling, getting off a ladder and leaving noclip.
+	
+	Landing
+	Leaving the air, including landing on the ground, grabbing a ladder and entering noclip.
+	
+	Perfect Bunnyhop (Perf)
+	When the player has jumped in the tick after landing and keeps their speed.
+*/
 
 /*===============================  Forwards  ===============================*/
 
@@ -108,6 +119,9 @@ native void Movement_GetTakeoffOrigin(int client, float result[3]);
 /**
  * Gets the player's velocity at the time of their last takeoff.
  *
+ * If sv_enablebunnyhopping is 0, CS:GO may adjust the player's 
+ * velocity after the takeoff velocity has already been measured.
+ *
  * @param client		Client index.
  * @param result		Resultant vector.
  * @noreturn
@@ -116,6 +130,9 @@ native void Movement_GetTakeoffVelocity(int client, float result[3]);
 
 /**
  * Gets the player's horizontal speed at the time of their last takeoff.
+ *
+ * If sv_enablebunnyhopping is 0, CS:GO may adjust the player's 
+ * velocity after the takeoff velocity has already been measured.
  *
  * @param client    	Client index.
  * @return        		Player's last takeoff speed.

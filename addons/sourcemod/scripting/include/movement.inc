@@ -9,9 +9,22 @@
 #endif
 #define _movement_included_
 
-
-
 /*===============================  Stocks  ===============================*/
+
+/**
+ * Calculates the absolute distance between two points.
+ *
+ * @param point1		First point.
+ * @param point2		Second point.
+ * @return				Absolute distance between points.
+ */
+stock float CalcDistance(const float point1[3], const float point2[3])
+{
+	float distanceX = point2[0] - point1[0];
+	float distanceY = point2[1] - point1[1];
+	float distanceZ = point2[2] - point1[2];
+	return SquareRoot(Pow(distanceX, 2.0) + Pow(distanceY, 2.0) + Pow(distanceZ, 2.0));
+}
 
 /**
  * Calculates the absolute horizontal distance between two points.
@@ -22,8 +35,8 @@
  */
 stock float CalcHorizontalDistance(const float point1[3], const float point2[3])
 {
-	float distanceX = FloatAbs(point2[0] - point1[0]);
-	float distanceY = FloatAbs(point2[1] - point1[1]);
+	float distanceX = point2[0] - point1[0];
+	float distanceY = point2[1] - point1[1];
 	return SquareRoot(Pow(distanceX, 2.0) + Pow(distanceY, 2.0));
 }
 
