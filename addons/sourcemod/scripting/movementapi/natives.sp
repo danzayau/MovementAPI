@@ -43,7 +43,7 @@ public int Native_GetTakeoffVelocity(Handle plugin, int numParams)
 
 public int Native_GetTakeoffSpeed(Handle plugin, int numParams)
 {
-	return view_as<int>(CalcHorizontalSpeed(gF_TakeoffVelocity[GetNativeCell(1)]));
+	return view_as<int>(GetVectorHorizontalLength(gF_TakeoffVelocity[GetNativeCell(1)]));
 }
 
 public int Native_GetTakeoffTick(Handle plugin, int numParams)
@@ -63,7 +63,7 @@ public int Native_GetLandingVelocity(Handle plugin, int numParams)
 
 public int Native_GetLandingSpeed(Handle plugin, int numParams)
 {
-	return view_as<int>(CalcHorizontalSpeed(gF_LandingVelocity[GetNativeCell(1)]));
+	return view_as<int>(GetVectorHorizontalLength(gF_LandingVelocity[GetNativeCell(1)]));
 }
 
 public int Native_GetLandingTick(Handle plugin, int numParams)
