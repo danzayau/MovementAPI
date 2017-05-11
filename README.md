@@ -12,7 +12,7 @@ An API for player movement in the form of a [function stock libary](addons/sourc
 
  * Download and extract ```MovementAPI-vX.X.X.zip``` from the latest GitHub release to ```csgo/``` in your server directory.
  
-### Definitions
+### Terminology
 
  * **Takeoff** - Becoming airborne, including jumping, falling, getting off a ladder and leaving noclip.
  * **Landing** - Leaving the air, including landing on the ground, grabbing a ladder and entering noclip.
