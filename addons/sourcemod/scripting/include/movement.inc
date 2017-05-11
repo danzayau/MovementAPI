@@ -90,41 +90,7 @@ stock int Movement_GetButtons(int client)
  */
 stock void Movement_GetOrigin(int client, float result[3])
 {
-	if (!Movement_GetOnGround(client))
-	{
-		GetClientAbsOrigin(client, result);
-		return;
-	}
-	
-	// Get the coordinate of the solid beneath the player's origin
-	// More accurate than GetClientAbsOrigin when on ground
-	float startPosition[3], endPosition[3];
-	GetClientAbsOrigin(client, startPosition);
-	endPosition = startPosition;
-	endPosition[2] = startPosition[2] - 2.0; // Should be less than 2.0 units away
-	Handle trace = TR_TraceHullFilterEx(
-		startPosition, 
-		endPosition, 
-		view_as<float>( { -16.0, -16.0, 0.0 } ),  // Players are 32 x 32 x 72
-		view_as<float>( { 16.0, 16.0, 72.0 } ), 
-		MASK_PLAYERSOLID, 
-		TraceEntityFilterSelf, 
-		client);
-	if (TR_DidHit(trace))
-	{
-		TR_GetEndPosition(result, trace);
-		result[2] = result[2] - 0.03125; // Get rid of the offset
-	}
-	else
-	{
-		result = startPosition; // Fallback to GetClientAbsOrigin
-	}
-	delete trace;
-}
-
-public bool TraceEntityFilterSelf(int entity, int contentsMask, int client)
-{
-	return entity != client;
+	GetClientAbsOrigin(client, result);
 }
 
 /**

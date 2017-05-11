@@ -112,11 +112,11 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	bool ducking = Movement_GetDucking(client);
 	MoveType moveType = Movement_GetMoveType(client);
 	
-	UpdateButtons(client, buttons);
-	UpdateDucking(client, ducking);
-	UpdateOnGround(client, tickcount, onGround, origin, velocity);
-	UpdateMoveType(client, tickcount, moveType, origin, velocity);
-	UpdateEyeAngles(client, eyeAngles);
+	UpdateButtons(client, gI_OldButtons[client], buttons);
+	UpdateDucking(client, gB_OldDucking[client], ducking);
+	UpdateOnGround(client, tickcount, gB_OldOnGround[client], onGround, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
+	UpdateMoveType(client, tickcount, gMT_OldMoveType[client], moveType, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
+	UpdateTurning(client, gF_OldEyeAngles[client], eyeAngles);
 	
 	gI_OldButtons[client] = buttons;
 	gF_OldOrigin[client] = origin;
@@ -133,50 +133,55 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 /*===============================  Functions  ===============================*/
 
-void UpdateButtons(int client, int buttons)
+void UpdateButtons(int client, int oldButtons, int buttons)
 {
 	for (int i = 0; i < MAX_BUTTONS; i++)
 	{
 		int button = (1 << i);
-		if (buttons & button)
+		if (buttons & button && !(oldButtons & button))
 		{
-			if (!(gI_OldButtons[client] & button))
-			{
-				Call_OnButtonPress(client, button);
-			}
+			Call_OnButtonPress(client, button);
 		}
-		else if (gI_OldButtons[client] & button)
+		else if (!(buttons & button) && oldButtons & button)
 		{
 			Call_OnButtonRelease(client, button);
 		}
 	}
 }
 
-void UpdateDucking(int client, bool ducking)
+void UpdateDucking(int client, bool oldDucking, bool ducking)
 {
-	if (ducking && !gB_OldDucking[client])
+	if (ducking && !oldDucking)
 	{
 		Call_OnStartDucking(client);
 	}
-	else if (!ducking && gB_OldDucking[client])
+	else if (!ducking && oldDucking)
 	{
 		Call_OnStopDucking(client);
 	}
 }
 
-void UpdateOnGround(int client, int tickcount, bool onGround, const float origin[3], const float velocity[3])
+void UpdateOnGround(
+	int client, 
+	int tickcount, 
+	bool oldOnGround, 
+	bool onGround, 
+	const float oldOrigin[3], 
+	const float origin[3], 
+	const float oldVelocity[3], 
+	const float velocity[3])
 {
-	if (onGround && !gB_OldOnGround[client])
+	if (onGround && !oldOnGround)
 	{
 		gF_LandingOrigin[client] = origin;
 		gF_LandingVelocity[client] = velocity;
 		gI_LandingTick[client] = tickcount - 1;
 		Call_OnStartTouchGround(client);
 	}
-	else if (!onGround && gB_OldOnGround[client])
+	else if (!onGround && oldOnGround)
 	{
-		gF_TakeoffOrigin[client] = gF_OldOrigin[client];
-		gF_TakeoffVelocity[client] = gF_OldVelocity[client];
+		gF_TakeoffOrigin[client] = oldOrigin;
+		gF_TakeoffVelocity[client] = oldVelocity;
 		gI_TakeoffTick[client] = tickcount - 1;
 		gB_HitPerf[client] = gI_TakeoffTick[client] - gI_LandingTick[client] == 1;
 		Call_OnStopTouchGround(client, gB_JustJumped[client]);
@@ -184,23 +189,33 @@ void UpdateOnGround(int client, int tickcount, bool onGround, const float origin
 	}
 }
 
-void UpdateMoveType(int client, int tickcount, MoveType moveType, const float origin[3], const float velocity[3])
+void UpdateMoveType(
+	int client, 
+	int tickcount, 
+	MoveType oldMoveType, 
+	MoveType moveType, 
+	const float oldOrigin[3], 
+	const float origin[3], 
+	const float oldVelocity[3], 
+	const float velocity[3])
 {
-	if (moveType != gMT_OldMoveType[client])
+	if (moveType != oldMoveType)
 	{
 		switch (moveType)
 		{
 			case MOVETYPE_WALK:
 			{
-				gF_TakeoffOrigin[client] = gF_OldOrigin[client];
-				gF_TakeoffVelocity[client] = gF_OldVelocity[client];
+				gF_TakeoffOrigin[client] = oldOrigin;
+				gF_TakeoffVelocity[client] = oldVelocity;
 				gI_TakeoffTick[client] = tickcount - 1;
 				gB_HitPerf[client] = false;
 			}
 			case MOVETYPE_LADDER:
 			{
 				gF_LandingOrigin[client] = origin;
-				gF_LandingVelocity[client] = gF_OldVelocity[client];
+				// Old velocity because player loses speed before
+				// their move type has changed to MOVETYPE_LADDER.
+				gF_LandingVelocity[client] = oldVelocity;
 				gI_LandingTick[client] = tickcount - 1;
 			}
 			case MOVETYPE_NOCLIP:
@@ -214,9 +229,9 @@ void UpdateMoveType(int client, int tickcount, MoveType moveType, const float or
 	}
 }
 
-void UpdateEyeAngles(int client, const float eyeAngles[3])
+void UpdateTurning(int client, const float oldEyeAngles[3], const float eyeAngles[3])
 {
-	gB_Turning[client] = eyeAngles[1] != gF_OldEyeAngles[client][1];
-	gB_TurningLeft[client] = eyeAngles[1] > gF_OldEyeAngles[client][1] && eyeAngles[1] < gF_OldEyeAngles[client][1] + 180
-	 || eyeAngles[1] < gF_OldEyeAngles[client][1] - 180;
+	gB_Turning[client] = eyeAngles[1] != oldEyeAngles[1];
+	gB_TurningLeft[client] = eyeAngles[1] < oldEyeAngles[1] - 180
+	 || eyeAngles[1] > oldEyeAngles[1] && eyeAngles[1] < oldEyeAngles[1] + 180;
 } 
