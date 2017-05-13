@@ -118,6 +118,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	UpdateMoveType(client, tickcount, gMT_OldMoveType[client], moveType, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
 	UpdateTurning(client, gF_OldEyeAngles[client], eyeAngles);
 	
+	gB_JustJumped[client] = false;
 	gI_OldButtons[client] = buttons;
 	gF_OldOrigin[client] = origin;
 	gF_OldVelocity[client] = velocity;
@@ -185,7 +186,6 @@ void UpdateOnGround(
 		gI_TakeoffTick[client] = tickcount - 1;
 		gB_HitPerf[client] = gI_TakeoffTick[client] - gI_LandingTick[client] == 1;
 		Call_OnStopTouchGround(client, gB_JustJumped[client]);
-		gB_JustJumped[client] = false; // Handled event_jump
 	}
 }
 
