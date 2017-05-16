@@ -19,8 +19,6 @@ public Plugin myinfo =
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
-
-
 bool gB_JustJumped[MAXPLAYERS + 1];
 
 bool gB_Jumped[MAXPLAYERS + 1];
@@ -42,14 +40,10 @@ bool gB_OldOnGround[MAXPLAYERS + 1];
 bool gB_OldDucking[MAXPLAYERS + 1];
 MoveType gMT_OldMoveType[MAXPLAYERS + 1];
 
-
-
 #include "movementapi/forwards.sp"
 #include "movementapi/natives.sp"
 
 
-
-/*===============================  Forwards  ===============================*/
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -132,9 +126,9 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 
 
-/*===============================  Functions  ===============================*/
+// =========================  PRIVATE  ========================= //
 
-void UpdateButtons(int client, int oldButtons, int buttons)
+static void UpdateButtons(int client, int oldButtons, int buttons)
 {
 	for (int i = 0; i < MAX_BUTTONS; i++)
 	{
@@ -150,7 +144,7 @@ void UpdateButtons(int client, int oldButtons, int buttons)
 	}
 }
 
-void UpdateDucking(int client, bool oldDucking, bool ducking)
+static void UpdateDucking(int client, bool oldDucking, bool ducking)
 {
 	if (ducking && !oldDucking)
 	{
@@ -162,7 +156,7 @@ void UpdateDucking(int client, bool oldDucking, bool ducking)
 	}
 }
 
-void UpdateOnGround(
+static void UpdateOnGround(
 	int client, 
 	int tickcount, 
 	bool oldOnGround, 
@@ -185,11 +179,12 @@ void UpdateOnGround(
 		gF_TakeoffVelocity[client] = oldVelocity;
 		gI_TakeoffTick[client] = tickcount - 1;
 		gB_HitPerf[client] = gI_TakeoffTick[client] - gI_LandingTick[client] == 1;
+		gB_Jumped[client] = gB_JustJumped[client];
 		Call_OnStopTouchGround(client, gB_JustJumped[client]);
 	}
 }
 
-void UpdateMoveType(
+static void UpdateMoveType(
 	int client, 
 	int tickcount, 
 	MoveType oldMoveType, 
@@ -209,6 +204,7 @@ void UpdateMoveType(
 				gF_TakeoffVelocity[client] = oldVelocity;
 				gI_TakeoffTick[client] = tickcount - 1;
 				gB_HitPerf[client] = false;
+				gB_Jumped[client] = false;
 			}
 			case MOVETYPE_LADDER:
 			{
@@ -229,7 +225,7 @@ void UpdateMoveType(
 	}
 }
 
-void UpdateTurning(int client, const float oldEyeAngles[3], const float eyeAngles[3])
+static void UpdateTurning(int client, const float oldEyeAngles[3], const float eyeAngles[3])
 {
 	gB_Turning[client] = eyeAngles[1] != oldEyeAngles[1];
 	gB_TurningLeft[client] = eyeAngles[1] < oldEyeAngles[1] - 180

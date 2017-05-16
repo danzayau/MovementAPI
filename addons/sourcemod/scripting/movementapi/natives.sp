@@ -4,6 +4,8 @@
 	MovementAPI natives implementation.
 */
 
+
+
 void CreateNatives()
 {
 	CreateNative("Movement_GetJumped", Native_GetJumped);

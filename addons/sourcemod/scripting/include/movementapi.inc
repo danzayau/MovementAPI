@@ -11,6 +11,8 @@
 
 #include <movement>
 
+
+
 /*
 	Terminology
 
@@ -24,7 +26,9 @@
 	When the player has jumped in the tick after landing and keeps their speed.
 */
 
-/*===============================  Forwards  ===============================*/
+
+
+// =========================  FORWARDS  ========================= //
 
 /**
  * Called when an alive player presses a button.
@@ -89,7 +93,7 @@ forward void Movement_OnChangeMoveType(int client, MoveType oldMoveType, MoveTyp
 
 
 
-/*===============================  Natives  ===============================*/
+// =========================  NATIVES  ========================= //
 
 /**
  * Gets whether player's last takeoff was a jump.
@@ -207,7 +211,7 @@ native bool Movement_GetTurningRight(int client);
 
 
 
-/*===============================  Methodmap  ===============================*/
+// =========================  METHODMAP  ========================= //
 
 methodmap MovementAPIPlayer __nullable__ < MovementPlayer {
 	
@@ -294,7 +298,7 @@ methodmap MovementAPIPlayer __nullable__ < MovementPlayer {
 
 
 
-/*===============================  Dependency  ===============================*/
+// =========================  DEPENDENCY  ========================= //
 
 public SharedPlugin __pl_movementapi = 
 {
