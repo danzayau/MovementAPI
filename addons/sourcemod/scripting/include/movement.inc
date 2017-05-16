@@ -11,63 +11,47 @@
 
 
 
-/*===============================  Stocks  ===============================*/
+// =========================  STOCKS  ========================= //
 
 /**
- * Calculates the absolute horizontal distance between two points.
+ * Calculates the horizontal distance between two vectors.
  *
- * @param point1		First point.
- * @param point2		Second point.
- * @return				Absolute horizontal distance between points.
+ * @param vec1		First vector.
+ * @param vec2		Second vector.
+ * @return			Vector horizontal distance.
  */
-stock float CalcHorizontalDistance(const float point1[3], const float point2[3])
+stock float GetVectorHorizontalDistance(const float vec1[3], const float vec2[3])
 {
-	float distanceX = FloatAbs(point2[0] - point1[0]);
-	float distanceY = FloatAbs(point2[1] - point1[1]);
-	return SquareRoot(Pow(distanceX, 2.0) + Pow(distanceY, 2.0)) + 32.0;
+	return SquareRoot(Pow(vec2[0] - vec1[0], 2.0) + Pow(vec2[1] - vec1[1], 2.0));
 }
 
 /**
- * Calculates the vertical distance from one point to another.
+ * Calculates a vector's horizontal length.
  *
- * @param startPoint	Start of measurement.
- * @param endPoint		End of measurement.
- * @return				Vertical distance from start point to end point.
+ * @param vec			Vector.
+ * @return				Vector horizontal length (magnitude).
  */
-stock float CalcVerticalDistance(const float startPoint[3], const float endPoint[3])
+stock float GetVectorHorizontalLength(const float vec[3])
 {
-	return endPoint[2] - startPoint[2];
+	return SquareRoot(Pow(vec[0], 2.0) + Pow(vec[1], 2.0));
 }
 
 /**
- * Calculates the horizontal speed of a velocity vector.
+ * Scales a vector to a certain horizontal length.
  *
- * @param velocity		Velocity vector.
- * @return				Horizontal speed of velocity vector.
- */
-stock float CalcHorizontalSpeed(const float velocity[3])
-{
-	return SquareRoot(Pow(velocity[0], 2.0) + Pow(velocity[1], 2.0));
-}
-
-/**
- * Adjusts a vector to have a certain horizontal speed.
- * The input vector can be used as the resultant vector.
- *
- * @param velocity		Input vector.
- * @param speed			New horizontal speed.
- * @param result		Resultant vector.
+ * @param vec			Vector.
+ * @param length		New horizontal length.
  * @noreturn
  */
-stock void AdjustVectorSpeed(const float velocity[3], float speed, float result[3])
+stock void SetVectorHorizontalLength(float vec[3], float length)
 {
-	float newVelocity[3];
-	newVelocity = velocity;
-	newVelocity[2] = 0.0;
-	NormalizeVector(newVelocity, newVelocity);
-	ScaleVector(newVelocity, speed);
-	newVelocity[2] = velocity[2];
-	result = newVelocity;
+	float newVec[3];
+	newVec = vec;
+	newVec[2] = 0.0;
+	NormalizeVector(newVec, newVec);
+	ScaleVector(newVec, length);
+	newVec[2] = vec[2];
+	vec = newVec;
 }
 
 /**
@@ -139,7 +123,7 @@ stock float Movement_GetSpeed(int client)
 {
 	float velocity[3];
 	Movement_GetVelocity(client, velocity);
-	return CalcHorizontalSpeed(velocity);
+	return GetVectorHorizontalLength(velocity);
 }
 
 /**
@@ -378,7 +362,7 @@ stock bool Movement_GetNoclipping(int client)
 
 
 
-/*===============================  Methodmap  ===============================*/
+// =========================  METHODMAP  ========================= //
 
 methodmap MovementPlayer __nullable__ {
 	

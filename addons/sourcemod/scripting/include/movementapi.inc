@@ -13,7 +13,22 @@
 
 
 
-/*===============================  Forwards  ===============================*/
+/*
+	Terminology
+
+	Takeoff
+	Becoming airborne, including jumping, falling, getting off a ladder and leaving noclip.
+	
+	Landing
+	Leaving the air, including landing on the ground, grabbing a ladder and entering noclip.
+	
+	Perfect Bunnyhop (Perf)
+	When the player has jumped in the tick after landing and keeps their speed.
+*/
+
+
+
+// =========================  FORWARDS  ========================= //
 
 /**
  * Called when an alive player presses a button.
@@ -67,40 +82,26 @@ forward void Movement_OnStartTouchGround(int client);
 forward void Movement_OnStopTouchGround(int client, bool jumped);
 
 /**
- * Called when a player starts climbing a ladder.
+ * Called when the player's move type changes.
  *
  * @param client		Client index.
+ * @param oldMoveType	Player's old move type.
+ * @param newMoveType	Player's new move type.
  * @noreturn
  */
-forward void Movement_OnStartTouchLadder(int client);
+forward void Movement_OnChangeMoveType(int client, MoveType oldMoveType, MoveType newMoveType);
+
+
+
+// =========================  NATIVES  ========================= //
 
 /**
- * Called when a player stops climbing a ladder.
+ * Gets whether player's last takeoff was a jump.
  *
- * @param client		Client index.
- * @noreturn
+ * @param client    	Client index.
+ * @return        		Whether player's last takeoff was a jump.
  */
-forward void Movement_OnStopTouchLadder(int client);
-
-/**
- * Called when a player enters noclip.
- *
- * @param client		Client index.
- * @noreturn
- */
-forward void Movement_OnStartNoclipping(int client);
-
-/**
- * Called when a player leaves noclip.
- *
- * @param client		Client index.
- * @noreturn
- */
-forward void Movement_OnStopNoclipping(int client);
-
-
-
-/*===============================  Natives  ===============================*/
+native bool Movement_GetJumped(int client);
 
 /**
  * Gets whether player's last takeoff was a perfect bunnyhop.
@@ -122,6 +123,9 @@ native void Movement_GetTakeoffOrigin(int client, float result[3]);
 /**
  * Gets the player's velocity at the time of their last takeoff.
  *
+ * If sv_enablebunnyhopping is 0, CS:GO may adjust the player's 
+ * velocity after the takeoff velocity has already been measured.
+ *
  * @param client		Client index.
  * @param result		Resultant vector.
  * @noreturn
@@ -131,17 +135,19 @@ native void Movement_GetTakeoffVelocity(int client, float result[3]);
 /**
  * Gets the player's horizontal speed at the time of their last takeoff.
  *
+ * If sv_enablebunnyhopping is 0, CS:GO may adjust the player's 
+ * velocity after the takeoff velocity has already been measured.
+ *
  * @param client    	Client index.
  * @return        		Player's last takeoff speed.
  */
 native float Movement_GetTakeoffSpeed(int client);
 
 /**
- * Gets player's MovementAPI tick count at the time of their last takeoff.
- * Note: Not comparable to GetGameTickCount().
+ * Gets player's tick count at the time of their last takeoff.
  *
  * @param client    	Client index.
- * @return        		Player's last takeoff MovementAPI tick count.
+ * @return        		Player's last takeoff tick count.
  */
 native int Movement_GetTakeoffTick(int client);
 
@@ -172,11 +178,10 @@ native void Movement_GetLandingVelocity(int client, float result[3]);
 native float Movement_GetLandingSpeed(int client);
 
 /**
- * Gets player's MovementAPI tick count at the time of their last landing.
- * Note: Not comparable to GetGameTickCount().
+ * Gets player's tick count at the time of their last landing.
  *
  * @param client    	Client index.
- * @return        		Player's last takeoff MovementAPI tick count.
+ * @return        		Player's last takeoff tick count.
  */
 native int Movement_GetLandingTick(int client);
 
@@ -206,7 +211,7 @@ native bool Movement_GetTurningRight(int client);
 
 
 
-/*===============================  Methodmap  ===============================*/
+// =========================  METHODMAP  ========================= //
 
 methodmap MovementAPIPlayer __nullable__ < MovementPlayer {
 	
@@ -217,6 +222,12 @@ methodmap MovementAPIPlayer __nullable__ < MovementPlayer {
 	property int id {
 		public get() {
 			return view_as<int>(this);
+		}
+	}
+	
+	property bool jumped {
+		public get() {
+			return Movement_GetJumped(this.id);
 		}
 	}
 	
@@ -287,7 +298,7 @@ methodmap MovementAPIPlayer __nullable__ < MovementPlayer {
 
 
 
-/*===============================  Dependency  ===============================*/
+// =========================  DEPENDENCY  ========================= //
 
 public SharedPlugin __pl_movementapi = 
 {
@@ -303,17 +314,18 @@ public SharedPlugin __pl_movementapi =
 #if !defined REQUIRE_PLUGIN
 public void __pl_movementapi_SetNTVOptional()
 {
-	MarkNativeAsOptional("MovementAPI_GetHitPerf");
-	MarkNativeAsOptional("MovementAPI_GetTakeoffOrigin");
-	MarkNativeAsOptional("MovementAPI_GetTakeoffVelocity");
-	MarkNativeAsOptional("MovementAPI_GetTakeoffSpeed");
-	MarkNativeAsOptional("MovementAPI_GetTakeoffTick");
-	MarkNativeAsOptional("MovementAPI_GetLandingOrigin");
-	MarkNativeAsOptional("MovementAPI_GetLandingVelocity");
-	MarkNativeAsOptional("MovementAPI_GetLandingSpeed");
-	MarkNativeAsOptional("MovementAPI_GetLandingTick");
-	MarkNativeAsOptional("MovementAPI_GetTurning");
-	MarkNativeAsOptional("MovementAPI_GetTurningLeft");
-	MarkNativeAsOptional("MovementAPI_GetTurningRight");
+	MarkNativeAsOptional("Movement_GetJumped");
+	MarkNativeAsOptional("Movement_GetHitPerf");
+	MarkNativeAsOptional("Movement_GetTakeoffOrigin");
+	MarkNativeAsOptional("Movement_GetTakeoffVelocity");
+	MarkNativeAsOptional("Movement_GetTakeoffSpeed");
+	MarkNativeAsOptional("Movement_GetTakeoffTick");
+	MarkNativeAsOptional("Movement_GetLandingOrigin");
+	MarkNativeAsOptional("Movement_GetLandingVelocity");
+	MarkNativeAsOptional("Movement_GetLandingSpeed");
+	MarkNativeAsOptional("Movement_GetLandingTick");
+	MarkNativeAsOptional("Movement_GetTurning");
+	MarkNativeAsOptional("Movement_GetTurningLeft");
+	MarkNativeAsOptional("Movement_GetTurningRight");
 }
 #endif

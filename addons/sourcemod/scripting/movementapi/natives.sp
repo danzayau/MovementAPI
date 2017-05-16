@@ -4,8 +4,11 @@
 	MovementAPI natives implementation.
 */
 
+
+
 void CreateNatives()
 {
+	CreateNative("Movement_GetJumped", Native_GetJumped);
 	CreateNative("Movement_GetHitPerf", Native_GetHitPerf);
 	CreateNative("Movement_GetTakeoffOrigin", Native_GetTakeoffOrigin);
 	CreateNative("Movement_GetTakeoffVelocity", Native_GetTakeoffVelocity);
@@ -18,6 +21,11 @@ void CreateNatives()
 	CreateNative("Movement_GetTurning", Native_GetTurning);
 	CreateNative("Movement_GetTurningLeft", Native_GetTurningLeft);
 	CreateNative("Movement_GetTurningRight", Native_GetTurningRight);
+}
+
+public int Native_GetJumped(Handle plugin, int numParams)
+{
+	return gB_Jumped[GetNativeCell(1)];
 }
 
 public int Native_GetHitPerf(Handle plugin, int numParams)
@@ -37,7 +45,7 @@ public int Native_GetTakeoffVelocity(Handle plugin, int numParams)
 
 public int Native_GetTakeoffSpeed(Handle plugin, int numParams)
 {
-	return view_as<int>(CalcHorizontalSpeed(gF_TakeoffVelocity[GetNativeCell(1)]));
+	return view_as<int>(GetVectorHorizontalLength(gF_TakeoffVelocity[GetNativeCell(1)]));
 }
 
 public int Native_GetTakeoffTick(Handle plugin, int numParams)
@@ -57,7 +65,7 @@ public int Native_GetLandingVelocity(Handle plugin, int numParams)
 
 public int Native_GetLandingSpeed(Handle plugin, int numParams)
 {
-	return view_as<int>(CalcHorizontalSpeed(gF_LandingVelocity[GetNativeCell(1)]));
+	return view_as<int>(GetVectorHorizontalLength(gF_LandingVelocity[GetNativeCell(1)]));
 }
 
 public int Native_GetLandingTick(Handle plugin, int numParams)
@@ -77,5 +85,6 @@ public int Native_GetTurningLeft(Handle plugin, int numParams)
 
 public int Native_GetTurningRight(Handle plugin, int numParams)
 {
-	return view_as<int>(gB_Turning[GetNativeCell(1)] && !gB_TurningLeft[GetNativeCell(1)]);
+	int client = GetNativeCell(1);
+	return view_as<int>(gB_Turning[client] && !gB_TurningLeft[client]);
 } 
