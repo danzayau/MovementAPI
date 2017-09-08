@@ -15,7 +15,7 @@ public Plugin myinfo =
 	name = "MovementAPI", 
 	author = "DanZay", 
 	description = "MovementAPI Plugin", 
-	version = "0.9.0", 
+	version = "0.9.1", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
@@ -97,7 +97,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	}
 	
 	float origin[3];
-	Movement_GetOrigin(client, origin);
+	Movement_GetOriginEx(client, origin);
 	float velocity[3];
 	Movement_GetVelocity(client, velocity);
 	float eyeAngles[3];
