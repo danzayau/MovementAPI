@@ -93,6 +93,7 @@ forward void Movement_OnChangeMoveType(int client, MoveType oldMoveType, MoveTyp
 
 /**
  * Called when the player jumps (player_jump event), including 'jumpbugs'.
+ * Setting velocity when this is called may not be effective.
  *
  * If the player 'jumpbugs', then they will not call Movement_OnStopTouchGround
  * because their FL_ONGROUND flag was not detected as true prior to the jump.
