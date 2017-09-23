@@ -91,6 +91,18 @@ forward void Movement_OnStopTouchGround(int client, bool jumped);
  */
 forward void Movement_OnChangeMoveType(int client, MoveType oldMoveType, MoveType newMoveType);
 
+/**
+ * Called when the player jumps (player_jump event), including 'jumpbugs'.
+ *
+ * If the player 'jumpbugs', then they will not call Movement_OnStopTouchGround
+ * because their FL_ONGROUND flag was not detected as true prior to the jump.
+ *
+ * @param client		Client index.
+ * @param jumpbug		Whether the player 'jumpbugged'.
+ * @noreturn
+ */
+forward void Movement_OnPlayerJump(int client, bool jumpbug);
+
 
 
 // =========================  NATIVES  ========================= //

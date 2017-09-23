@@ -13,6 +13,7 @@ static Handle H_OnStopDucking;
 static Handle H_OnStartTouchGround;
 static Handle H_OnStopTouchGround;
 static Handle H_OnChangeMoveType;
+static Handle H_OnPlayerJump;
 
 
 
@@ -25,6 +26,7 @@ void CreateGlobalForwards()
 	H_OnStartTouchGround = CreateGlobalForward("Movement_OnStartTouchGround", ET_Ignore, Param_Cell);
 	H_OnStopTouchGround = CreateGlobalForward("Movement_OnStopTouchGround", ET_Ignore, Param_Cell, Param_Cell);
 	H_OnChangeMoveType = CreateGlobalForward("Movement_OnChangeMoveType", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+	H_OnPlayerJump = CreateGlobalForward("Movement_OnPlayerJump", ET_Ignore, Param_Cell, Param_Cell);
 }
 
 void Call_OnButtonPress(int client, int button)
@@ -78,5 +80,13 @@ void Call_OnChangeMoveType(int client, MoveType oldMoveType, MoveType newMoveTyp
 	Call_PushCell(client);
 	Call_PushCell(oldMoveType);
 	Call_PushCell(newMoveType);
+	Call_Finish();
+}
+
+void Call_OnPlayerJump(int client, bool jumpbug)
+{
+	Call_StartForward(H_OnPlayerJump);
+	Call_PushCell(client);
+	Call_PushCell(jumpbug);
 	Call_Finish();
 } 

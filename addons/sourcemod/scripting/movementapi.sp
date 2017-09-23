@@ -15,7 +15,7 @@ public Plugin myinfo =
 	name = "MovementAPI", 
 	author = "DanZay", 
 	description = "MovementAPI Plugin", 
-	version = "0.9.1", 
+	version = "0.10.0", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
@@ -55,8 +55,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	CreateGlobalForwards();
-	HookEvent("player_spawn", OnPlayerSpawn, EventHookMode_Pre);
-	HookEvent("player_jump", OnPlayerJump, EventHookMode_Pre);
+	HookEvent("player_spawn", OnPlayerSpawn, EventHookMode_Post);
+	HookEvent("player_jump", OnPlayerJump, EventHookMode_Post);
 }
 
 public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
@@ -87,6 +87,8 @@ public void OnPlayerJump(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	gB_JustJumped[client] = true;
+	bool jumpbug = !gB_OldOnGround[client];
+	Call_OnPlayerJump(client, jumpbug);
 }
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
