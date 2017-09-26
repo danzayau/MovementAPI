@@ -26,9 +26,11 @@ bool gB_HitPerf[MAXPLAYERS + 1];
 float gF_LandingOrigin[MAXPLAYERS + 1][3];
 float gF_LandingVelocity[MAXPLAYERS + 1][3];
 int gI_LandingTick[MAXPLAYERS + 1];
+int gI_LandingCmdNum[MAXPLAYERS + 1];
 float gF_TakeoffOrigin[MAXPLAYERS + 1][3];
 float gF_TakeoffVelocity[MAXPLAYERS + 1][3];
 int gI_TakeoffTick[MAXPLAYERS + 1];
+int gI_TakeoffCmdNum[MAXPLAYERS + 1];
 bool gB_Turning[MAXPLAYERS + 1];
 bool gB_TurningLeft[MAXPLAYERS + 1];
 
@@ -110,8 +112,8 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	
 	UpdateButtons(client, gI_OldButtons[client], buttons);
 	UpdateDucking(client, gB_OldDucking[client], ducking);
-	UpdateOnGround(client, tickcount, gB_OldOnGround[client], onGround, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
-	UpdateMoveType(client, tickcount, gMT_OldMoveType[client], moveType, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
+	UpdateOnGround(client, cmdnum, tickcount, gB_OldOnGround[client], onGround, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
+	UpdateMoveType(client, cmdnum, tickcount, gMT_OldMoveType[client], moveType, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
 	UpdateTurning(client, gF_OldEyeAngles[client], eyeAngles);
 	
 	gB_JustJumped[client] = false;
@@ -160,6 +162,7 @@ static void UpdateDucking(int client, bool oldDucking, bool ducking)
 
 static void UpdateOnGround(
 	int client, 
+	int cmdnum, 
 	int tickcount, 
 	bool oldOnGround, 
 	bool onGround, 
@@ -172,15 +175,17 @@ static void UpdateOnGround(
 	{
 		gF_LandingOrigin[client] = origin;
 		gF_LandingVelocity[client] = velocity;
-		gI_LandingTick[client] = tickcount - 1;
+		gI_LandingTick[client] = tickcount;
+		gI_LandingCmdNum[client] = cmdnum;
 		Call_OnStartTouchGround(client);
 	}
 	else if (!onGround && oldOnGround)
 	{
 		gF_TakeoffOrigin[client] = oldOrigin;
 		gF_TakeoffVelocity[client] = oldVelocity;
-		gI_TakeoffTick[client] = tickcount - 1;
-		gB_HitPerf[client] = gI_TakeoffTick[client] - gI_LandingTick[client] == 1;
+		gI_TakeoffTick[client] = tickcount;
+		gI_TakeoffCmdNum[client] = cmdnum;
+		gB_HitPerf[client] = (gI_TakeoffTick[client] - gI_LandingTick[client]) == 1;
 		gB_Jumped[client] = gB_JustJumped[client];
 		Call_OnStopTouchGround(client, gB_JustJumped[client]);
 	}
@@ -188,6 +193,7 @@ static void UpdateOnGround(
 
 static void UpdateMoveType(
 	int client, 
+	int cmdnum, 
 	int tickcount, 
 	MoveType oldMoveType, 
 	MoveType moveType, 
@@ -204,7 +210,8 @@ static void UpdateMoveType(
 			{
 				gF_TakeoffOrigin[client] = oldOrigin;
 				gF_TakeoffVelocity[client] = oldVelocity;
-				gI_TakeoffTick[client] = tickcount - 1;
+				gI_TakeoffTick[client] = tickcount;
+				gI_TakeoffCmdNum[client] = cmdnum;
 				gB_HitPerf[client] = false;
 				gB_Jumped[client] = false;
 			}
@@ -214,13 +221,15 @@ static void UpdateMoveType(
 				// Old velocity because player loses speed before
 				// their move type has changed to MOVETYPE_LADDER.
 				gF_LandingVelocity[client] = oldVelocity;
-				gI_LandingTick[client] = tickcount - 1;
+				gI_LandingTick[client] = tickcount;
+				gI_LandingCmdNum[client] = cmdnum;
 			}
 			case MOVETYPE_NOCLIP:
 			{
 				gF_LandingOrigin[client] = origin;
 				gF_LandingVelocity[client] = velocity;
-				gI_LandingTick[client] = tickcount - 1;
+				gI_LandingTick[client] = tickcount;
+				gI_LandingCmdNum[client] = cmdnum;
 			}
 		}
 		Call_OnChangeMoveType(client, gMT_OldMoveType[client], moveType);
