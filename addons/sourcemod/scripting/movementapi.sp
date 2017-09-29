@@ -15,7 +15,7 @@ public Plugin myinfo =
 	name = "MovementAPI", 
 	author = "DanZay", 
 	description = "MovementAPI Plugin", 
-	version = "0.10.0", 
+	version = "0.10.1", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
@@ -209,7 +209,9 @@ static void UpdateMoveType(
 			case MOVETYPE_WALK:
 			{
 				gF_TakeoffOrigin[client] = oldOrigin;
-				gF_TakeoffVelocity[client] = oldVelocity;
+				// New velocity because game will adjust the velocity
+				// of the player in some cases (jumping off ladder).
+				gF_TakeoffVelocity[client] = velocity;
 				gI_TakeoffTick[client] = tickcount;
 				gI_TakeoffCmdNum[client] = cmdnum;
 				gB_HitPerf[client] = false;
