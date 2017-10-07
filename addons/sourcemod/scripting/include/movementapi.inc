@@ -31,24 +31,6 @@
 // =========================  FORWARDS  ========================= //
 
 /**
- * Called when an alive player presses a button.
- *
- * @param client		Client index.
- * @param button		Button pressed e.g. IN_FORWARD, IN_LEFT.
- * @noreturn
- */
-forward void Movement_OnButtonPress(int client, int button);
-
-/**
- * Called when an alive player releases a button.
- *
- * @param client		Client index.
- * @param button		Button released e.g. IN_FORWARD, IN_LEFT.
- * @noreturn
- */
-forward void Movement_OnButtonRelease(int client, int button);
-
-/**
  * Called when a player starts ducking.
  *
  * @param client		Client index.
