@@ -6,8 +6,6 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-#define MAX_BUTTONS 25
-
 
 
 public Plugin myinfo = 
@@ -15,7 +13,7 @@ public Plugin myinfo =
 	name = "MovementAPI", 
 	author = "DanZay", 
 	description = "MovementAPI Plugin", 
-	version = "0.10.1", 
+	version = "1.0.0", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
@@ -34,7 +32,6 @@ int gI_TakeoffCmdNum[MAXPLAYERS + 1];
 bool gB_Turning[MAXPLAYERS + 1];
 bool gB_TurningLeft[MAXPLAYERS + 1];
 
-int gI_OldButtons[MAXPLAYERS + 1];
 float gF_OldOrigin[MAXPLAYERS + 1][3];
 float gF_OldVelocity[MAXPLAYERS + 1][3];
 float gF_OldEyeAngles[MAXPLAYERS + 1][3];
@@ -76,7 +73,6 @@ public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	gB_Turning[client] = false;
 	gB_TurningLeft[client] = false;
 	
-	gI_OldButtons[client] = 0;
 	gF_OldOrigin[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gF_OldVelocity[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gF_OldEyeAngles[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
@@ -110,14 +106,12 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	bool ducking = Movement_GetDucking(client);
 	MoveType moveType = Movement_GetMoveType(client);
 	
-	UpdateButtons(client, gI_OldButtons[client], buttons);
 	UpdateDucking(client, gB_OldDucking[client], ducking);
 	UpdateOnGround(client, cmdnum, tickcount, gB_OldOnGround[client], onGround, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
 	UpdateMoveType(client, cmdnum, tickcount, gMT_OldMoveType[client], moveType, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
 	UpdateTurning(client, gF_OldEyeAngles[client], eyeAngles);
 	
 	gB_JustJumped[client] = false;
-	gI_OldButtons[client] = buttons;
 	gF_OldOrigin[client] = origin;
 	gF_OldVelocity[client] = velocity;
 	gF_OldEyeAngles[client] = eyeAngles;
@@ -131,22 +125,6 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 
 // =========================  PRIVATE  ========================= //
-
-static void UpdateButtons(int client, int oldButtons, int buttons)
-{
-	for (int i = 0; i < MAX_BUTTONS; i++)
-	{
-		int button = (1 << i);
-		if (buttons & button && !(oldButtons & button))
-		{
-			Call_OnButtonPress(client, button);
-		}
-		else if (!(buttons & button) && oldButtons & button)
-		{
-			Call_OnButtonRelease(client, button);
-		}
-	}
-}
 
 static void UpdateDucking(int client, bool oldDucking, bool ducking)
 {
