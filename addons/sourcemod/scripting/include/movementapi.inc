@@ -223,6 +223,15 @@ native bool Movement_GetTurningLeft(int client);
  */
 native bool Movement_GetTurningRight(int client);
 
+/**
+ * Gets result of CCSPlayer::GetPlayerMaxSpeed(client), which
+ * is the player's max speed as limited by their weapon.
+ *
+ * @param client	Client index.
+ * @return			Player's max speed as limited by their weapon.
+ */
+native float Movement_GetMaxSpeed(int client);
+
 
 
 // =========================  METHODMAP  ========================= //
@@ -318,6 +327,12 @@ methodmap MovementAPIPlayer __nullable__ < MovementPlayer {
 	property bool turningRight {
 		public get() {
 			return Movement_GetTurningRight(this.id);
+		}
+	}
+	
+	property float maxSpeed {
+		public get() {
+			return Movement_GetMaxSpeed(this.id);
 		}
 	}
 }

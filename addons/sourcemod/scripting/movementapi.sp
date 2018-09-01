@@ -1,6 +1,5 @@
 #include <sourcemod>
 #include <sdktools>
-#include <sdkhooks>
 #include <movement>
 
 #pragma newdecls required
@@ -16,6 +15,9 @@ public Plugin myinfo =
 	version = "1.0.0", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
+
+Handle gH_GameData;
+Handle gH_GetMaxSpeed;
 
 bool gB_JustJumped[MAXPLAYERS + 1];
 
@@ -53,6 +55,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
+	PrepSDKCalls();
 	CreateGlobalForwards();
 	HookEvent("player_spawn", OnPlayerSpawn, EventHookMode_Post);
 	HookEvent("player_jump", OnPlayerJump, EventHookMode_Post);
@@ -122,9 +125,23 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	return Plugin_Continue;
 }
 
+float GetMaxSpeed(int client)
+{
+	return SDKCall(gH_GetMaxSpeed, client);
+}
+
 
 
 // =========================  PRIVATE  ========================= //
+
+static void PrepSDKCalls()
+{
+	gH_GameData = LoadGameConfigFile("movementapi.games");
+	StartPrepSDKCall(SDKCall_Player);
+	PrepSDKCall_SetFromConf(gH_GameData, SDKConf_Signature, "GetPlayerMaxSpeed");
+	PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_ByValue);
+	gH_GetMaxSpeed = EndPrepSDKCall();
+}
 
 static void UpdateDucking(int client, bool oldDucking, bool ducking)
 {
