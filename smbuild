@@ -1,8 +1,9 @@
 Plugin(source='addons/sourcemod/scripting/movementapi.sp')
 
-Package(name='movementapi',
-        plugins=['movementapi'],
-        filegroups={
-            '.':['README.md', 'LICENSE'],
-        },
+Package(name='MovementAPI',
+		plugins=['movementapi'],
+		gamedata='addons/sourcemod/gamedata',
+		filegroups={
+			'addons/sourcemod/scripting/include': ['addons/sourcemod/scripting/include/*']
+		}
 )

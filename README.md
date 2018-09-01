@@ -6,7 +6,7 @@ An API for player movement in the form of a [function stock libary](addons/sourc
 
 ### Requirements
 
- * SourceMod 1.8+
+ * SourceMod 1.9+
  
 ### Plugin Installation
 
