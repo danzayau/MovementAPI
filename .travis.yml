@@ -5,7 +5,6 @@ addons:
         - lib32stdc++6  # needed for spcomp
 
 env:
-    - SMVERSION=1.8
     - SMVERSION=1.9
 
 before_script:
@@ -14,6 +13,7 @@ before_script:
     - cd sm-builder
     - pip install --user -r requirements.txt
     - python setup.py install --prefix=~/.local
+
     - cd ..
 
     # install the sourcemod compiler
@@ -23,6 +23,7 @@ before_script:
     - cd addons/sourcemod/scripting/
     - chmod +x spcomp
     - PATH+=":$PWD"
+
     - cd ../../..
 
 script:
