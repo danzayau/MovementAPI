@@ -13,7 +13,6 @@ before_script:
     - cd sm-builder
     - pip install --user -r requirements.txt
     - python setup.py install --prefix=~/.local
-
     - cd ..
 
     # install the sourcemod compiler
@@ -23,8 +22,10 @@ before_script:
     - cd addons/sourcemod/scripting/
     - chmod +x spcomp
     - PATH+=":$PWD"
-
     - cd ../../..
 
 script:
     - smbuilder --flags="-E"
+    
+notifications:
+    email: false

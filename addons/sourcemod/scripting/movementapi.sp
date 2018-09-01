@@ -12,7 +12,7 @@ public Plugin myinfo =
 	name = "MovementAPI", 
 	author = "DanZay", 
 	description = "MovementAPI Plugin", 
-	version = "1.0.0", 
+	version = "1.1.0", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 

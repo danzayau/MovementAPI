@@ -26,7 +26,9 @@
 	When the player has jumped in the tick after landing and keeps their speed.
     
     Jumpbug
-    When the player is never seen as 'on ground' when bunnyhopping. This is achievable by uncrouching and jumping at the same time. A jumpbug results in unusual behaviour such as maintaining horizontal speed and not receiving fall damage.
+    When the player is never seen as 'on ground' when bunnyhopping. This is achievable by 
+    uncrouching and jumping at the same time. A jumpbug results in unusual behaviour such
+    as maintaining horizontal speed and not receiving fall damage.
 */
 
 
