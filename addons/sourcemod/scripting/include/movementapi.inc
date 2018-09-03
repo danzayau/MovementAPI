@@ -1,4 +1,4 @@
-/* 	
+/*
 	MovementAPI Plugin Include
 
 	Website: https://github.com/danzayau/MovementAPI	
@@ -18,17 +18,17 @@
 
 	Takeoff
 	Becoming airborne, including jumping, falling, getting off a ladder and leaving noclip.
-	
+
 	Landing
 	Leaving the air, including landing on the ground, grabbing a ladder and entering noclip.
-	
+
 	Perfect Bunnyhop (Perf)
 	When the player has jumped in the tick after landing and keeps their speed.
-    
-    Jumpbug
-    When the player is never seen as 'on ground' when bunnyhopping. This is achievable by 
-    uncrouching and jumping at the same time. A jumpbug results in unusual behaviour such
-    as maintaining horizontal speed and not receiving fall damage.
+
+	Jumpbug
+	When the player is never seen as 'on ground' when bunnyhopping. This is achievable by 
+	uncrouching and jumping at the same time. A jumpbug results in unusual behaviour such
+	as maintaining horizontal speed and not receiving fall damage.
 */
 
 
@@ -372,5 +372,6 @@ public void __pl_movementapi_SetNTVOptional()
 	MarkNativeAsOptional("Movement_GetTurning");
 	MarkNativeAsOptional("Movement_GetTurningLeft");
 	MarkNativeAsOptional("Movement_GetTurningRight");
+	MarkNativeAsOptional("Movement_GetMaxSpeed");
 }
 #endif
