@@ -399,8 +399,8 @@ stock bool Movement_GetNoclipping(int client)
 
 methodmap MovementPlayer __nullable__ {
 	
-	public MovementPlayer(int id) {
-		return view_as<MovementPlayer>(id);
+	public MovementPlayer(int client) {
+		return view_as<MovementPlayer>(client);
 	}
 	
 	property int id {
