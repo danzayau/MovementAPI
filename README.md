@@ -10,7 +10,7 @@ An API for player movement in the form of a [function stock libary](addons/sourc
  
 ### Plugin Installation
 
- * Download and extract ```MovementAPI-vX.X.X.zip``` from the latest GitHub release to ```csgo/``` in your server directory.
+ * Download and extract ```MovementAPI-vX.X.X.zip``` from the [latest GitHub release](https://github.com/danzayau/MovementAPI/releases/latest) to ```csgo/``` in your server directory.
  
 ### Terminology
 
