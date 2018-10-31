@@ -11,8 +11,8 @@ public Plugin myinfo =
 {
 	name = "MovementAPI", 
 	author = "DanZay", 
-	description = "MovementAPI Plugin", 
-	version = "1.1.1", 
+	description = "Provides API focused on player movement", 
+	version = "1.1.2", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
@@ -129,10 +129,6 @@ float GetMaxSpeed(int client)
 {
 	return SDKCall(gH_GetMaxSpeed, client);
 }
-
-
-
-// =========================  PRIVATE  ========================= //
 
 static void PrepSDKCalls()
 {

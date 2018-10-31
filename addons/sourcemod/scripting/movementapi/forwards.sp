@@ -1,11 +1,3 @@
-/*	
-	Forwards
-
-	MovementAPI forwards implementation.
-*/
-
-
-
 static Handle H_OnStartDucking;
 static Handle H_OnStopDucking;
 static Handle H_OnStartTouchGround;
