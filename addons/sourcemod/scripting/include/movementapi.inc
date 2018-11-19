@@ -36,18 +36,13 @@
 // =====[ FORWARDS ]=====
 
 /**
- * Called when a player starts ducking.
+ * Called when the player's move type changes.
  *
  * @param client		Client index.
+ * @param oldMoveType	Player's old move type.
+ * @param newMoveType	Player's new move type.
  */
-forward void Movement_OnStartDucking(int client);
-
-/**
- * Called when a player stops ducking.
- *
- * @param client		Client index.
- */
-forward void Movement_OnStopDucking(int client);
+forward void Movement_OnChangeMoveType(int client, MoveType oldMoveType, MoveType newMoveType);
 
 /**
  * Called when a player touches the ground.
@@ -65,13 +60,18 @@ forward void Movement_OnStartTouchGround(int client);
 forward void Movement_OnStopTouchGround(int client, bool jumped);
 
 /**
- * Called when the player's move type changes.
+ * Called when a player starts ducking.
  *
  * @param client		Client index.
- * @param oldMoveType	Player's old move type.
- * @param newMoveType	Player's new move type.
  */
-forward void Movement_OnChangeMoveType(int client, MoveType oldMoveType, MoveType newMoveType);
+forward void Movement_OnStartDucking(int client);
+
+/**
+ * Called when a player stops ducking.
+ *
+ * @param client		Client index.
+ */
+forward void Movement_OnStopDucking(int client);
 
 /**
  * Called when the player jumps (player_jump event), including 'jumpbugs'.

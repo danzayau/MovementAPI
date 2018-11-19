@@ -1,5 +1,7 @@
 #include <sourcemod>
 
+#include <sdkhooks>
+
 #include <movement>
 
 #pragma newdecls required
@@ -19,6 +21,8 @@ public Plugin myinfo =
 Handle gH_GameData;
 Handle gH_GetMaxSpeed;
 
+int gI_Cmdnum[MAXPLAYERS + 1];
+int gI_TickCount[MAXPLAYERS + 1];
 bool gB_JustJumped[MAXPLAYERS + 1];
 
 bool gB_Jumped[MAXPLAYERS + 1];
@@ -59,12 +63,92 @@ public void OnPluginStart()
 	CreateGlobalForwards();
 	HookEvent("player_spawn", OnPlayerSpawn, EventHookMode_Post);
 	HookEvent("player_jump", OnPlayerJump, EventHookMode_Post);
+	
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client))
+		{
+			OnClientPutInServer(client);
+			if (IsPlayerAlive(client))
+			{
+				ResetClientData(client);
+			}
+		}
+	}
+}
+
+public void OnClientPutInServer(int client)
+{
+	SDKHook(client, SDKHook_PostThinkPost, OnPlayerPostThinkPost);
 }
 
 public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	ResetClientData(client);
+}
+
+public void OnPlayerJump(Event event, const char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	gB_JustJumped[client] = true;
+	bool jumpbug = !gB_OldOnGround[client];
+	Call_OnPlayerJump(client, jumpbug);
+}
+
+public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
+{
+	gI_Cmdnum[client] = cmdnum;
+	gI_TickCount[client] = tickcount;
+}
+
+public void OnPlayerPostThinkPost(int client)
+{
+	if (!IsPlayerAlive(client))
+	{
+		return;
+	}
 	
+	float origin[3];
+	Movement_GetOriginEx(client, origin);
+	float velocity[3];
+	Movement_GetVelocity(client, velocity);
+	float eyeAngles[3];
+	Movement_GetEyeAngles(client, eyeAngles);
+	bool onGround = Movement_GetOnGround(client);
+	bool ducking = Movement_GetDucking(client);
+	MoveType moveType = Movement_GetMoveType(client);
+	
+	UpdateMoveType(client, gI_Cmdnum[client], gI_TickCount[client], gMT_OldMoveType[client], moveType, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
+	UpdateOnGround(client, gI_Cmdnum[client], gI_TickCount[client], gB_OldOnGround[client], onGround, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
+	UpdateDucking(client, gB_OldDucking[client], ducking);
+	UpdateTurning(client, gF_OldEyeAngles[client], eyeAngles);
+	
+	gB_JustJumped[client] = false;
+	gF_OldOrigin[client] = origin;
+	gF_OldVelocity[client] = velocity;
+	gF_OldEyeAngles[client] = eyeAngles;
+	gB_OldOnGround[client] = onGround;
+	gB_OldDucking[client] = ducking;
+	gMT_OldMoveType[client] = moveType;
+}
+
+float GetMaxSpeed(int client)
+{
+	return SDKCall(gH_GetMaxSpeed, client);
+}
+
+static void PrepSDKCalls()
+{
+	gH_GameData = LoadGameConfigFile("movementapi.games");
+	StartPrepSDKCall(SDKCall_Player);
+	PrepSDKCall_SetFromConf(gH_GameData, SDKConf_Virtual, "GetPlayerMaxSpeed");
+	PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_ByValue);
+	gH_GetMaxSpeed = EndPrepSDKCall();
+}
+
+static void ResetClientData(int client)
+{
 	gB_Jumped[client] = false;
 	gB_HitPerf[client] = false;
 	gF_TakeoffOrigin[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
@@ -82,61 +166,6 @@ public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	gB_OldOnGround[client] = false;
 	gB_OldDucking[client] = false;
 	gMT_OldMoveType[client] = MOVETYPE_WALK;
-}
-
-public void OnPlayerJump(Event event, const char[] name, bool dontBroadcast)
-{
-	int client = GetClientOfUserId(GetEventInt(event, "userid"));
-	gB_JustJumped[client] = true;
-	bool jumpbug = !gB_OldOnGround[client];
-	Call_OnPlayerJump(client, jumpbug);
-}
-
-public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
-{
-	if (!IsPlayerAlive(client))
-	{
-		return Plugin_Continue;
-	}
-	
-	float origin[3];
-	Movement_GetOriginEx(client, origin);
-	float velocity[3];
-	Movement_GetVelocity(client, velocity);
-	float eyeAngles[3];
-	Movement_GetEyeAngles(client, eyeAngles);
-	bool onGround = Movement_GetOnGround(client);
-	bool ducking = Movement_GetDucking(client);
-	MoveType moveType = Movement_GetMoveType(client);
-	
-	UpdateDucking(client, gB_OldDucking[client], ducking);
-	UpdateOnGround(client, cmdnum, tickcount, gB_OldOnGround[client], onGround, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
-	UpdateMoveType(client, cmdnum, tickcount, gMT_OldMoveType[client], moveType, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
-	UpdateTurning(client, gF_OldEyeAngles[client], eyeAngles);
-	
-	gB_JustJumped[client] = false;
-	gF_OldOrigin[client] = origin;
-	gF_OldVelocity[client] = velocity;
-	gF_OldEyeAngles[client] = eyeAngles;
-	gB_OldOnGround[client] = onGround;
-	gB_OldDucking[client] = ducking;
-	gMT_OldMoveType[client] = moveType;
-	
-	return Plugin_Continue;
-}
-
-float GetMaxSpeed(int client)
-{
-	return SDKCall(gH_GetMaxSpeed, client);
-}
-
-static void PrepSDKCalls()
-{
-	gH_GameData = LoadGameConfigFile("movementapi.games");
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(gH_GameData, SDKConf_Virtual, "GetPlayerMaxSpeed");
-	PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_ByValue);
-	gH_GetMaxSpeed = EndPrepSDKCall();
 }
 
 static void UpdateDucking(int client, bool oldDucking, bool ducking)
@@ -234,4 +263,4 @@ static void UpdateTurning(int client, const float oldEyeAngles[3], const float e
 	gB_Turning[client] = eyeAngles[1] != oldEyeAngles[1];
 	gB_TurningLeft[client] = eyeAngles[1] < oldEyeAngles[1] - 180
 	 || eyeAngles[1] > oldEyeAngles[1] && eyeAngles[1] < oldEyeAngles[1] + 180;
-} 
+}
