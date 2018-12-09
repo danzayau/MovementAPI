@@ -12,7 +12,7 @@ public Plugin myinfo =
 	name = "MovementAPI", 
 	author = "DanZay", 
 	description = "Provides API focused on player movement", 
-	version = "1.1.2", 
+	version = "1.1.3", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
@@ -134,7 +134,7 @@ static void PrepSDKCalls()
 {
 	gH_GameData = LoadGameConfigFile("movementapi.games");
 	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(gH_GameData, SDKConf_Signature, "GetPlayerMaxSpeed");
+	PrepSDKCall_SetFromConf(gH_GameData, SDKConf_Virtual, "GetPlayerMaxSpeed");
 	PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_ByValue);
 	gH_GetMaxSpeed = EndPrepSDKCall();
 }

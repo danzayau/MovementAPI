@@ -2,13 +2,13 @@
 {
 	"csgo"
 	{
-		"Signatures"
+		"Offsets"
 		{
 			"GetPlayerMaxSpeed"
 			{
-				"library"	"server"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x56\x8B\xF1\x80\xBE\xE2\x00\x00\x00\x00"
-				"linux"		"\x55\x89\xE5\x83\xEC\x38\x89\x5D\xF8\x8B\x5D\x08\x89\x75\xFC\x80\xBB\xEA\x00\x00\x00\x00"
+				"windows"	"504"
+				"linux"		"505"
+				"mac"		"505"
 			}
 		}
 	}
