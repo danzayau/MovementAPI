@@ -14,7 +14,7 @@ public Plugin myinfo =
 	name = "MovementAPI", 
 	author = "DanZay", 
 	description = "Provides API focused on player movement", 
-	version = "1.1.3", 
+	version = "2.0.0", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
