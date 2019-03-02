@@ -43,7 +43,7 @@ float gF_OldVelocity[MAXPLAYERS + 1][3];
 float gF_OldEyeAngles[MAXPLAYERS + 1][3];
 bool gB_OldOnGround[MAXPLAYERS + 1];
 bool gB_OldDucking[MAXPLAYERS + 1];
-MoveType gMT_OldMoveType[MAXPLAYERS + 1];
+MoveType gMT_OldMovetype[MAXPLAYERS + 1];
 
 #include "movementapi/forwards.sp"
 #include "movementapi/natives.sp"
@@ -117,9 +117,9 @@ public void OnPlayerPostThinkPost(int client)
 	Movement_GetEyeAngles(client, eyeAngles);
 	bool onGround = Movement_GetOnGround(client);
 	bool ducking = Movement_GetDucking(client);
-	MoveType moveType = Movement_GetMoveType(client);
+	MoveType movetype = Movement_GetMovetype(client);
 	
-	UpdateMoveType(client, gI_Cmdnum[client], gI_TickCount[client], gMT_OldMoveType[client], moveType, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
+	UpdateMovetype(client, gI_Cmdnum[client], gI_TickCount[client], gMT_OldMovetype[client], movetype, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
 	UpdateOnGround(client, gI_Cmdnum[client], gI_TickCount[client], gB_OldOnGround[client], onGround, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
 	UpdateDucking(client, gB_OldDucking[client], ducking);
 	UpdateTurning(client, gF_OldEyeAngles[client], eyeAngles);
@@ -130,7 +130,7 @@ public void OnPlayerPostThinkPost(int client)
 	gF_OldEyeAngles[client] = eyeAngles;
 	gB_OldOnGround[client] = onGround;
 	gB_OldDucking[client] = ducking;
-	gMT_OldMoveType[client] = moveType;
+	gMT_OldMovetype[client] = movetype;
 }
 
 float GetMaxSpeed(int client)
@@ -165,7 +165,7 @@ static void ResetClientData(int client)
 	gF_OldEyeAngles[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gB_OldOnGround[client] = false;
 	gB_OldDucking[client] = false;
-	gMT_OldMoveType[client] = MOVETYPE_WALK;
+	gMT_OldMovetype[client] = MOVETYPE_WALK;
 }
 
 static void UpdateDucking(int client, bool oldDucking, bool ducking)
@@ -211,20 +211,20 @@ static void UpdateOnGround(
 	}
 }
 
-static void UpdateMoveType(
+static void UpdateMovetype(
 	int client, 
 	int cmdnum, 
 	int tickcount, 
-	MoveType oldMoveType, 
-	MoveType moveType, 
+	MoveType oldMovetype, 
+	MoveType movetype, 
 	const float oldOrigin[3], 
 	const float origin[3], 
 	const float oldVelocity[3], 
 	const float velocity[3])
 {
-	if (moveType != oldMoveType)
+	if (movetype != oldMovetype)
 	{
-		switch (moveType)
+		switch (movetype)
 		{
 			case MOVETYPE_WALK:
 			{
@@ -241,7 +241,7 @@ static void UpdateMoveType(
 			{
 				gF_LandingOrigin[client] = origin;
 				// Old velocity because player loses speed before
-				// their move type has changed to MOVETYPE_LADDER.
+				// their movetype has changed to MOVETYPE_LADDER.
 				gF_LandingVelocity[client] = oldVelocity;
 				gI_LandingTick[client] = tickcount;
 				gI_LandingCmdNum[client] = cmdnum;
@@ -254,7 +254,7 @@ static void UpdateMoveType(
 				gI_LandingCmdNum[client] = cmdnum;
 			}
 		}
-		Call_OnChangeMoveType(client, gMT_OldMoveType[client], moveType);
+		Call_OnChangeMovetype(client, gMT_OldMovetype[client], movetype);
 	}
 }
 
