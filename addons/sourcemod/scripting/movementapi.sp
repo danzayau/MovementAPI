@@ -119,10 +119,10 @@ public void OnPlayerPostThinkPost(int client)
 	bool ducking = Movement_GetDucking(client);
 	MoveType movetype = Movement_GetMovetype(client);
 	
-	UpdateMovetype(client, gI_Cmdnum[client], gI_TickCount[client], gMT_OldMovetype[client], movetype, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
-	UpdateOnGround(client, gI_Cmdnum[client], gI_TickCount[client], gB_OldOnGround[client], onGround, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
-	UpdateDucking(client, gB_OldDucking[client], ducking);
 	UpdateTurning(client, gF_OldEyeAngles[client], eyeAngles);
+	UpdateDucking(client, gB_OldDucking[client], ducking);
+	UpdateOnGround(client, gI_Cmdnum[client], gI_TickCount[client], gB_OldOnGround[client], onGround, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
+	UpdateMovetype(client, gI_Cmdnum[client], gI_TickCount[client], gMT_OldMovetype[client], movetype, gF_OldOrigin[client], origin, gF_OldVelocity[client], velocity);
 	
 	gB_JustJumped[client] = false;
 	gF_OldOrigin[client] = origin;
@@ -263,4 +263,4 @@ static void UpdateTurning(int client, const float oldEyeAngles[3], const float e
 	gB_Turning[client] = eyeAngles[1] != oldEyeAngles[1];
 	gB_TurningLeft[client] = eyeAngles[1] < oldEyeAngles[1] - 180
 	 || eyeAngles[1] > oldEyeAngles[1] && eyeAngles[1] < oldEyeAngles[1] + 180;
-}
+} 
