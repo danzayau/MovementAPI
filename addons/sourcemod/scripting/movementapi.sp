@@ -196,7 +196,7 @@ static void UpdateOnGround(
 {
 	if (onGround && !oldOnGround)
 	{
-		NobugLandingOrigin(client, origin, oldOrigin, oldVelocity, gF_NobugLandingOrigin[client]);
+		NobugLandingOrigin(client, oldOrigin, oldVelocity, gF_NobugLandingOrigin[client]);
 		gF_LandingOrigin[client] = origin;
 		gF_LandingVelocity[client] = velocity;
 		gI_LandingTick[client] = tickcount;
@@ -269,25 +269,33 @@ static void UpdateTurning(int client, const float oldEyeAngles[3], const float e
 	 || eyeAngles[1] > oldEyeAngles[1] && eyeAngles[1] < oldEyeAngles[1] + 180;
 } 
 
-static void NobugLandingOrigin(int client, const float origin[3], const float oldOrigin[3], const float oldVelocity[3], float landingOrigin[3])
+static void NobugLandingOrigin(int client, const float oldOrigin[3], const float oldVelocity[3], float landingOrigin[3])
 {
-	float velocity[3], traceEndpoint[3];
-	float velocityScale = (origin[2] - oldOrigin[2] - 0.01) / oldVelocity[2];
+	float traceEndpoint[3];
 	float hullMin[3] = { -16.0, -16.0, 0.0 };
 	float hullMax[3] = { 16.0, 16.0, 0.0 };
 	
-	velocity[0] = oldVelocity[0];
-	velocity[1] = oldVelocity[1];
-	velocity[2] = oldVelocity[2];
-	ScaleVector(velocity, velocityScale);
-	AddVectors(oldOrigin, velocity, traceEndpoint);
-	
+	AddVectors(oldOrigin, oldVelocity, traceEndpoint);
 	Handle trace = TR_TraceHullFilterEx(oldOrigin, traceEndpoint, hullMin, hullMax, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
 	if(!TR_DidHit(trace))
 	{
-		return;
+		CloseHandle(trace);
+		
+		float velocity[3], middleOrigin[3];
+		velocity[0] = oldVelocity[0];
+		velocity[1] = oldVelocity[1];
+		velocity[2] = oldVelocity[2] - Movement_GetGravity(client) * GetTickInterval();
+		AddVectors(oldOrigin, velocity, middleOrigin);
+		
+		trace = TR_TraceHullFilterEx(oldOrigin, traceEndpoint, hullMin, hullMax, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
+		if(!TR_DidHit(trace))
+		{
+			CloseHandle(trace);
+			return;
+		}
 	}
 	TR_GetEndPosition(landingOrigin, trace);
+	CloseHandle(trace);
 	
 	// Fix the offset.
 	landingOrigin[2] -= 0.03125;
