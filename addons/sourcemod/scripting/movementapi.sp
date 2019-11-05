@@ -49,8 +49,6 @@ MoveType gMT_OldMovetype[MAXPLAYERS + 1];
 #include "movementapi/forwards.sp"
 #include "movementapi/natives.sp"
 
-#define MAX_DISTBUG_VELOCITY 20
-
 
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
@@ -271,31 +269,35 @@ static void UpdateTurning(int client, const float oldEyeAngles[3], const float e
 
 static void NobugLandingOrigin(int client, const float oldOrigin[3], const float oldVelocity[3], float landingOrigin[3])
 {
-	float traceEndpoint[3];
+	float firstTraceEndpoint[3], velocity[3];
 	float hullMin[3] = { -16.0, -16.0, 0.0 };
 	float hullMax[3] = { 16.0, 16.0, 0.0 };
 	
-	AddVectors(oldOrigin, oldVelocity, traceEndpoint);
-	Handle trace = TR_TraceHullFilterEx(oldOrigin, traceEndpoint, hullMin, hullMax, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
+	velocity[0] = oldVelocity[0] * GetTickInterval();
+	velocity[1] = oldVelocity[1] * GetTickInterval();
+	velocity[2] = oldVelocity[2] * GetTickInterval();
+	AddVectors(oldOrigin, velocity, firstTraceEndpoint);
+	Handle trace = TR_TraceHullFilterEx(oldOrigin, firstTraceEndpoint, hullMin, hullMax, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
 	if(!TR_DidHit(trace))
 	{
 		CloseHandle(trace);
 		
-		float velocity[3], middleOrigin[3];
-		velocity[0] = oldVelocity[0];
-		velocity[1] = oldVelocity[1];
-		velocity[2] = oldVelocity[2] - Movement_GetGravity(client) * GetTickInterval();
-		AddVectors(oldOrigin, velocity, middleOrigin);
+		float secondTraceEndpoint[3];
+		velocity[2] -= Movement_GetGravity(client) * GetTickInterval();
+		AddVectors(firstTraceEndpoint, velocity, secondTraceEndpoint);
 		
-		trace = TR_TraceHullFilterEx(oldOrigin, traceEndpoint, hullMin, hullMax, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
+		trace = TR_TraceHullFilterEx(firstTraceEndpoint, secondTraceEndpoint, hullMin, hullMax, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
 		if(!TR_DidHit(trace))
 		{
+			// Invalidate the landing origin
+			landingOrigin[0] = 0.0 / 0.0;
+			landingOrigin[1] = 0.0 / 0.0;
+			landingOrigin[2] = 0.0 / 0.0;
 			CloseHandle(trace);
 			return;
 		}
 	}
 	TR_GetEndPosition(landingOrigin, trace);
-	CloseHandle(trace);
 	
 	// Fix the offset.
 	landingOrigin[2] -= 0.03125;
