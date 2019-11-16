@@ -61,4 +61,4 @@ void Call_OnPlayerJump(int client, bool jumpbug)
 	Call_PushCell(client);
 	Call_PushCell(jumpbug);
 	Call_Finish();
-} 
+}

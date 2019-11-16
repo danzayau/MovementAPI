@@ -104,4 +104,4 @@ public int Native_GetMaxSpeed(Handle plugin, int numParams)
 {
 	int client = GetNativeCell(1);
 	return view_as<int>(GetMaxSpeed(client));
-} 
+}
