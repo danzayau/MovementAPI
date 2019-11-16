@@ -27,6 +27,7 @@ bool gB_JustJumped[MAXPLAYERS + 1];
 
 bool gB_Jumped[MAXPLAYERS + 1];
 bool gB_HitPerf[MAXPLAYERS + 1];
+float gF_NobugLandingOrigin[MAXPLAYERS + 1][3];
 float gF_LandingOrigin[MAXPLAYERS + 1][3];
 float gF_LandingVelocity[MAXPLAYERS + 1][3];
 int gI_LandingTick[MAXPLAYERS + 1];
@@ -193,6 +194,7 @@ static void UpdateOnGround(
 {
 	if (onGround && !oldOnGround)
 	{
+		NobugLandingOrigin(client, oldOrigin, oldVelocity, gF_NobugLandingOrigin[client]);
 		gF_LandingOrigin[client] = origin;
 		gF_LandingVelocity[client] = velocity;
 		gI_LandingTick[client] = tickcount;
@@ -264,3 +266,39 @@ static void UpdateTurning(int client, const float oldEyeAngles[3], const float e
 	gB_TurningLeft[client] = eyeAngles[1] < oldEyeAngles[1] - 180
 	 || eyeAngles[1] > oldEyeAngles[1] && eyeAngles[1] < oldEyeAngles[1] + 180;
 } 
+
+static void NobugLandingOrigin(int client, const float oldOrigin[3], const float oldVelocity[3], float landingOrigin[3])
+{
+	float firstTraceEndpoint[3], velocity[3];
+	float hullMin[3] = { -16.0, -16.0, 0.0 };
+	float hullMax[3] = { 16.0, 16.0, 0.0 };
+	
+	velocity[0] = oldVelocity[0] * GetTickInterval();
+	velocity[1] = oldVelocity[1] * GetTickInterval();
+	velocity[2] = oldVelocity[2] * GetTickInterval();
+	AddVectors(oldOrigin, velocity, firstTraceEndpoint);
+	Handle trace = TR_TraceHullFilterEx(oldOrigin, firstTraceEndpoint, hullMin, hullMax, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
+	if(!TR_DidHit(trace))
+	{
+		CloseHandle(trace);
+		
+		float secondTraceEndpoint[3];
+		velocity[2] -= Movement_GetGravity(client) * GetTickInterval();
+		AddVectors(firstTraceEndpoint, velocity, secondTraceEndpoint);
+		
+		trace = TR_TraceHullFilterEx(firstTraceEndpoint, secondTraceEndpoint, hullMin, hullMax, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
+		if(!TR_DidHit(trace))
+		{
+			// Invalidate the landing origin
+			landingOrigin[0] = 0.0 / 0.0;
+			landingOrigin[1] = 0.0 / 0.0;
+			landingOrigin[2] = 0.0 / 0.0;
+			CloseHandle(trace);
+			return;
+		}
+	}
+	TR_GetEndPosition(landingOrigin, trace);
+	
+	// Fix the offset.
+	landingOrigin[2] -= 0.03125;
+}
