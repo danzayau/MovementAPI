@@ -7,6 +7,7 @@ void CreateNatives()
 	CreateNative("Movement_GetTakeoffSpeed", Native_GetTakeoffSpeed);
 	CreateNative("Movement_GetTakeoffTick", Native_GetTakeoffTick);
 	CreateNative("Movement_GetTakeoffCmdNum", Native_GetTakeoffCmdNum);
+	CreateNative("Movement_GetNobugLandingOrigin", Native_GetNobugLandingOrigin);
 	CreateNative("Movement_GetLandingOrigin", Native_GetLandingOrigin);
 	CreateNative("Movement_GetLandingVelocity", Native_GetLandingVelocity);
 	CreateNative("Movement_GetLandingSpeed", Native_GetLandingSpeed);
@@ -51,6 +52,11 @@ public int Native_GetTakeoffTick(Handle plugin, int numParams)
 public int Native_GetTakeoffCmdNum(Handle plugin, int numParams)
 {
 	return gI_TakeoffCmdNum[GetNativeCell(1)];
+}
+
+public int Native_GetNobugLandingOrigin(Handle plugin, int numParams)
+{
+	SetNativeArray(2, gF_NobugLandingOrigin[GetNativeCell(1)], 3);
 }
 
 public int Native_GetLandingOrigin(Handle plugin, int numParams)
@@ -98,4 +104,4 @@ public int Native_GetMaxSpeed(Handle plugin, int numParams)
 {
 	int client = GetNativeCell(1);
 	return view_as<int>(GetMaxSpeed(client));
-} 
+}
