@@ -6,7 +6,7 @@ A SourceMod API focused on player movement in the form of a [function stock liba
 
 ### Requirements
 
- * SourceMod ^1.9
+ * SourceMod ^1.10
  
 ### Plugin Installation
 
