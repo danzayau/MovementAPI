@@ -315,9 +315,6 @@ static void UpdateOnGround(int client, int cmdnum, int tickcount)
 	Movement_GetVelocity(client, velocity);
 	SubtractVectors(velocity, gF_PlayerMoveVelocity_Post[client], slopeFixAccel);
 
-	// Do not modify vertical velocity. This can cause weird bouncing effect.
-	if (slopeFixAccel[0] != 0 || slopeFixAccel[1] != 0 ||slopeFixAccel[2] != 0) PrintToConsole(client, "slopefixAccel2: %f", slopeFixAccel[2]);
-
 	// The game can still categorize you as "on ground" while noclipping.
 	// Since no real ground collision happens, we just consider the player as not on ground.
 	bool onGround = Movement_GetOnGround(client) && Movement_GetMovetype(client) != MOVETYPE_NOCLIP;
