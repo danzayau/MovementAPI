@@ -25,17 +25,33 @@
 	Perfect Bunnyhop (Perf)
 	When the player has jumped in the tick after landing and keeps their speed.
 
+ 	Duckbug/Crouchbug
+	When the player sucessfully lands due to uncrouching from mid air and not by falling 
+	down. This causes no stamina loss or fall damage upon landing.
+
 	Jumpbug
-	When the player is never seen as 'on ground' when bunnyhopping. This is achievable by 
-	uncrouching and jumping at the same time. A jumpbug results in unusual behaviour such
-	as maintaining horizontal speed and not receiving fall damage.
+ 	This is achieved by duckbugging and jumping at the same time. The player is never seen 
+	as 'on ground' when bunnyhopping from a tick by tick perspective. A jumpbug inherits 
+	the same behavior as a duckbug/crouchbug, along with its effects such as maintaining 
+	speed due to no stamina loss.
 
 	Distbug
-	A distbug can occur when a player lands close to the edge of a block. When calculating
-	the landing position, the source engine will only consider either the horizontal or
-	vertical speed on the very last tick, but not both. The GetNobugLandingOrigin native
-	calculates the correct landing position of the player based on his actual trajectory
-	using all components of the velocity instead.
+	Landing behavior varies depending on whether the player lands close to the edge of a 
+	block or not:
+
+    1. If the player lands close to the edge of a block, this causes the jump duration to 
+	be one tick longer and the player can "slide" on the ground during the landing tick, 
+	using the position post-tick as landing position becomes inaccurate.
+
+    2. On the other hand, if the player does not land close to the edge, the player will 
+	be considered on the ground one tick earlier, using this position as landing position 
+	is not accurate as the player has yet to be fully on the ground.
+ 
+    In scenario 1, GetNobugLandingOrigin calculates the correct landing position of the 
+	player before the sliding effect takes effect.
+
+    In scenario 2, GetNobugLandingOrigin attempts to extrapolate the player's fully on 
+	ground position to make landing positions consistent across scenarios.
 */
 
 
@@ -92,7 +108,13 @@ forward void Movement_OnStopDucking(int client);
  */
 forward void Movement_OnPlayerJump(int client, bool jumpbug);
 
-
+/**
+ * Called when a player performs a jumpbug.
+ * It is possible to modify velocity when this is called.
+ *
+ * @param client 		Client index.
+ */
+forward void Movement_OnJumpbug(int client);
 
 // =====[ NATIVES ]=====
 
@@ -239,7 +261,21 @@ native bool Movement_GetTurningRight(int client);
  */
 native float Movement_GetMaxSpeed(int client);
 
+/**
+ * Gets whether a player duckbugged on this tick.
+ *
+ * @param client		Client index.
+ * @return     			Whether a player duckbugged on this tick.
+ */
+native bool Movement_GetDuckbugged(int client);
 
+/**
+ * Gets whether a player jumpbugged on this tick.
+ *
+ * @param client		Client index.
+ * @return     			Whether a player jumpbugged on this tick.
+ */
+native bool Movement_GetJumpbugged(int client);
 
 // =====[ METHODMAP ]=====
 

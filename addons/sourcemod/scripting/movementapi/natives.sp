@@ -17,6 +17,8 @@ void CreateNatives()
 	CreateNative("Movement_GetTurningLeft", Native_GetTurningLeft);
 	CreateNative("Movement_GetTurningRight", Native_GetTurningRight);
 	CreateNative("Movement_GetMaxSpeed", Native_GetMaxSpeed);
+	CreateNative("Movement_GetDuckbugged", Native_GetDuckbugged);
+	CreateNative("Movement_GetJumpbugged", Native_GetJumpbugged);
 }
 
 public int Native_GetJumped(Handle plugin, int numParams)
@@ -104,4 +106,14 @@ public int Native_GetMaxSpeed(Handle plugin, int numParams)
 {
 	int client = GetNativeCell(1);
 	return view_as<int>(GetMaxSpeed(client));
+}
+
+public int Native_GetDuckbugged(Handle plugin, int numParams)
+{
+	return view_as<int>(gB_Duckbugged[GetNativeCell(1)]);
+}
+
+public int Native_GetJumpbugged(Handle plugin, int numParams)
+{
+	return view_as<int>(gB_Jumpbugged[GetNativeCell(1)]);
 }
