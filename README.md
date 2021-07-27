@@ -7,6 +7,7 @@ A SourceMod API focused on player movement in the form of a [function stock liba
 ### Requirements
 
  * SourceMod ^1.10
+ * [DHooks 2 with detour support](https://github.com/peace-maker/DHooks2)
  
 ### Plugin Installation
 
