@@ -25,6 +25,7 @@ int gI_Cmdnum[MAXPLAYERS + 1];
 int gI_TickCount[MAXPLAYERS + 1];
 bool gB_JustJumped[MAXPLAYERS + 1];
 
+ConVar gCV_sv_gravity;
 bool gB_Jumped[MAXPLAYERS + 1];
 bool gB_HitPerf[MAXPLAYERS + 1];
 float gF_NobugLandingOrigin[MAXPLAYERS + 1][3];
@@ -64,7 +65,7 @@ public void OnPluginStart()
 	CreateGlobalForwards();
 	HookEvent("player_spawn", OnPlayerSpawn, EventHookMode_Post);
 	HookEvent("player_jump", OnPlayerJump, EventHookMode_Post);
-	
+	gCV_sv_gravity = FindConVar("sv_gravity");
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client))
@@ -467,12 +468,19 @@ static void NobugLandingOrigin(int client, const float oldOrigin[3], const float
 		delete trace;
 		
 		float secondTraceEndpoint[3];
-		velocity[2] -= Movement_GetGravity(client) * GetTickInterval();
+		// Movement_GetGravity is not sv_gravity. Normally this is 1 or 0, sometimes 40 on antibhop triggers.		
+		// We will (boldly) assume that player's gravity wasn't changed between OnPlayerRunCmd and PostThink.
+
+		velocity[2] -= GetTickInterval() * GetTickInterval() * gCV_sv_gravity.FloatValue;	
 		AddVectors(firstTraceEndpoint, velocity, secondTraceEndpoint);
 		trace = TR_TraceHullFilterEx(firstTraceEndpoint, secondTraceEndpoint, hullMin, hullMax, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
+		
+		// It is possible to not hit the trace, if your vertical velocity is low enough.
+		// In an extreme case, you would need 10 more traces for this to hit.
+		// It is also possible to miss the trace on a flat jump, by hitting the very edge of a block.
 		if (!TR_DidHit(trace))
 		{
-			// Invalidate the landing origin
+			// Invalidate the landing origin	
 			landingOrigin[0] = 0.0 / 0.0;
 			landingOrigin[1] = 0.0 / 0.0;
 			landingOrigin[2] = 0.0 / 0.0;
