@@ -1,41 +1,65 @@
-DynamicDetour gH_OnPlayerMove;
-DynamicDetour gH_OnDuck;
-DynamicDetour gH_OnLadderMove;
-DynamicDetour gH_OnFullLadderMove;
-DynamicDetour gH_OnJump;
-DynamicDetour gH_OnAirAccelerate;
-DynamicDetour gH_OnWalkMove;
+static DynamicDetour H_OnPlayerMove;
+static DynamicDetour H_OnDuck;
+static DynamicDetour H_OnLadderMove;
+static DynamicDetour H_OnFullLadderMove;
+static DynamicDetour H_OnJump;
+static DynamicDetour H_OnAirAccelerate;
+static DynamicDetour H_OnWalkMove;
+static DynamicDetour H_OnCategorizePosition;
 
+float gF_Origin[MAXPLAYERS + 1][3];
+float gF_Velocity[MAXPLAYERS + 1][3];
 
-bool gB_OldDuckbugged[MAXPLAYERS + 1];
-float gF_OldPostAAOrigin[MAXPLAYERS + 1][3];
-float gF_OldPostAAVelocity[MAXPLAYERS + 1][3];
-bool gB_OldWalkMoved[MAXPLAYERS + 1];
-
-float gF_PreLadderMoveOrigin[MAXPLAYERS + 1][3];
+bool gB_ProcessingLadderMove[MAXPLAYERS + 1];
 float gF_PreLadderMoveVelocity[MAXPLAYERS + 1][3];
-bool gB_ProcessingFullLadderMove[MAXPLAYERS + 1];
+bool gB_TakeoffFromLadder[MAXPLAYERS + 1];
 float gF_PostLadderMoveOrigin[MAXPLAYERS + 1][3];
+float gF_PostLadderMoveVelocity[MAXPLAYERS + 1][3];
 
-float gF_PreDuckOrigin[MAXPLAYERS + 1][3];
-bool gB_OnDuck_OnGround[MAXPLAYERS + 1];
+bool gB_ProcessingDuck[MAXPLAYERS + 1];
+bool gB_Ducking[MAXPLAYERS + 1];
+bool gB_PrevOnGround[MAXPLAYERS + 1];
 bool gB_Duckbugged[MAXPLAYERS + 1];
 float gF_PostDuckOrigin[MAXPLAYERS + 1][3];
 
 bool gB_Jumpbugged[MAXPLAYERS + 1];
-float gF_PostJumpVelocity[MAXPLAYERS + 1][3];
-float gF_PostLadderMoveVelocity[MAXPLAYERS + 1][3];
 
 bool gB_WalkMoved[MAXPLAYERS + 1];
-float gF_PostWalkMoveOrigin[MAXPLAYERS + 1][3];
 float gF_PostWalkMoveVelocity[MAXPLAYERS + 1][3];
-
-float gF_PreAAVelocity[MAXPLAYERS + 1][3];
 float gF_PostAAOrigin[MAXPLAYERS + 1][3];
 float gF_PostAAVelocity[MAXPLAYERS + 1][3];
 
-float gF_PlayerMoveVelocity_Post[MAXPLAYERS + 1][3];
+bool gB_OldWalkMoved[MAXPLAYERS + 1];
 
+void HookGameMovementFunctions()
+{
+	HookGameMovementFunction(H_OnDuck, "CCSGameMovement::Duck", DHooks_OnDuck_Pre, DHooks_OnDuck_Post);
+	HookGameMovementFunction(H_OnLadderMove, "CGameMovement::LadderMove", DHooks_OnLadderMove_Pre, DHooks_OnLadderMove_Post);
+	HookGameMovementFunction(H_OnFullLadderMove, "CGameMovement::FullLadderMove", DHooks_OnFullLadderMove_Pre, DHooks_OnFullLadderMove_Post);
+	HookGameMovementFunction(H_OnAirAccelerate, "CGameMovement::AirAccelerate", DHooks_OnAirAccelerate_Pre, DHooks_OnAirAccelerate_Post);
+	HookGameMovementFunction(H_OnWalkMove, "CGameMovement::WalkMove", DHooks_OnWalkMove_Pre, DHooks_OnWalkMove_Post);
+	HookGameMovementFunction(H_OnJump, "CCSGameMovement::OnJump", DHooks_OnJump_Pre, DHooks_OnJump_Post);
+	HookGameMovementFunction(H_OnPlayerMove, "CCSGameMovement::PlayerMove", DHooks_OnPlayerMove_Pre, DHooks_OnPlayerMove_Post);
+	HookGameMovementFunction(H_OnCategorizePosition, "CGameMovement::CategorizePosition", DHooks_OnCategorizePosition_Pre, DHooks_OnCategorizePosition_Post);
+}
+
+Action UpdateMoveData(Address pThis, int client, Function func)
+{
+	GameMove_GetOrigin(pThis, gF_Origin[client]);
+	GameMove_GetVelocity(pThis, gF_Velocity[client]);
+	Action result;
+	Call_StartFunction(INVALID_HANDLE, func);
+	Call_PushCell(client);
+	Call_PushArrayEx(gF_Origin[client], 3, SM_PARAM_COPYBACK);
+	Call_PushArrayEx(gF_Velocity[client], 3, SM_PARAM_COPYBACK);
+	Call_Finish(result);
+	if (result != Plugin_Continue)
+	{
+		GameMove_SetOrigin(pThis, gF_Origin[client]);
+		GameMove_SetVelocity(pThis, gF_Velocity[client]);
+	}
+	return result;
+}
 
 public MRESReturn DHooks_OnDuck_Pre(Address pThis)
 {
@@ -44,9 +68,19 @@ public MRESReturn DHooks_OnDuck_Pre(Address pThis)
 	{
 		return MRES_Ignored;
 	}
-	GameMove_GetOrigin(pThis, gF_PreDuckOrigin[client]);
-	gB_OnDuck_OnGround[client] = Movement_GetOnGround(client);
-	return MRES_Ignored;
+	Action result = UpdateMoveData(pThis, client, Call_OnDuckPre);
+	
+	gB_Ducking[client] = Movement_GetDucking(client);
+	gB_ProcessingDuck[client] = true;
+
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
 }
 
 public MRESReturn DHooks_OnDuck_Post(Address pThis)
@@ -57,19 +91,26 @@ public MRESReturn DHooks_OnDuck_Post(Address pThis)
 		return MRES_Ignored;
 	}
 	
-	// Only unducking from mid air can change your on ground state.
-	// The only possible change is from air to ground.
-	if (gB_OnDuck_OnGround[client] != Movement_GetOnGround(client))
+	if (gB_Ducking[client] && !gB_OldDucking[client])
 	{
-		gB_Duckbugged[client] = true;
-		// Call on duckbug?
+		Call_OnStartDucking(client);
+	}
+	else if (!gB_Ducking[client] && gB_OldDucking[client])
+	{
+		Call_OnStopDucking(client);
+	}
+	gB_ProcessingDuck[client] = false;
+	GameMove_GetOrigin(pThis, gF_PostDuckOrigin[client]);
+
+	Action result = UpdateMoveData(pThis, client, Call_OnDuckPost);
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
 	}
 	else
 	{
-		gB_Duckbugged[client] = false;
+		return MRES_Ignored;
 	}
-	GameMove_GetOrigin(pThis, gF_PostDuckOrigin[client]);
-	return MRES_Ignored;
 }
 
 public MRESReturn DHooks_OnLadderMove_Pre(Address pThis)
@@ -79,10 +120,19 @@ public MRESReturn DHooks_OnLadderMove_Pre(Address pThis)
 	{
 		return MRES_Ignored;
 	}
-	
-	GameMove_GetOrigin(pThis, gF_PreLadderMoveOrigin[client]);
+	Action result = UpdateMoveData(pThis, client, Call_OnLadderMovePre);
+
+	gB_ProcessingLadderMove[client] = true;
 	GameMove_GetVelocity(pThis, gF_PreLadderMoveVelocity[client]);
-	return MRES_Ignored;
+
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
 }
 
 public MRESReturn DHooks_OnLadderMove_Post(Address pThis, DHookReturn hReturn)
@@ -96,10 +146,72 @@ public MRESReturn DHooks_OnLadderMove_Post(Address pThis, DHookReturn hReturn)
 	}
 	
 	GameMove_GetOrigin(pThis, gF_PostLadderMoveOrigin[client]);
-	GameMove_GetVelocity(pThis, gF_PostLadderMoveVelocity[client]);	
-	return MRES_Ignored;
+	GameMove_GetVelocity(pThis, gF_PostLadderMoveVelocity[client]);
+	gB_ProcessingLadderMove[client] = false;
+	bool returnValue = DHookGetReturn(hReturn);
+	// If this returns false, and the movetype was originally MOVETYPE_LADDER, that means the player will change movetype and takeoff (LAJ)
+	// If this returns true, the movetype can still change in FullLadderMove by jumping (LAH)
+	// The current movetype here is still ladder, but it will change right after this function call.
+	if (!returnValue && Movement_GetMovetype(client) == MOVETYPE_LADDER)
+	{
+		gF_TakeoffVelocity[client] = gF_PostLadderMoveVelocity[client];
+		gF_TakeoffOrigin[client] = gF_PostLadderMoveOrigin[client];
+		gI_TakeoffTick[client] = gI_TickCount[client];
+		gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
+		gB_Jumped[client] = false;
+		gB_HitPerf[client] = false;
+		Call_OnChangeMovetype(client, MOVETYPE_LADDER, MOVETYPE_WALK);
+	}
+	else if (returnValue && gMT_OldMovetype[client] != MOVETYPE_LADDER)
+	{
+		if (Movement_GetMovetype(client) == MOVETYPE_LADDER)
+		{
+			gF_LandingOrigin[client] = gF_PostLadderMoveOrigin[client];
+			// We don't really care about nobug origin when player lands on ladder.
+			gF_NobugLandingOrigin[client] = gF_LandingOrigin[client];
+			gF_LandingVelocity[client] = gF_PreLadderMoveVelocity[client];
+			gI_LandingCmdNum[client] = gI_Cmdnum[client];
+			gI_LandingTick[client] = gI_TickCount[client];
+			Call_OnChangeMovetype(client, MOVETYPE_WALK, MOVETYPE_LADDER);
+		}
+	}
+	else if (returnValue && gMT_OldMovetype[client] == MOVETYPE_LADDER)
+	{
+		float curtime = GetGameTime();
+		int buttons = GetClientButtons(client);
+		float ignoreLadderJumpTime = GetEntPropFloat(client, Prop_Data, "m_ignoreLadderJumpTime");
+		if (buttons & IN_JUMP && ignoreLadderJumpTime <= curtime)
+		{
+			gB_TakeoffFromLadder[client] = true;
+		}
+	}
+	Action result = UpdateMoveData(pThis, client, Call_OnLadderMovePost);
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
 }
 
+public MRESReturn DHooks_OnLadderHop()
+{
+	int client;
+	// Loop through the players and find the relevant player.
+	for (int i = 0; i < MaxClients + 1; i++)
+	{
+		if (gB_ProcessingLadderMove[i])
+		{
+			client = i;
+			break;
+		}
+	}
+	LogMessage("%i nice", client);
+	return MRES_Ignored;
+	// Another way to do this is to find the original address of the function.
+}
 public MRESReturn DHooks_OnFullLadderMove_Pre(Address pThis)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
@@ -107,8 +219,60 @@ public MRESReturn DHooks_OnFullLadderMove_Pre(Address pThis)
 	{
 		return MRES_Ignored;
 	}
-	gB_ProcessingFullLadderMove[client] = true;
-	return MRES_Ignored;
+	Action result = UpdateMoveData(pThis, client, Call_OnFullLadderMovePre);
+
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
+}
+
+public MRESReturn DHooks_OnJump_Pre(Address pThis, DHookParam hParams)
+{
+	int client = GetClientFromGameMovementAddress(pThis);
+	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	{
+		return MRES_Ignored;
+	}
+
+	gB_Jumped[client] = true;
+	if (gB_Duckbugged[client])
+	{
+		gB_Jumpbugged[client] = true;
+	}
+
+	// HitPerf must be modified here so plugins can know if player hits a perf or not.
+	bool onGround = Movement_GetOnGround(client);
+
+	// Duckbug is a special case where you can land then jump on the same tick.
+	if (gB_Duckbugged[client])
+	{
+		gB_HitPerf[client] = true;
+	}
+	else if (!onGround && gB_OldOnGround[client])
+	{
+		if (gMT_OldMovetype[client] == MOVETYPE_WALK) 
+		{
+			// If you walked on the last tick then clearly it's not going to be a perf.
+			// Can't perf if you don't jump.
+			gB_HitPerf[client] = !gB_OldWalkMoved[client];
+		}
+	}
+	
+	Action result = UpdateMoveData(pThis, client, Call_OnJumpPre);
+
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
 }
 
 public MRESReturn DHooks_OnJump_Post(Address pThis, DHookParam hParams)
@@ -119,20 +283,28 @@ public MRESReturn DHooks_OnJump_Post(Address pThis, DHookParam hParams)
 		return MRES_Ignored;
 	}
 	// We need to update LadderMove velocity again in case of jumping.
-	if (gB_ProcessingFullLadderMove[client])
+	GameMove_GetVelocity(pThis, gF_PostLadderMoveVelocity[client]);
+
+	// Current origin because the player hasn't moved yet.
+	gF_TakeoffOrigin[client] = gF_Origin[client];
+	gF_TakeoffVelocity[client] = gF_Velocity[client];
+	gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
+	gI_TakeoffTick[client] = gI_TakeoffTick[client];
+	if (!Movement_GetOnGround(client) && gB_OldOnGround[client] || gB_Jumpbugged[client])
 	{
-		GameMove_GetVelocity(pThis, gF_PostLadderMoveVelocity[client]);
+		LogMessage("%N's MoveType upon takeoff: %i", client, Movement_GetMovetype(client));
+ 		Call_OnStopTouchGround(client, true, gB_Jumpbugged[client], gB_TakeoffFromLadder[client]);
+	}
+
+	Action result = UpdateMoveData(pThis, client, Call_OnJumpPost);
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
 	}
 	else
 	{
-		GameMove_GetVelocity(pThis, gF_PostJumpVelocity[client]);
+		return MRES_Ignored;
 	}
-	// Must be set here for SlopeFix to work in PostThink
-	if (gB_Duckbugged[client])
-	{
-		gB_Jumpbugged[client] = true;
-	}
-	return MRES_Ignored;
 }
 
 public MRESReturn DHooks_OnFullLadderMove_Post(Address pThis)
@@ -142,10 +314,19 @@ public MRESReturn DHooks_OnFullLadderMove_Post(Address pThis)
 	{
 		return MRES_Ignored;
 	}
-	gB_ProcessingFullLadderMove[client] = false;
-	return MRES_Ignored;
-}
 
+	Action result = UpdateMoveData(pThis, client, Call_OnFullLadderMovePost);
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
+}
+// We hook AirAccelerate because TryPlayerMove in AirMove can change velocity
+// AirAccelerate velocity is required for nobug landing origin.
 public MRESReturn DHooks_OnAirAccelerate_Pre(Address pThis, DHookParam hParams)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
@@ -153,9 +334,16 @@ public MRESReturn DHooks_OnAirAccelerate_Pre(Address pThis, DHookParam hParams)
 	{
 		return MRES_Ignored;
 	}
-	GameMove_GetVelocity(pThis, gF_PreAAVelocity[client]);
+	Action result = UpdateMoveData(pThis, client, Call_OnAirAcceleratePre);
 
-	return MRES_Ignored;
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
 }
 
 public MRESReturn DHooks_OnAirAccelerate_Post(Address pThis, DHookParam hParams)
@@ -165,11 +353,39 @@ public MRESReturn DHooks_OnAirAccelerate_Post(Address pThis, DHookParam hParams)
 	{
 		return MRES_Ignored;
 	}
-	gF_OldPostAAOrigin[client] = gF_PostAAOrigin[client];
-	gF_OldPostAAVelocity[client] = gF_PostAAVelocity[client];
+	
 	GameMove_GetOrigin(pThis, gF_PostAAOrigin[client]);
 	GameMove_GetVelocity(pThis, gF_PostAAVelocity[client]);
-	return MRES_Ignored;
+
+	Action result = UpdateMoveData(pThis, client, Call_OnAirAcceleratePost);
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
+}
+
+// WalkMove is called too early to detect if the player is still on ground or not.
+public MRESReturn DHooks_OnWalkMove_Pre(Address pThis)
+{
+	int client = GetClientFromGameMovementAddress(pThis);
+	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	{
+		return MRES_Ignored;
+	}
+	Action result = UpdateMoveData(pThis, client, Call_OnWalkMovePre);
+
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
 }
 
 public MRESReturn DHooks_OnWalkMove_Post(Address pThis)
@@ -179,10 +395,38 @@ public MRESReturn DHooks_OnWalkMove_Post(Address pThis)
 	{
 		return MRES_Ignored;
 	}
-	GameMove_GetOrigin(pThis, gF_PostWalkMoveOrigin[client]);
+
 	GameMove_GetVelocity(pThis, gF_PostWalkMoveVelocity[client]);
 	gB_WalkMoved[client] = true;
-	return MRES_Ignored;
+
+	Action result = UpdateMoveData(pThis, client, Call_OnWalkMovePost);	
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
+}
+
+public MRESReturn DHooks_OnPlayerMove_Pre(Address pThis)
+{
+	int client = GetClientFromGameMovementAddress(pThis);
+	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	{
+		return MRES_Ignored;
+	}
+	Action result = UpdateMoveData(pThis, client, Call_OnPlayerMovePre);
+
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
 }
 
 public MRESReturn DHooks_OnPlayerMove_Post(Address pThis)
@@ -192,6 +436,95 @@ public MRESReturn DHooks_OnPlayerMove_Post(Address pThis)
 	{
 		return MRES_Ignored;
 	}
-	GameMove_GetVelocity(pThis, gF_PlayerMoveVelocity_Post[client]);
-	return MRES_Ignored;
+	Action result = UpdateMoveData(pThis, client, Call_OnPlayerMovePost);
+
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
+}
+
+public MRESReturn DHooks_OnCategorizePosition_Pre(Address pThis)
+{
+	int client = GetClientFromGameMovementAddress(pThis);
+	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	{
+		return MRES_Ignored;
+	}
+	Action result = UpdateMoveData(pThis, client, Call_OnCategorizePositionPre);
+
+	gB_PrevOnGround[client] = Movement_GetOnGround(client);
+
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
+}
+
+public MRESReturn DHooks_OnCategorizePosition_Post(Address pThis)
+{
+	int client = GetClientFromGameMovementAddress(pThis);
+	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	{
+		return MRES_Ignored;
+	}
+	bool ground = Movement_GetOnGround(client);
+	// Ground state changed!
+	if (gB_PrevOnGround[client] != ground)
+	{
+		if (ground) // Landing
+		{
+			// Was it caused by unducking?
+			if (gB_ProcessingDuck[client])
+			{
+				gB_Duckbugged[client] = true;
+				gF_LandingVelocity[client] = gF_Velocity[client];
+				NobugLandingOrigin(client, gF_Origin[client], gF_Velocity[client], gF_NobugLandingOrigin[client]);
+			}
+			else
+			{
+				// Don't use the current origin or velocity as it is modified by TryPlayerMove
+				gF_LandingVelocity[client] = gF_PostAAVelocity[client];
+				NobugLandingOrigin(client, gF_PostAAOrigin[client], gF_PostAAVelocity[client], gF_NobugLandingOrigin[client]);
+			}
+			gF_LandingOrigin[client] = gF_Origin[client];
+			gI_LandingCmdNum[client] = gI_Cmdnum[client];
+			gI_LandingTick[client] = gI_LandingTick[client];
+			Call_OnStartTouchGround(client);
+		}
+		else // Takeoff
+		{
+			gF_TakeoffOrigin[client] = gF_OldOrigin[client];
+			// Note: Jumping isn't detected here.
+			if (gB_WalkMoved[client])
+			{
+				gF_TakeoffVelocity[client] = gF_PostWalkMoveVelocity[client];
+			}
+			else
+			{
+				gF_TakeoffVelocity[client] = gF_PostLadderMoveVelocity[client];
+			}
+			gI_TakeoffTick[client] = gI_TickCount[client];
+			gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
+			Call_OnStopTouchGround(client, false, false, !gB_WalkMoved[client]);
+		}
+	}
+
+	Action result = UpdateMoveData(pThis, client, Call_OnCategorizePositionPost);
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
 }

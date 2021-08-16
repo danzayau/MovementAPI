@@ -83,6 +83,13 @@
 					}
 				}
 			}
+			"CGameMovement::CategorizePosition"
+			{
+				"signature" "CGameMovement::CategorizePosition"
+				"callconv" 	"thiscall"
+				"this" 		"address"
+				"return" 	"void"
+			}
 		}
 		"Offsets"
 		{
@@ -136,6 +143,12 @@
 				"library" 	"server"
 				"windows" 	"\x55\x8B\xEC\x83\xEC\x0C\x56\x57\x8B\xF9\x8B\x87\x54\x0E\x00\x00"
 				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x4C\x8B\x75\x08\xF3\x0F\x10\x45\x0C\xF3\x0F\x11\x45\xE4\x8B\x86\x54\x0E\x00\x00"
+			}
+			"CGameMovement::CategorizePosition"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x78\x57"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x81\xEC\xFC\x00\x00\x00\xC7\x45\xC4\x00\x00\x00\x00"
 			}
 		}
 	}

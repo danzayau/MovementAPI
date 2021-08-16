@@ -79,8 +79,10 @@ forward void Movement_OnStartTouchGround(int client);
  *
  * @param client		Client index.
  * @param jumped		Whether player jumped to leave ground.
+ * @param jumpbug		Whether player performed a jumpbug.
+ * @param ladderJump	Whether player jumped from a ladder.
  */
-forward void Movement_OnStopTouchGround(int client, bool jumped);
+forward void Movement_OnStopTouchGround(int client, bool jumped, bool jumpbug, bool ladderJump);
 
 /**
  * Called when a player starts ducking.
@@ -100,21 +102,152 @@ forward void Movement_OnStopDucking(int client);
  * Called when a player jumps (player_jump event), including 'jumpbugs'.
  * Setting velocity when this is called may not be effective.
  *
- * If the player 'jumpbugs', then they will not call Movement_OnStopTouchGround
- * because their FL_ONGROUND flag was not detected as true prior to the jump.
- *
  * @param client		Client index.
  * @param jumpbug		Whether player 'jumpbugged'.
  */
 forward void Movement_OnPlayerJump(int client, bool jumpbug);
 
 /**
- * Called when a player performs a jumpbug.
- * It is possible to modify velocity when this is called.
+ * Called before Duck movement function is called.
  *
- * @param client 		Client index.
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
  */
-forward void Movement_OnJumpbug(int client);
+forward Action Movement_OnDuckPre(int client, float[3] origin, float[3] velocity);
+
+/**
+ * Called after Duck movement function is called.
+ *
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
+ */
+forward Action Movement_OnDuckPost(int client, float[3] origin, float[3] velocity);
+
+/**
+ * Called before LadderMove movement function is called.
+ *
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
+ */
+forward Action Movement_OnLadderMovePre(int client, float[3] origin, float[3] velocity);
+
+/**
+ * Called after LadderMove movement function is called.
+ *
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
+ */
+forward Action Movement_OnLadderMovePost(int client, float[3] origin, float[3] velocity);
+
+/**
+ * Called before FullLadderMove movement function is called.
+ *
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
+ */
+forward Action Movement_OnFullLadderMovePre(int client, float[3] origin, float[3] velocity);
+
+/**
+ * Called after FullLadderMove movement function is called.
+ *
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
+ */
+forward Action Movement_OnFullLadderMovePost(int client, float[3] origin, float[3] velocity);
+
+/**
+ * Called after the player jumps, but before jumping stamina is applied.
+ * Takeoff variables are not set yet. Use this to modify bhop velocity.
+ *
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
+ */
+forward Action Movement_OnJumpPre(int client, float[3] origin, float[3] velocity);
+
+/**
+ * Called after the player jumps and after jumping stamina is applied.
+ * Takeoff variables are already set here.
+ *
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
+ */
+forward Action Movement_OnJumpPost(int client, float[3] origin, float[3] velocity);
+
+/**
+ * Called before AirAccelerate movement function is called.
+ *
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
+ */
+forward Action Movement_OnAirAcceleratePre(int client, float[3] origin, float[3] velocity);
+
+/**
+ * Called after AirAccelerate movement function is called.
+ *
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
+ */
+forward Action Movement_OnAirAcceleratePost(int client, float[3] origin, float[3] velocity);
+
+/**
+ * Called before WalkMove movement function is called.
+ *
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
+ */
+forward Action Movement_OnWalkMovePre(int client, float[3] origin, float[3] velocity);
+
+/**
+ * Called after WalkMove movement function is called.
+ *
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
+ */
+forward Action Movement_OnWalkMovePost(int client, float[3] origin, float[3] velocity);
+
+/**
+ * Called before CategorizePosition movement function is called.
+ *
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
+ */
+forward Action Movement_OnCategorizePositionPre(int client, float[3] origin, float[3] velocity);
+
+/**
+ * Called after CategorizePosition movement function is called.
+ *
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
+ */
+forward Action Movement_OnCategorizePositionPost(int client, float[3] origin, float[3] velocity);
 
 // =====[ NATIVES ]=====
 
@@ -277,6 +410,22 @@ native bool Movement_GetDuckbugged(int client);
  */
 native bool Movement_GetJumpbugged(int client);
 
+/**
+ * Get the player's origin during movement processing.
+ *
+ * @param client     Client index.
+ * @param result     Resultant vector.
+ */
+native void Movement_GetRealOrigin(int client, float result[3]);
+
+/**
+ * Get the player's velocity during movement processing.
+ *
+ * @param client     Param description
+ * @param result     Resultant vector.
+ */
+native void Movement_GetRealVelocity(int client, float result[3]);
+
 // =====[ METHODMAP ]=====
 
 methodmap MovementAPIPlayer < MovementPlayer {
@@ -371,6 +520,16 @@ methodmap MovementAPIPlayer < MovementPlayer {
 		public get() {
 			return Movement_GetMaxSpeed(this.ID);
 		}
+	}
+
+	public void GetRealVelocity(float buffer[3])
+	{
+		Movement_GetRealVelocity(this.ID, buffer);
+	}
+	
+	public void GetRealOrigin(float buffer[3])
+	{
+		Movement_GetRealOrigin(this.ID, buffer);
 	}
 }
 
