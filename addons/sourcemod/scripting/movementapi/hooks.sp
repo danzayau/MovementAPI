@@ -273,7 +273,7 @@ public MRESReturn DHooks_OnJump_Post(Address pThis, DHookParam hParams)
 	gF_TakeoffOrigin[client] = gF_Origin[client];
 	gF_TakeoffVelocity[client] = gF_Velocity[client];
 	gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
-	gI_TakeoffTick[client] = gI_TakeoffTick[client];
+	gI_TakeoffTick[client] = gI_TickCount[client];
 	if (!Movement_GetOnGround(client) && gB_OldOnGround[client] || gB_Jumpbugged[client])
 	{
  		Call_OnStopTouchGround(client, true, gB_Jumpbugged[client], gB_TakeoffFromLadder[client]);
