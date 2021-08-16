@@ -196,22 +196,6 @@ public MRESReturn DHooks_OnLadderMove_Post(Address pThis, DHookReturn hReturn)
 	}
 }
 
-public MRESReturn DHooks_OnLadderHop()
-{
-	int client;
-	// Loop through the players and find the relevant player.
-	for (int i = 0; i < MaxClients + 1; i++)
-	{
-		if (gB_ProcessingLadderMove[i])
-		{
-			client = i;
-			break;
-		}
-	}
-	LogMessage("%i nice", client);
-	return MRES_Ignored;
-	// Another way to do this is to find the original address of the function.
-}
 public MRESReturn DHooks_OnFullLadderMove_Pre(Address pThis)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
@@ -292,7 +276,6 @@ public MRESReturn DHooks_OnJump_Post(Address pThis, DHookParam hParams)
 	gI_TakeoffTick[client] = gI_TakeoffTick[client];
 	if (!Movement_GetOnGround(client) && gB_OldOnGround[client] || gB_Jumpbugged[client])
 	{
-		LogMessage("%N's MoveType upon takeoff: %i", client, Movement_GetMovetype(client));
  		Call_OnStopTouchGround(client, true, gB_Jumpbugged[client], gB_TakeoffFromLadder[client]);
 	}
 
