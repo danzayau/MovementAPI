@@ -497,6 +497,8 @@ public MRESReturn DHooks_OnCategorizePosition_Post(Address pThis)
 			}
 			gI_TakeoffTick[client] = gI_TickCount[client];
 			gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
+			gB_Jumped[client] = false;
+			gB_HitPerf[client] = false;
 			Call_OnStopTouchGround(client, false, false, !gB_WalkMoved[client]);
 		}
 	}
