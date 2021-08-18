@@ -124,6 +124,7 @@ public void OnPlayerJump(Event event, const char[] name, bool dontBroadcast)
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
 {
+	CheckNoclip(client);
 	gI_Cmdnum[client] = cmdnum;
 	gI_TickCount[client] = tickcount;
 	gB_Duckbugged[client] = false;
@@ -196,4 +197,32 @@ static void UpdateTurning(int client, const float oldEyeAngles[3], const float e
 	gB_Turning[client] = eyeAngles[1] != oldEyeAngles[1];
 	gB_TurningLeft[client] = eyeAngles[1] < oldEyeAngles[1] - 180
 	 || eyeAngles[1] > oldEyeAngles[1] && eyeAngles[1] < oldEyeAngles[1] + 180;
+}
+
+static void CheckNoclip(int client)
+{
+	// Leaving and entering noclip counts for leaving and touching ground is arbitrary.
+	// Though this is required for some GOKZ functions to work properly.
+	MoveType movetype = Movement_GetMovetype(client);
+	if (gMT_OldMovetype[client] != movetype)
+	{
+		// Entering noclip
+		if (movetype == MOVETYPE_NOCLIP)
+		{
+			gF_LandingOrigin[client] = gF_Origin[client];
+			gF_LandingVelocity[client] = gF_Velocity[client];
+			gI_LandingTick[client] = gI_TickCount[client];
+			gI_LandingCmdNum[client] = gI_Cmdnum[client];
+		}
+		else // Leaving noclip
+		{
+			gF_TakeoffOrigin[client] = gF_Origin[client];
+			gF_TakeoffVelocity[client] = gF_Velocity[client];
+			gI_TakeoffTick[client] = gI_TickCount[client];
+			gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
+			gB_HitPerf[client] = false;
+			gB_Jumped[client] = false;
+		}
+		Call_OnChangeMovetype(client, gMT_OldMovetype[client], movetype);
+	}
 }
