@@ -486,7 +486,7 @@ methodmap MovementAPIPlayer < MovementPlayer {
 		Movement_GetTakeoffVelocity(this.ID, buffer);
 	}
 
-	public void SetTakeoffOrigin(float buffer[3]);
+	public void SetTakeoffOrigin(float buffer[3])
 	{
 		Movement_SetTakeoffOrigin(this.ID, buffer);
 	}
@@ -522,7 +522,7 @@ methodmap MovementAPIPlayer < MovementPlayer {
 		Movement_GetLandingVelocity(this.ID, buffer);
 	}
 	
-	public void SetLandingOrigin(float buffer[3]);
+	public void SetLandingOrigin(float buffer[3])
 	{
 		Movement_SetLandingOrigin(this.ID, buffer);
 	}
