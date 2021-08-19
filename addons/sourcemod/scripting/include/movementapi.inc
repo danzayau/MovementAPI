@@ -426,6 +426,38 @@ native void Movement_GetRealOrigin(int client, float result[3]);
  */
 native void Movement_GetRealVelocity(int client, float result[3]);
 
+/**
+ * Set the player's takeoff origin.
+ *
+ * @param client     Client index.
+ * @param origin	 Desired origin.
+ */
+native void Movement_SetTakeoffOrigin(int client, float origin[3]);
+
+/**
+ * Set the player's takeoff velocity.
+ *
+ * @param client     Client index.
+ * @param origin	 Desired velocity.
+ */
+native void Movement_SetTakeoffVelocity(int client, float velocity[3]);
+
+/**
+ * Set the player's landing origin.
+ *
+ * @param client     Client index.
+ * @param origin	 Desired origin.
+ */
+native void Movement_SetLandingOrigin(int client, float origin[3]);
+
+/**
+ * Set the player's landing velocity.
+ *
+ * @param client     Client index.
+ * @param origin	 Desired velocity.
+ */
+native void Movement_SetLandingVelocity(int client, float velocity[3]);
+
 // =====[ METHODMAP ]=====
 
 methodmap MovementAPIPlayer < MovementPlayer {
@@ -453,6 +485,16 @@ methodmap MovementAPIPlayer < MovementPlayer {
 	public void GetTakeoffVelocity(float buffer[3]) {
 		Movement_GetTakeoffVelocity(this.ID, buffer);
 	}
+
+	public void SetTakeoffOrigin(float buffer[3]);
+	{
+		Movement_SetTakeoffOrigin(this.ID, buffer);
+	}
+	
+	public void SetTakeoffVelocity(float buffer[3])
+	{
+		Movement_SetTakeoffVelocity(this.ID, buffer);
+	}
 	
 	property float TakeoffSpeed {
 		public get() {
@@ -478,6 +520,16 @@ methodmap MovementAPIPlayer < MovementPlayer {
 	
 	public void GetLandingVelocity(float buffer[3]) {
 		Movement_GetLandingVelocity(this.ID, buffer);
+	}
+	
+	public void SetLandingOrigin(float buffer[3]);
+	{
+		Movement_SetLandingOrigin(this.ID, buffer);
+	}
+	
+	public void SetLandingVelocity(float buffer[3])
+	{
+		Movement_SetLandingVelocity(this.ID, buffer);
 	}
 	
 	property float LandingSpeed {
@@ -567,5 +619,11 @@ public void __pl_movementapi_SetNTVOptional()
 	MarkNativeAsOptional("Movement_GetTurningLeft");
 	MarkNativeAsOptional("Movement_GetTurningRight");
 	MarkNativeAsOptional("Movement_GetMaxSpeed");
+	MarkNativeAsOptional("Movement_GetRealOrigin");
+	MarkNativeAsOptional("Movement_GetRealVelocity");
+	MarkNativeAsOptional("Movement_SetTakeoffOrigin");
+	MarkNativeAsOptional("Movement_SetTakeoffVelocity");
+	MarkNativeAsOptional("Movement_SetLandingOrigin");
+	MarkNativeAsOptional("Movement_SetLandingVelocity");
 }
 #endif
