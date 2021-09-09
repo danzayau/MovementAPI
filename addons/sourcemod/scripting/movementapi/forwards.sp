@@ -77,13 +77,13 @@ void Call_OnStartTouchGround(int client)
 	Call_Finish();
 }
 
-void Call_OnStopTouchGround(int client, bool jumped, bool jumpbug, bool ladderJump)
+void Call_OnStopTouchGround(int client, bool jumped, bool ladderJump, bool jumpbug)
 {
 	Call_StartForward(H_OnStopTouchGround);
 	Call_PushCell(client);
 	Call_PushCell(jumped);
-	Call_PushCell(jumpbug);
 	Call_PushCell(ladderJump);
+	Call_PushCell(jumpbug);
 	Call_Finish();
 }
 

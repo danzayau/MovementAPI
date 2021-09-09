@@ -79,10 +79,10 @@ forward void Movement_OnStartTouchGround(int client);
  *
  * @param client		Client index.
  * @param jumped		Whether player jumped to leave ground.
- * @param jumpbug		Whether player performed a jumpbug.
  * @param ladderJump	Whether player jumped from a ladder.
+ * @param jumpbug		Whether player performed a jumpbug.
  */
-forward void Movement_OnStopTouchGround(int client, bool jumped, bool jumpbug, bool ladderJump);
+forward void Movement_OnStopTouchGround(int client, bool jumped, bool ladderJump, bool jumpbug);
 
 /**
  * Called when a player starts ducking.

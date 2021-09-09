@@ -271,7 +271,7 @@ public MRESReturn DHooks_OnJump_Post(Address pThis, DHookParam hParams)
 	gI_TakeoffTick[client] = gI_TickCount[client];
 	if (!Movement_GetOnGround(client) && gB_OldOnGround[client] || gB_Jumpbugged[client])
 	{
- 		Call_OnStopTouchGround(client, true, gB_Jumpbugged[client], gB_TakeoffFromLadder[client]);
+ 		Call_OnStopTouchGround(client, true, gB_TakeoffFromLadder[client], gB_Jumpbugged[client]);
 	}
 
 	Action result = UpdateMoveData(pThis, client, Call_OnJumpPost);
@@ -494,7 +494,7 @@ public MRESReturn DHooks_OnCategorizePosition_Post(Address pThis)
 			gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
 			gB_Jumped[client] = false;
 			gB_HitPerf[client] = false;
-			Call_OnStopTouchGround(client, false, false, !gB_WalkMoved[client]);
+			Call_OnStopTouchGround(client, false, !gB_WalkMoved[client], false);
 		}
 	}
 
