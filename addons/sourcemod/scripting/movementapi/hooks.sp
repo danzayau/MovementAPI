@@ -53,6 +53,11 @@ Action UpdateMoveData(Address pThis, int client, Function func)
 	Call_PushArrayEx(gF_Origin[client], 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(gF_Velocity[client], 3, SM_PARAM_COPYBACK);
 	Call_Finish(result);
+	if (result != Plugin_Continue)
+	{
+		GameMove_SetOrigin(pThis, gF_Origin[client]);
+		GameMove_SetVelocity(pThis, gF_Velocity[client]);
+	}
 	return result;
 }
 
