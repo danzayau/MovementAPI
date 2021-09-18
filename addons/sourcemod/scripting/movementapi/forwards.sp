@@ -111,7 +111,7 @@ Action Call_OnPlayerMovePre(int client, float origin[3], float velocity[3], Acti
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
 
@@ -121,7 +121,7 @@ Action Call_OnPlayerMovePost(int client, float origin[3], float velocity[3], Act
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
 
@@ -131,7 +131,7 @@ Action Call_OnDuckPre(int client, float origin[3], float velocity[3], Action &re
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
 
@@ -141,7 +141,7 @@ Action Call_OnDuckPost(int client, float origin[3], float velocity[3], Action &r
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
 
@@ -151,7 +151,7 @@ Action Call_OnLadderMovePre(int client, float origin[3], float velocity[3], Acti
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
 
@@ -161,7 +161,7 @@ Action Call_OnLadderMovePost(int client, float origin[3], float velocity[3], Act
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
 
@@ -171,7 +171,7 @@ Action Call_OnFullLadderMovePre(int client, float origin[3], float velocity[3], 
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
 
@@ -181,7 +181,7 @@ Action Call_OnFullLadderMovePost(int client, float origin[3], float velocity[3],
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
 
@@ -191,7 +191,7 @@ Action Call_OnJumpPre(int client, float origin[3], float velocity[3], Action &re
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
 
@@ -201,7 +201,7 @@ Action Call_OnJumpPost(int client, float origin[3], float velocity[3], Action &r
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
 
@@ -211,7 +211,7 @@ Action Call_OnAirAcceleratePre(int client, float origin[3], float velocity[3], A
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
 
@@ -221,7 +221,7 @@ Action Call_OnAirAcceleratePost(int client, float origin[3], float velocity[3], 
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
 
@@ -231,7 +231,7 @@ Action Call_OnWalkMovePre(int client, float origin[3], float velocity[3], Action
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
 
@@ -241,7 +241,7 @@ Action Call_OnWalkMovePost(int client, float origin[3], float velocity[3], Actio
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
 
@@ -251,7 +251,7 @@ Action Call_OnCategorizePositionPre(int client, float origin[3], float velocity[
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
 
@@ -261,6 +261,6 @@ Action Call_OnCategorizePositionPost(int client, float origin[3], float velocity
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
-	Call_Finish();
+	Call_Finish(result);
 	return result;
 }
