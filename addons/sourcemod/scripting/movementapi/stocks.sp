@@ -182,52 +182,6 @@ stock int GetClientFromGameMovementAddress(Address addr)
 	return GetEntityFromAddress(playerAddr);
 }
 
-stock void NobugLandingOrigin(int client, const float oldOrigin[3], const float oldVelocity[3], float landingOrigin[3])
-{
-	float firstTraceEndpoint[3], velocity[3];
-	float hullMin[3] =  { -16.0, -16.0, 0.0 };
-	float hullMax[3] =  { 16.0, 16.0, 0.0 };
-	
-	velocity[0] = oldVelocity[0] * GetTickInterval();
-	velocity[1] = oldVelocity[1] * GetTickInterval();
-	velocity[2] = oldVelocity[2] * GetTickInterval();
-	AddVectors(oldOrigin, velocity, firstTraceEndpoint);
-	
-	Handle trace = TR_TraceHullFilterEx(oldOrigin, firstTraceEndpoint, hullMin, hullMax, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
-	if (!TR_DidHit(trace))
-	{
-		// Nobug jump, extrapolating landing position
-		delete trace;
-		
-		float secondTraceEndpoint[3];
-		// Movement_GetGravity is not sv_gravity. Normally this is 1 or 0, sometimes 40 on antibhop triggers.		
-		// We will (boldly) assume that player's gravity wasn't changed between OnPlayerRunCmd and PostThink.
-
-		velocity[2] -= GetTickInterval() * GetTickInterval() * gCV_sv_gravity.FloatValue;	
-		AddVectors(firstTraceEndpoint, velocity, secondTraceEndpoint);
-		trace = TR_TraceHullFilterEx(firstTraceEndpoint, secondTraceEndpoint, hullMin, hullMax, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
-		
-		// It is possible to not hit the trace, if your vertical velocity is low enough.
-		// In an extreme case, you would need 10 more traces for this to hit.
-		// It is also possible to miss the trace on a flat jump, by hitting the very edge of a block.
-		if (!TR_DidHit(trace))
-		{
-			// Invalidate the landing origin	
-			landingOrigin[0] = 0.0 / 0.0;
-			landingOrigin[1] = 0.0 / 0.0;
-			landingOrigin[2] = 0.0 / 0.0;
-			delete trace;
-			return;
-		}
-	}
-	
-	TR_GetEndPosition(landingOrigin, trace);
-	// The trace is correct, the player will be at least 0.03125 unit above the ground.
-	// So do not subtract the z origin by 0.03125.
-	
-	delete trace;
-}
-
 stock void HookGameMovementFunction(DynamicDetour handle, char[] fName, DHookCallback preCallback, DHookCallback postCallback)
 {
 	handle = DynamicDetour.FromConf(gH_GameData, fName);

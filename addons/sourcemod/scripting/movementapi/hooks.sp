@@ -465,19 +465,8 @@ public MRESReturn DHooks_OnCategorizePosition_Post(Address pThis)
 	{
 		if (ground) // Landing
 		{
-			// Was it caused by unducking?
-			if (gB_ProcessingDuck[client])
-			{
-				gB_Duckbugged[client] = true;
-				gF_LandingVelocity[client] = gF_Velocity[client];
-				NobugLandingOrigin(client, gF_Origin[client], gF_Velocity[client], gF_NobugLandingOrigin[client]);
-			}
-			else
-			{
-				// Don't use the current origin or velocity as it is modified by TryPlayerMove
-				gF_LandingVelocity[client] = gF_PostAAVelocity[client];
-				NobugLandingOrigin(client, gF_PostAAOrigin[client], gF_PostAAVelocity[client], gF_NobugLandingOrigin[client]);
-			}
+			NobugLandingOrigin(client, gF_NobugLandingOrigin[client]);
+			
 			gF_LandingOrigin[client] = gF_Origin[client];
 			gI_LandingCmdNum[client] = gI_Cmdnum[client];
 			gI_LandingTick[client] = gI_LandingTick[client];
@@ -511,5 +500,68 @@ public MRESReturn DHooks_OnCategorizePosition_Post(Address pThis)
 	else
 	{
 		return MRES_Ignored;
+	}
+}
+
+static void NobugLandingOrigin(int client, float landingOrigin[3])
+{
+	// NOTE: Get ground position and distance to ground.
+	float groundEndPoint[3];
+	groundEndPoint = gF_Origin[client];
+	groundEndPoint[2] -= 2.0;
+	float mins[3] = {-16.0, -16.0, 0.0};
+	float maxs[3] = {16.0, 16.0, 0.0};
+	TR_TraceHullFilter(gF_Origin[client], groundEndPoint, mins, maxs, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
+	
+	float groundPos[3];
+	TR_GetEndPosition(groundPos);
+	
+	// NOTE: This is almost guaranteed to hit because CategorizePosition does
+	// the exact same trace to determine if the player is on the ground or not.
+	if (!TR_DidHit())
+	{
+		// Use groundEndPoint if trace fails, because this MIGHT
+		// give less distance in this extremely rare case.
+		groundPos = groundEndPoint;
+	}
+	
+	gB_Duckbugged[client] = gB_ProcessingDuck[client];
+	float distanceToGround = gF_Origin[client][2] - groundPos[2];
+	float velocity[3], origin[3];
+	// NOTE: this has to be 0.0. If there's any distance to the ground, then we'll trace it with this one.
+	if (distanceToGround != 0.0 || gB_ProcessingDuck[client])
+	{
+		// Use the current origin and velocity if we're not touching the ground
+		gF_LandingVelocity[client] = gF_Velocity[client];
+		velocity = gF_Velocity[client];
+		origin = gF_Origin[client];
+	}
+	else
+	{
+		// NOTE: Use gF_OldVelocity and gF_OldOrigin if jump is potentially bugged.
+		gF_LandingVelocity[client] = gF_PostAAVelocity[client];
+		velocity = gF_PostAAVelocity[client];
+		origin = gF_PostAAOrigin[client];
+	}
+	
+	float firstTraceEndpoint[3], scaledVelocity[3];
+	scaledVelocity = velocity;
+	ScaleVector(scaledVelocity, GetTickInterval());
+	AddVectors(origin, scaledVelocity, firstTraceEndpoint);
+	
+	TR_TraceHullFilter(origin, firstTraceEndpoint, mins, maxs, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
+	if (!TR_DidHit())
+	{
+		// It is possible to not hit the trace, if your vertical velocity is low enough.
+		// In an extreme case, you would need 10 more traces for this to hit.
+		// It is also possible to miss the trace on a flat jump, by hitting the very edge of a block.
+		
+		// Use groundPos, because this will give no distance advantage to the player, but
+		// it will let the player not have his jump invalidated.
+		landingOrigin = groundPos;
+	}
+	else
+	{
+		TR_GetEndPosition(landingOrigin);
 	}
 }

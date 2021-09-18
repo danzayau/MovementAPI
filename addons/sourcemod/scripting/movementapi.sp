@@ -24,7 +24,6 @@ Handle gH_GetMaxSpeed;
 int gI_Cmdnum[MAXPLAYERS + 1];
 int gI_TickCount[MAXPLAYERS + 1];
 
-ConVar gCV_sv_gravity;
 bool gB_Jumped[MAXPLAYERS + 1];
 bool gB_HitPerf[MAXPLAYERS + 1];
 float gF_NobugLandingOrigin[MAXPLAYERS + 1][3];
@@ -64,7 +63,6 @@ public void OnPluginStart()
 	CreateGlobalForwards();
 	HookEvent("player_spawn", OnPlayerSpawn, EventHookMode_Post);
 	HookEvent("player_jump", OnPlayerJump, EventHookMode_Post);
-	gCV_sv_gravity = FindConVar("sv_gravity");
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client))
