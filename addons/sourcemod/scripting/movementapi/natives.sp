@@ -17,6 +17,14 @@ void CreateNatives()
 	CreateNative("Movement_GetTurningLeft", Native_GetTurningLeft);
 	CreateNative("Movement_GetTurningRight", Native_GetTurningRight);
 	CreateNative("Movement_GetMaxSpeed", Native_GetMaxSpeed);
+	CreateNative("Movement_GetDuckbugged", Native_GetDuckbugged);
+	CreateNative("Movement_GetJumpbugged", Native_GetJumpbugged);
+	CreateNative("Movement_GetRealOrigin", Native_GetRealOrigin);
+	CreateNative("Movement_GetRealVelocity", Native_GetRealVelocity);
+	CreateNative("Movement_SetTakeoffOrigin", Native_SetTakeoffOrigin);
+	CreateNative("Movement_SetTakeoffVelocity", Native_SetTakeoffVelocity);
+	CreateNative("Movement_SetLandingOrigin", Native_SetLandingOrigin);
+	CreateNative("Movement_SetLandingVelocity", Native_SetLandingVelocity);
 }
 
 public int Native_GetJumped(Handle plugin, int numParams)
@@ -104,4 +112,64 @@ public int Native_GetMaxSpeed(Handle plugin, int numParams)
 {
 	int client = GetNativeCell(1);
 	return view_as<int>(GetMaxSpeed(client));
+}
+
+public int Native_GetDuckbugged(Handle plugin, int numParams)
+{
+	return view_as<int>(gB_Duckbugged[GetNativeCell(1)]);
+}
+
+public int Native_GetJumpbugged(Handle plugin, int numParams)
+{
+	return view_as<int>(gB_Jumpbugged[GetNativeCell(1)]);
+}
+
+public int Native_GetRealOrigin(Handle plugin, int numParams)
+{
+	SetNativeArray(2, gF_Origin[GetNativeCell(1)], 3);
+}
+
+public int Native_GetRealVelocity(Handle plugin, int numParams)
+{
+	SetNativeArray(2, gF_Velocity[GetNativeCell(1)], 3);
+}
+
+public int Native_SetTakeoffOrigin(Handle plugin, int numParams)
+{
+	float array[3];
+	GetNativeArray(2, array, sizeof(array));
+	for (int i = 0; i < 3; i++)
+	{
+		gF_TakeoffOrigin[GetNativeCell(1)][i] = array[i];
+	}
+}
+
+public int Native_SetTakeoffVelocity(Handle plugin, int numParams)
+{
+	float array[3];
+	GetNativeArray(2, array, sizeof(array));
+	for (int i = 0; i < 3; i++)
+	{
+		gF_TakeoffVelocity[GetNativeCell(1)][i] = array[i];
+	}
+}
+
+public int Native_SetLandingOrigin(Handle plugin, int numParams)
+{
+	float array[3];
+	GetNativeArray(2, array, sizeof(array));
+	for (int i = 0; i < 3; i++)
+	{
+		gF_LandingOrigin[GetNativeCell(1)][i] = array[i];
+	}
+}
+
+public int Native_SetLandingVelocity(Handle plugin, int numParams)
+{
+	float array[3];
+	GetNativeArray(2, array, sizeof(array));
+	for (int i = 0; i < 3; i++)
+	{
+		gF_LandingVelocity[GetNativeCell(1)][i] = array[i];
+	}
 }

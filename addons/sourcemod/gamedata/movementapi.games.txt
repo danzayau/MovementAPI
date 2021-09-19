@@ -2,6 +2,95 @@
 {
 	"csgo"
 	{
+		"Keys"
+		{
+			"CGameMovement::player"				"4"
+			"CGameMovement::mv"					"8"
+			"CMoveData::m_vecViewAngles"		"12"
+			"CMoveData::m_vecVelocity"			"64"
+			"CMoveData::m_vecAbsOrigin"			"172"
+		}
+		"Functions"
+		{
+			"CCSGameMovement::PlayerMove"
+			{
+				"signature" "CCSGameMovement::PlayerMove"
+				"callconv"	"thiscall"
+				"this"		"address"
+				"return"	"void"
+			}
+			"CGameMovement::AirAccelerate"
+			{
+				"signature" "CGameMovement::AirAccelerate"
+				"callconv"  "thiscall"
+				"this"      "address"
+				"return"    "void"
+				"arguments"
+				{
+					"wishdir"
+					{
+						"type"	"vectorptr"
+					}
+					"wishspeed"
+					{
+						"type"	"float"
+					}
+					"sv_airaccelerate"
+					{
+						"type"	"float"
+					}
+				}
+			}
+			"CGameMovement::LadderMove"
+			{
+				"signature" "CGameMovement::LadderMove"
+				"callconv"	"thiscall"
+				"this"		"address"
+				"return" 	"bool"
+			}
+			"CCSGameMovement::Duck"
+			{
+				"signature" "CCSGameMovement::Duck"
+				"callconv"  "thiscall"
+				"this"      "address"
+				"return"    "void"				
+			}
+			"CGameMovement::WalkMove"
+			{
+				"signature" "CGameMovement::WalkMove"
+				"callconv" 	"thiscall"
+				"this" 		"address"
+				"return" 	"void"
+			}
+			"CGameMovement::FullLadderMove"
+			{
+				"signature" "CGameMovement::FullLadderMove"
+				"callconv" 	"thiscall"
+				"this" 		"address"
+				"return" 	"void"
+			}
+			"CCSGameMovement::OnJump"
+			{
+				"signature" "CCSGameMovement::OnJump"
+				"callconv"	"thiscall"
+				"this"		"address"
+				"return"	"void"
+				"arguments"
+				{
+					"impulse"
+					{
+						"type"	"float"
+					}
+				}
+			}
+			"CGameMovement::CategorizePosition"
+			{
+				"signature" "CGameMovement::CategorizePosition"
+				"callconv" 	"thiscall"
+				"this" 		"address"
+				"return" 	"void"
+			}
+		}
 		"Offsets"
 		{
 			"GetPlayerMaxSpeed"
@@ -9,6 +98,57 @@
 				"windows"	"505"
 				"linux"		"506"
 				"mac"		"506"
+			}
+		}
+		"Signatures"
+		{
+			"CCSGameMovement::PlayerMove"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x57\x8B\xF9\x8B\x8F\x54\x0E\x00\x00"
+				"linux"		"\x55\x89\xE5\x56\x53\x83\xEC\x50\x8B\x5D\x08\x8B\x83\x54\x0E\x00\x00"
+			}
+			"CGameMovement::WalkMove"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x81\xEC\x9C\x00\x00\x00\x56\x57\x8B\xF9\xC7\x45\xB0\x00\x00\x00\x00"
+				"linux"		"\x55\x89\xE5\x57\x56\x8D\x45\xDC\xBE\xFF\xFF\xFF\xFF"
+			}
+			"CGameMovement::AirAccelerate"
+			{
+				"library" 	"server"
+				"windows" 	"\x55\x8B\xEC\x83\xEC\x20\x56\x57\x8B\xF9\x8B\x77\x04"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x81\xEC\xAC\x00\x00\x00\x8B\x75\x08\x8B\x7D\x0C\x8B\x5E\x04"
+			}
+			"CGameMovement::LadderMove"
+			{
+				"library" 	"server"
+				"windows" 	"\x55\x8B\xEC\x83\xE4\xF8\x81\xEC\xD8\x00\x00\x00\x56\x57\x8B\xF9"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x81\xEC\x2C\x01\x00\x00\xC7\x45\x98\x00\x00\x00\x00"
+			}
+			"CCSGameMovement::Duck"
+			{
+				"library" 	"server"
+				"windows" 	"\x55\x8B\xEC\x81\xEC\x88\x00\x00\x00\x56\x57\x8B\xF9\x8B\x57\x04"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x81\xEC\xFC\x00\x00\x00\x8B\x5D\x08\x8B\x43\x04"
+			}
+			"CGameMovement::FullLadderMove"
+			{
+				"library" 	"server"
+				"windows" 	"\x56\x8B\xF1\x8B\x06\xFF\x90\xC8\x00\x00\x00"
+				"linux"		"\x55\x89\xE5\x53\x83\xEC\x14\x8B\x5D\x08\x8B\x03\x89\x1C\x24\xFF\x90\xCC\x00\x00\x00"
+			}
+			"CCSGameMovement::OnJump"
+			{
+				"library" 	"server"
+				"windows" 	"\x55\x8B\xEC\x83\xEC\x0C\x56\x57\x8B\xF9\x8B\x87\x54\x0E\x00\x00"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x4C\x8B\x75\x08\xF3\x0F\x10\x45\x0C\xF3\x0F\x11\x45\xE4\x8B\x86\x54\x0E\x00\x00"
+			}
+			"CGameMovement::CategorizePosition"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x78\x57"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x81\xEC\xFC\x00\x00\x00\xC7\x45\xC4\x00\x00\x00\x00"
 			}
 		}
 	}
