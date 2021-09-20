@@ -19,8 +19,8 @@ void CreateNatives()
 	CreateNative("Movement_GetMaxSpeed", Native_GetMaxSpeed);
 	CreateNative("Movement_GetDuckbugged", Native_GetDuckbugged);
 	CreateNative("Movement_GetJumpbugged", Native_GetJumpbugged);
-	CreateNative("Movement_GetRealOrigin", Native_GetRealOrigin);
-	CreateNative("Movement_GetRealVelocity", Native_GetRealVelocity);
+	CreateNative("Movement_GetProcessingOrigin", Native_GetProcessingOrigin);
+	CreateNative("Movement_GetProcessingVelocity", Native_GetProcessingVelocity);
 	CreateNative("Movement_SetTakeoffOrigin", Native_SetTakeoffOrigin);
 	CreateNative("Movement_SetTakeoffVelocity", Native_SetTakeoffVelocity);
 	CreateNative("Movement_SetLandingOrigin", Native_SetLandingOrigin);
@@ -124,12 +124,12 @@ public int Native_GetJumpbugged(Handle plugin, int numParams)
 	return view_as<int>(gB_Jumpbugged[GetNativeCell(1)]);
 }
 
-public int Native_GetRealOrigin(Handle plugin, int numParams)
+public int Native_GetProcessingOrigin(Handle plugin, int numParams)
 {
 	SetNativeArray(2, gF_Origin[GetNativeCell(1)], 3);
 }
 
-public int Native_GetRealVelocity(Handle plugin, int numParams)
+public int Native_GetProcessingVelocity(Handle plugin, int numParams)
 {
 	SetNativeArray(2, gF_Velocity[GetNativeCell(1)], 3);
 }
