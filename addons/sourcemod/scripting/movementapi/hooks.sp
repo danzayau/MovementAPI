@@ -464,7 +464,7 @@ public MRESReturn DHooks_OnCategorizePosition_Post(Address pThis)
 			
 			gF_LandingOrigin[client] = gF_Origin[client];
 			gI_LandingCmdNum[client] = gI_Cmdnum[client];
-			gI_LandingTick[client] = gI_LandingTick[client];
+			gI_LandingTick[client] = gI_TickCount[client];
 			Call_OnStartTouchGround(client);
 		}
 		else // Takeoff
