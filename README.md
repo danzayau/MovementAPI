@@ -16,7 +16,7 @@ A SourceMod API focused on player movement in the form of a [function stock liba
 ### Terminology
 
  * **Takeoff** - Becoming airborne, including jumping, falling, getting off a ladder and leaving noclip.
- * **Landing** - Leaving the air, including landing on the ground, grabbing a ladder and entering noclip.
+ * **Landing** - Leaving the air, including landing on the ground, grabbing a ladder, leaving noclip while on ground and entering noclip.
  * **Perfect Bunnyhop (Perf)** - When the player has jumped in the tick after landing and keeps their speed.
  * **Duckbug/Crouchbug** - When the player sucessfully lands due to uncrouching from mid air and not by falling down. This causes no stamina loss or fall damage upon landing.
  * **Jumpbug** - This is achieved by duckbugging and jumping at the same time. The player is never seen as 'on ground' when bunnyhopping from a tick by tick perspective. A jumpbug inherits the same behavior as a duckbug/crouchbug, along with its effects such as maintaining speed due to no stamina loss.

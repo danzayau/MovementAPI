@@ -230,23 +230,18 @@ public MRESReturn DHooks_OnJump_Pre(Address pThis, DHookParam hParams)
 	}
 
 	// HitPerf must be modified here so plugins can know if player hits a perf or not.
-	bool onGround = Movement_GetOnGround(client);
+	// Not a perf if last movetype was ladder, because jumping works differently on ladders.
+	if (gMT_OldMovetype[client] != MOVETYPE_LADDER) 
+	{
+		// If you walked on the last tick then clearly it's not going to be a perf.
+		// Can't perf if you don't jump.
+		gB_HitPerf[client] = !gB_OldWalkMoved[client];
+	}
+	else
+	{
+		gB_HitPerf[client] = false;
+	}
 
-	// Duckbug is a special case where you can land then jump on the same tick.
-	if (gB_Duckbugged[client])
-	{
-		gB_HitPerf[client] = true;
-	}
-	else if (!onGround && gB_OldOnGround[client])
-	{
-		if (gMT_OldMovetype[client] == MOVETYPE_WALK) 
-		{
-			// If you walked on the last tick then clearly it's not going to be a perf.
-			// Can't perf if you don't jump.
-			gB_HitPerf[client] = !gB_OldWalkMoved[client];
-		}
-	}
-	
 	Action result = UpdateMoveData(pThis, client, Call_OnJumpPre);
 
 	if (result != Plugin_Continue)
