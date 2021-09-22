@@ -95,9 +95,9 @@
 		{
 			"GetPlayerMaxSpeed"
 			{
-				"windows"	"505"
-				"linux"		"506"
-				"mac"		"506"
+				"windows"	"506"
+				"linux"		"507"
+				"mac"		"507"
 			}
 		}
 		"Signatures"
