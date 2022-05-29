@@ -403,6 +403,13 @@ public MRESReturn DHooks_OnPlayerMove_Pre(Address pThis)
 	{
 		return MRES_Ignored;
 	}
+	
+	gB_Duckbugged[client] = false;
+	gB_WalkMoved[client] = false;
+	gB_Jumpbugged[client] = false;
+	gB_Jumped[client] = false;
+	gB_TakeoffFromLadder[client] = false;
+	
 	Action result = UpdateMoveData(pThis, client, Call_OnPlayerMovePre);
 
 	if (result != Plugin_Continue)
