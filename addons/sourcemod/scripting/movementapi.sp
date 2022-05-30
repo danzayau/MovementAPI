@@ -125,11 +125,6 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	CheckNoclip(client);
 	gI_Cmdnum[client] = cmdnum;
 	gI_TickCount[client] = tickcount;
-	gB_Duckbugged[client] = false;
-	gB_WalkMoved[client] = false;
-	gB_Jumpbugged[client] = false;
-	gB_Jumped[client] = false;
-	gB_TakeoffFromLadder[client] = false;
 	return Plugin_Continue;
 }
 
