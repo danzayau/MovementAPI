@@ -15,7 +15,7 @@ public Plugin myinfo =
 	name = "MovementAPI", 
 	author = "DanZay", 
 	description = "Provides API focused on player movement", 
-	version = "2.1.0", 
+	version = "2.3.0", 
 	url = "https://github.com/danzayau/MovementAPI"
 };
 
@@ -219,3 +219,4 @@ static void CheckNoclip(int client)
 		Call_OnChangeMovetype(client, gMT_OldMovetype[client], movetype);
 	}
 }
+
