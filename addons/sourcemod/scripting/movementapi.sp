@@ -94,6 +94,7 @@ public void OnPlayerPostThinkPost(int client)
 		return;
 	}
 	
+	CheckGround(client);
 	float eyeAngles[3];
 	Movement_GetEyeAngles(client, eyeAngles);
 	UpdateTurning(client, gF_OldEyeAngles[client], eyeAngles);
@@ -123,6 +124,7 @@ public void OnPlayerJump(Event event, const char[] name, bool dontBroadcast)
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
 {
 	CheckNoclip(client);
+	CheckGround(client);
 	gI_Cmdnum[client] = cmdnum;
 	gI_TickCount[client] = tickcount;
 	gB_Duckbugged[client] = false;
@@ -222,5 +224,21 @@ static void CheckNoclip(int client)
 			gB_Jumped[client] = false;
 		}
 		Call_OnChangeMovetype(client, gMT_OldMovetype[client], movetype);
+	}
+}
+
+static void CheckGround(int client)
+{
+	// Check if the player somehow leaves the ground outside of movement processing (eg. triggers)
+	// The player can't touch the ground outside of movement processing, no need to check for that.
+	if (gB_OldOnGround[client] && !Movement_GetOnGround(client))
+	{
+		Movement_GetOrigin(client, gF_TakeoffOrigin[client]);
+		Movement_GetVelocity(client, gF_TakeoffVelocity[client]);
+		gI_TakeoffTick[client] = gI_TickCount[client];
+		gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
+		gB_HitPerf[client] = false;
+		gB_Jumped[client] = false;
+		Call_OnStopTouchGround(client, false, false, false);
 	}
 }
