@@ -39,12 +39,12 @@ public int Native_GetHitPerf(Handle plugin, int numParams)
 
 public int Native_GetTakeoffOrigin(Handle plugin, int numParams)
 {
-	SetNativeArray(2, gF_TakeoffOrigin[GetNativeCell(1)], 3);
+	return SetNativeArray(2, gF_TakeoffOrigin[GetNativeCell(1)], 3);
 }
 
 public int Native_GetTakeoffVelocity(Handle plugin, int numParams)
 {
-	SetNativeArray(2, gF_TakeoffVelocity[GetNativeCell(1)], 3);
+	return SetNativeArray(2, gF_TakeoffVelocity[GetNativeCell(1)], 3);
 }
 
 public int Native_GetTakeoffSpeed(Handle plugin, int numParams)
@@ -64,17 +64,17 @@ public int Native_GetTakeoffCmdNum(Handle plugin, int numParams)
 
 public int Native_GetNobugLandingOrigin(Handle plugin, int numParams)
 {
-	SetNativeArray(2, gF_NobugLandingOrigin[GetNativeCell(1)], 3);
+	return SetNativeArray(2, gF_NobugLandingOrigin[GetNativeCell(1)], 3);
 }
 
 public int Native_GetLandingOrigin(Handle plugin, int numParams)
 {
-	SetNativeArray(2, gF_LandingOrigin[GetNativeCell(1)], 3);
+	return SetNativeArray(2, gF_LandingOrigin[GetNativeCell(1)], 3);
 }
 
 public int Native_GetLandingVelocity(Handle plugin, int numParams)
 {
-	SetNativeArray(2, gF_LandingVelocity[GetNativeCell(1)], 3);
+	return SetNativeArray(2, gF_LandingVelocity[GetNativeCell(1)], 3);
 }
 
 public int Native_GetLandingSpeed(Handle plugin, int numParams)
@@ -126,12 +126,12 @@ public int Native_GetJumpbugged(Handle plugin, int numParams)
 
 public int Native_GetProcessingOrigin(Handle plugin, int numParams)
 {
-	SetNativeArray(2, gF_Origin[GetNativeCell(1)], 3);
+	return SetNativeArray(2, gF_Origin[GetNativeCell(1)], 3);
 }
 
 public int Native_GetProcessingVelocity(Handle plugin, int numParams)
 {
-	SetNativeArray(2, gF_Velocity[GetNativeCell(1)], 3);
+	return SetNativeArray(2, gF_Velocity[GetNativeCell(1)], 3);
 }
 
 public int Native_SetTakeoffOrigin(Handle plugin, int numParams)
@@ -142,6 +142,8 @@ public int Native_SetTakeoffOrigin(Handle plugin, int numParams)
 	{
 		gF_TakeoffOrigin[GetNativeCell(1)][i] = array[i];
 	}
+
+	return 0;
 }
 
 public int Native_SetTakeoffVelocity(Handle plugin, int numParams)
@@ -152,6 +154,8 @@ public int Native_SetTakeoffVelocity(Handle plugin, int numParams)
 	{
 		gF_TakeoffVelocity[GetNativeCell(1)][i] = array[i];
 	}
+
+	return 0;
 }
 
 public int Native_SetLandingOrigin(Handle plugin, int numParams)
@@ -162,6 +166,8 @@ public int Native_SetLandingOrigin(Handle plugin, int numParams)
 	{
 		gF_LandingOrigin[GetNativeCell(1)][i] = array[i];
 	}
+
+	return 0;
 }
 
 public int Native_SetLandingVelocity(Handle plugin, int numParams)
@@ -172,4 +178,6 @@ public int Native_SetLandingVelocity(Handle plugin, int numParams)
 	{
 		gF_LandingVelocity[GetNativeCell(1)][i] = array[i];
 	}
+
+	return 0;
 }
