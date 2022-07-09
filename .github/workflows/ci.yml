@@ -43,6 +43,7 @@ jobs:
         run: |
           echo -e "\nCompiling plugin..."
           spcomp64 -O2 -i $includePath -i $INCLUDE_PATH movementapi.sp
+          mkdir ../plugins && mv ./*.smx ../plugins
         working-directory: ${{ env.SCRIPTING_PATH }}/
 
       - name: Uploading artifact
