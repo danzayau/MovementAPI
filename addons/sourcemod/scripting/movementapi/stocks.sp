@@ -134,7 +134,7 @@ stock void GameMove_GetEyeAngles(Address addr, float result[3])
 			ThrowError("Failed to get CMoveData::m_viewAngleOffset offset.");
 			return;
 		}
-		originOffset = StringToInt(buffer);
+		viewAngleOffset = StringToInt(buffer);
 	}
 	
 	Address mvAddress = view_as<Address>(LoadFromAddress(view_as<Address>(view_as<int>(addr) + mvOffset), NumberType_Int32));

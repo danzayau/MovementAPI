@@ -1,0 +1,53 @@
+name: ci
+
+on:
+  push:
+    paths-ignore:
+    - LICENSE
+    - README.md
+  pull_request:
+    paths-ignore:
+    - LICENSE
+    - README.md
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        sm_version: [ "1.10", "1.11", "1.12" ]
+
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set environment variables
+        run: |
+          SOURCEMOD_PATH=$GITHUB_WORKSPACE/addons/sourcemod
+          SCRIPTING_PATH=$GITHUB_WORKSPACE/addons/sourcemod/scripting
+          GAMEDATA_PATH=$GITHUB_WORKSPACE/addons/sourcemod/gamedata
+          EXT_PATH=$GITHUB_WORKSPACE/addons/sourcemod/extensions
+          echo "SOURCEMOD_PATH=$SOURCEMOD_PATH" >> $GITHUB_ENV
+          echo "SCRIPTING_PATH=$SCRIPTING_PATH" >> $GITHUB_ENV
+          echo "INCLUDE_PATH=$SCRIPTING_PATH/include" >> $GITHUB_ENV
+          echo "GAMEDATA_PATH=$GAMEDATA_PATH" >> $GITHUB_ENV
+          echo "EXT_PATH=$EXT_PATH" >> $GITHUB_ENV
+          echo "GITHUB_SHA_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
+      - name: Setup SourcePawn Compiler ${{ matrix.SM_VERSION }}
+        uses: rumblefrog/setup-sp@master
+        with:
+          version: ${{ matrix.SM_VERSION }}
+
+      - name: Compile plugin
+        run: |
+          echo -e "\nCompiling plugin..."
+          spcomp64 -O2 -i $includePath -i $INCLUDE_PATH movementapi.sp
+          mkdir ../plugins && mv ./*.smx ../plugins
+        working-directory: ${{ env.SCRIPTING_PATH }}/
+
+      - name: Uploading artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: movementapi-${{ env.GITHUB_SHA_SHORT }}
+          path: ./
