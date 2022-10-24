@@ -277,10 +277,9 @@ public MRESReturn DHooks_OnJump_Post(Address pThis, DHookParam hParams)
 	gF_TakeoffVelocity[client] = gF_Velocity[client];
 	gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
 	gI_TakeoffTick[client] = gI_TickCount[client];
-	if (!Movement_GetOnGround(client) && gB_OldOnGround[client] || gB_Jumpbugged[client])
-	{
- 		Call_OnStopTouchGround(client, true, gB_TakeoffFromLadder[client], gB_Jumpbugged[client]);
-	}
+
+	// OnJump will only be called if the client previously touched some sort of ground, so Call_OnStopTouchGround should always be called.
+	Call_OnStopTouchGround(client, true, gB_TakeoffFromLadder[client], gB_Jumpbugged[client]);
 
 	Action result = UpdateMoveData(pThis, client, Call_OnJumpPost);
 	if (result != Plugin_Continue)
