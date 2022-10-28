@@ -497,7 +497,8 @@ public MRESReturn DHooks_OnCategorizePosition_Post(Address pThis)
 			gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
 			gB_Jumped[client] = false;
 			gB_HitPerf[client] = false;
-			Call_OnStopTouchGround(client, false, !gB_WalkMoved[client], false);
+			bool hadLadderMoveType = Movement_GetMovetype(client) == MOVETYPE_LADDER || gMT_OldMovetype[client] == MOVETYPE_LADDER;
+			Call_OnStopTouchGround(client, false, hadLadderMoveType && !gB_WalkMoved[client], false);
 		}
 	}
 
