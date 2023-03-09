@@ -64,7 +64,7 @@ Action UpdateMoveData(Address pThis, int client, Function func)
 public MRESReturn DHooks_OnDuck_Pre(Address pThis)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client) || Movement_GetMovetype(client) == MOVETYPE_NOCLIP)
+	if (!IsPlayerAlive(client) || Movement_GetMovetype(client) == MOVETYPE_NOCLIP)
 	{
 		return MRES_Ignored;
 	}
@@ -86,7 +86,7 @@ public MRESReturn DHooks_OnDuck_Pre(Address pThis)
 public MRESReturn DHooks_OnDuck_Post(Address pThis)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client) || Movement_GetMovetype(client) == MOVETYPE_NOCLIP)
+	if (!IsPlayerAlive(client) || Movement_GetMovetype(client) == MOVETYPE_NOCLIP)
 	{
 		return MRES_Ignored;
 	}
@@ -116,7 +116,7 @@ public MRESReturn DHooks_OnDuck_Post(Address pThis)
 public MRESReturn DHooks_OnLadderMove_Pre(Address pThis)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client) || Movement_GetMovetype(client) == MOVETYPE_NOCLIP)
+	if (!IsPlayerAlive(client) || Movement_GetMovetype(client) == MOVETYPE_NOCLIP)
 	{
 		return MRES_Ignored;
 	}
@@ -140,7 +140,7 @@ public MRESReturn DHooks_OnLadderMove_Post(Address pThis, DHookReturn hReturn)
 	// While the movetype changed here, the vertical velocity is not yet updated.
 	// gF_PostLadderMoveVelocity can be incorrect here.
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client) || Movement_GetMovetype(client) == MOVETYPE_NOCLIP)
+	if (!IsPlayerAlive(client) || Movement_GetMovetype(client) == MOVETYPE_NOCLIP)
 	{
 		return MRES_Ignored;
 	}
@@ -207,7 +207,7 @@ public MRESReturn DHooks_OnLadderMove_Post(Address pThis, DHookReturn hReturn)
 public MRESReturn DHooks_OnFullLadderMove_Pre(Address pThis)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	if (!IsPlayerAlive(client))
 	{
 		return MRES_Ignored;
 	}
@@ -226,7 +226,7 @@ public MRESReturn DHooks_OnFullLadderMove_Pre(Address pThis)
 public MRESReturn DHooks_OnJump_Pre(Address pThis, DHookParam hParams)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	if (!IsPlayerAlive(client))
 	{
 		return MRES_Ignored;
 	}
@@ -265,7 +265,7 @@ public MRESReturn DHooks_OnJump_Pre(Address pThis, DHookParam hParams)
 public MRESReturn DHooks_OnJump_Post(Address pThis, DHookParam hParams)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	if (!IsPlayerAlive(client))
 	{
 		return MRES_Ignored;
 	}
@@ -295,7 +295,7 @@ public MRESReturn DHooks_OnJump_Post(Address pThis, DHookParam hParams)
 public MRESReturn DHooks_OnFullLadderMove_Post(Address pThis)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client) || Movement_GetMovetype(client) == MOVETYPE_NOCLIP)
+	if (!IsPlayerAlive(client) || Movement_GetMovetype(client) == MOVETYPE_NOCLIP)
 	{
 		return MRES_Ignored;
 	}
@@ -315,7 +315,7 @@ public MRESReturn DHooks_OnFullLadderMove_Post(Address pThis)
 public MRESReturn DHooks_OnAirAccelerate_Pre(Address pThis, DHookParam hParams)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	if (!IsPlayerAlive(client))
 	{
 		return MRES_Ignored;
 	}
@@ -334,7 +334,7 @@ public MRESReturn DHooks_OnAirAccelerate_Pre(Address pThis, DHookParam hParams)
 public MRESReturn DHooks_OnAirAccelerate_Post(Address pThis, DHookParam hParams)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	if (!IsPlayerAlive(client))
 	{
 		return MRES_Ignored;
 	}
@@ -357,7 +357,7 @@ public MRESReturn DHooks_OnAirAccelerate_Post(Address pThis, DHookParam hParams)
 public MRESReturn DHooks_OnWalkMove_Pre(Address pThis)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	if (!IsPlayerAlive(client))
 	{
 		return MRES_Ignored;
 	}
@@ -376,7 +376,7 @@ public MRESReturn DHooks_OnWalkMove_Pre(Address pThis)
 public MRESReturn DHooks_OnWalkMove_Post(Address pThis)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	if (!IsPlayerAlive(client))
 	{
 		return MRES_Ignored;
 	}
@@ -398,7 +398,7 @@ public MRESReturn DHooks_OnWalkMove_Post(Address pThis)
 public MRESReturn DHooks_OnPlayerMove_Pre(Address pThis)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	if (!IsPlayerAlive(client))
 	{
 		return MRES_Ignored;
 	}
@@ -424,7 +424,7 @@ public MRESReturn DHooks_OnPlayerMove_Pre(Address pThis)
 public MRESReturn DHooks_OnPlayerMove_Post(Address pThis)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	if (!IsPlayerAlive(client))
 	{
 		return MRES_Ignored;
 	}
@@ -443,7 +443,7 @@ public MRESReturn DHooks_OnPlayerMove_Post(Address pThis)
 public MRESReturn DHooks_OnCategorizePosition_Pre(Address pThis)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	if (!IsPlayerAlive(client))
 	{
 		return MRES_Ignored;
 	}
@@ -464,7 +464,7 @@ public MRESReturn DHooks_OnCategorizePosition_Pre(Address pThis)
 public MRESReturn DHooks_OnCategorizePosition_Post(Address pThis)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
-	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	if (!IsPlayerAlive(client))
 	{
 		return MRES_Ignored;
 	}
