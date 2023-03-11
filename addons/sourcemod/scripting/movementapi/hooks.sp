@@ -567,19 +567,12 @@ public MRESReturn DHooks_OnTryPlayerMove_Post(Address pThis, DHookReturn hReturn
 
 	Address m_TouchList_m_pElements = LoadFromAddress(moveHelperAddr + view_as<Address>(8) + view_as<Address>(16), NumberType_Int32);
 
-	bool hitStandableSurface = false;
-	static ConVar sv_standable_normal;
-	if (sv_standable_normal == INVALID_HANDLE)
-	{
-		sv_standable_normal = FindConVar("sv_standable_normal");
-	}
 	for (int i = 0; i < gI_CollisionCount[client]; i++)
 	{
 		Trace trace = Trace(m_TouchList_m_pElements + view_as<Address>(i*96) + view_as<Address>(12));
 		trace.startpos.ToArray(gF_TraceStartOrigin[client][i]);
 		trace.endpos.ToArray(gF_TraceEndOrigin[client][i]);
 		trace.plane.normal.ToArray(gF_TraceNormal[client][i]);
-	}
 	}
 
 	Action result = UpdateMoveData(pThis, client, Call_OnTryPlayerMovePost);
