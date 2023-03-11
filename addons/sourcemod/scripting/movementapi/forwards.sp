@@ -21,6 +21,8 @@ static Handle H_OnWalkMovePre;
 static Handle H_OnWalkMovePost;
 static Handle H_OnCategorizePositionPre;
 static Handle H_OnCategorizePositionPost;
+static Handle H_OnTryPlayerMovePre;
+static Handle H_OnTryPlayerMovePost;
 
 void CreateGlobalForwards()
 {
@@ -54,6 +56,9 @@ void CreateGlobalForwards()
 
 	H_OnCategorizePositionPre = CreateGlobalForward("Movement_OnCategorizePositionPre", ET_Event, Param_Cell, Param_Array, Param_Array);
 	H_OnCategorizePositionPost = CreateGlobalForward("Movement_OnCategorizePositionPost", ET_Event, Param_Cell, Param_Array, Param_Array);
+
+	H_OnTryPlayerMovePre = CreateGlobalForward("Movement_OnTryPlayerMovePre", ET_Event, Param_Cell, Param_Array, Param_Array);
+	H_OnTryPlayerMovePost = CreateGlobalForward("Movement_OnTryPlayerMovePost", ET_Event, Param_Cell, Param_Array, Param_Array);
 }
 
 void Call_OnStartDucking(int client)
@@ -258,6 +263,26 @@ Action Call_OnCategorizePositionPre(int client, float origin[3], float velocity[
 Action Call_OnCategorizePositionPost(int client, float origin[3], float velocity[3], Action &result)
 {
 	Call_StartForward(H_OnCategorizePositionPost);
+	Call_PushCell(client);
+	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
+	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
+	Call_Finish(result);
+	return result;
+}
+
+Action Call_OnTryPlayerMovePre(int client, float origin[3], float velocity[3], Action &result)
+{
+	Call_StartForward(H_OnTryPlayerMovePre);
+	Call_PushCell(client);
+	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
+	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
+	Call_Finish(result);
+	return result;
+}
+
+Action Call_OnTryPlayerMovePost(int client, float origin[3], float velocity[3], Action &result)
+{
+	Call_StartForward(H_OnTryPlayerMovePost);
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);

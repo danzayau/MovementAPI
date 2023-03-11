@@ -1,3 +1,140 @@
+#define MAX_BUMPS 4
+
+methodmap Vector
+{
+	public Vector(Address address)
+	{
+		return view_as<Vector>(address);
+	}
+
+	property float x
+	{
+		public get()
+		{
+			return view_as<float>( LoadFromAddress(view_as<Address>(this) + view_as<Address>(0), NumberType_Int32) );
+		}
+		public set(float x)
+		{
+			StoreToAddress(view_as<Address>(this) + view_as<Address>(0), view_as<int>(x), NumberType_Int32, false);
+		}
+	}
+
+	property float y
+	{
+		public get()
+		{
+			return view_as<float>( LoadFromAddress(view_as<Address>(this) + view_as<Address>(4), NumberType_Int32) );
+		}
+		public set(float y)
+		{
+			StoreToAddress(view_as<Address>(this) + view_as<Address>(4), view_as<int>(y), NumberType_Int32, false);
+		}
+	}
+
+	property float z
+	{
+		public get()
+		{
+			return view_as<float>( LoadFromAddress(view_as<Address>(this) + view_as<Address>(8), NumberType_Int32) );
+		}
+		public set(float z)
+		{
+			StoreToAddress(view_as<Address>(this) + view_as<Address>(8), view_as<int>(z), NumberType_Int32, false);
+		}
+	}
+	
+	public void ToArray(float vec[3])
+	{
+		vec[0] = this.x;
+		vec[1] = this.y;
+		vec[2] = this.z;
+	}
+};
+
+methodmap Plane
+{
+	public Plane(Address address)
+	{
+		return view_as<Plane>(address);
+	}
+
+	property Vector normal
+	{
+		public get()
+		{
+			return view_as<Vector>( view_as<Address>(this) + view_as<Address>(0) );
+		}
+	}
+
+	property float dist
+	{
+		public get()
+		{
+			return view_as<float>( LoadFromAddress(view_as<Address>(this) + view_as<Address>(12), NumberType_Int32) );
+		}
+		public set(float dist)
+		{
+			StoreToAddress(view_as<Address>(this) + view_as<Address>(12), view_as<int>(dist), NumberType_Int32, false);
+		}
+	}
+
+	property int type
+	{
+		public get()
+		{
+			return view_as<int>( LoadFromAddress(view_as<Address>(this) + view_as<Address>(16), NumberType_Int8) );
+		}
+		public set(int type)
+		{
+			StoreToAddress(view_as<Address>(this) + view_as<Address>(16), view_as<int>(type), NumberType_Int8, false);
+		}
+	}
+
+	property int signbits
+	{
+		public get()
+		{
+			return view_as<int>( LoadFromAddress(view_as<Address>(this) + view_as<Address>(17), NumberType_Int8) );
+		}
+		public set(int signbits)
+		{
+			StoreToAddress(view_as<Address>(this) + view_as<Address>(17), view_as<int>(signbits), NumberType_Int8, false);
+		}
+	}
+};
+
+methodmap Trace
+{
+	public Trace(Address address)
+	{
+		return view_as<Trace>(address);
+	}
+
+	property Vector startpos
+	{
+		public get()
+		{
+			return view_as<Vector>( view_as<Address>(this) + view_as<Address>(0) );
+		}
+	}
+
+	property Vector endpos
+	{
+		public get()
+		{
+			return view_as<Vector>( view_as<Address>(this) + view_as<Address>(12) );
+		}
+	}
+
+	property Plane plane
+	{
+		public get()
+		{
+			return view_as<Plane>( view_as<Address>(this) + view_as<Address>(24) );
+		}
+	}
+};
+
 stock void GameMove_SetVelocity(Address addr, float velocity[3])
 {
 	if (velocity[0] != velocity[0] || velocity[1] != velocity[1] || velocity[2] != velocity[2])

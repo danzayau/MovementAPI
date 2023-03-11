@@ -2,6 +2,24 @@
 {
 	"csgo"
 	{
+		"Addresses"
+		{
+			"sm_pSingleton"
+			{
+				"windows"
+				{
+					"signature"	"CGameMovement::TryPlayerMove"
+					"read" "718"
+				}
+				"linux"
+				{
+					"signature"	"CGameMovement::TryPlayerMove"
+					"read" "483"
+				}
+				
+				"read" "0"
+			}
+		}
 		"Keys"
 		{
 			"CGameMovement::player"				"4"
@@ -90,6 +108,24 @@
 				"this" 		"address"
 				"return" 	"void"
 			}
+			"CGameMovement::TryPlayerMove"
+			{
+				"signature" "CGameMovement::TryPlayerMove"
+				"callconv"	"thiscall"
+				"this"		"address"
+				"return"	"int"
+				"arguments"
+				{
+					"pFirstDest"
+					{
+						"type"	"vectorptr"
+					}
+					"pFirstTrace"
+					{
+						"type"	"objectptr"
+					}
+				}
+			}
 		}
 		"Offsets"
 		{
@@ -149,6 +185,12 @@
 				"library"	"server"
 				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xF9\xC7\x45\x2A\x00\x00\x00\x00\x8B\x47\x2A\xC7\x80"
 				"linux"		"\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x00\x00\x00\xC7\x45\x2A\x00\x00\x00\x00\x8B\x5D\x2A\x8B\x43\x2A\xC7"
+			}
+			"CGameMovement::TryPlayerMove"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xE4\xF8\x81\xEC\x38\x01\x00\x00\xF3\x0F\x10\x35\x2A\x2A\x2A\x2A"
+				"linux"		"\x55\x66\x0F\xEF\xDB\x89\xE5\x57\x56\x53\x81\xEC\x2A\x2A\x2A\x2A\x8B\x7D\x08"
 			}
 		}
 	}
