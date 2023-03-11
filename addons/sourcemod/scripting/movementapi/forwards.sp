@@ -4,6 +4,7 @@ static Handle H_OnStartTouchGround;
 static Handle H_OnStopTouchGround;
 static Handle H_OnChangeMovetype;
 static Handle H_OnPlayerJump;
+static Handle H_OnPlayerEdgebug;
 
 static Handle H_OnPlayerMovePre;
 static Handle H_OnPlayerMovePost;
@@ -21,6 +22,8 @@ static Handle H_OnWalkMovePre;
 static Handle H_OnWalkMovePost;
 static Handle H_OnCategorizePositionPre;
 static Handle H_OnCategorizePositionPost;
+static Handle H_OnTryPlayerMovePre;
+static Handle H_OnTryPlayerMovePost;
 
 void CreateGlobalForwards()
 {
@@ -30,6 +33,7 @@ void CreateGlobalForwards()
 	H_OnStopTouchGround = CreateGlobalForward("Movement_OnStopTouchGround", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
 	H_OnChangeMovetype = CreateGlobalForward("Movement_OnChangeMovetype", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
 	H_OnPlayerJump = CreateGlobalForward("Movement_OnPlayerJump", ET_Ignore, Param_Cell, Param_Cell);
+	H_OnPlayerEdgebug = CreateGlobalForward("Movement_OnPlayerEdgebug", ET_Ignore, Param_Cell, Param_Array, Param_Array);
 
 	H_OnPlayerMovePre = CreateGlobalForward("Movement_OnPlayerMovePre", ET_Event, Param_Cell, Param_Array, Param_Array);
 	H_OnPlayerMovePost = CreateGlobalForward("Movement_OnPlayerMovePost", ET_Event, Param_Cell, Param_Array, Param_Array);
@@ -54,6 +58,9 @@ void CreateGlobalForwards()
 
 	H_OnCategorizePositionPre = CreateGlobalForward("Movement_OnCategorizePositionPre", ET_Event, Param_Cell, Param_Array, Param_Array);
 	H_OnCategorizePositionPost = CreateGlobalForward("Movement_OnCategorizePositionPost", ET_Event, Param_Cell, Param_Array, Param_Array);
+
+	H_OnTryPlayerMovePre = CreateGlobalForward("Movement_OnTryPlayerMovePre", ET_Event, Param_Cell, Param_Array, Param_Array);
+	H_OnTryPlayerMovePost = CreateGlobalForward("Movement_OnTryPlayerMovePost", ET_Event, Param_Cell, Param_Array, Param_Array);
 }
 
 void Call_OnStartDucking(int client)
@@ -85,8 +92,6 @@ void Call_OnStopTouchGround(int client, bool jumped, bool ladderJump, bool jumpb
 	Call_PushCell(ladderJump);
 	Call_PushCell(jumpbug);
 	Call_Finish();
-	// Immediately update OldOnGround state, so we can catch takeoffs that happen outside movement processing.
-	gB_OldOnGround[client] = false;
 }
 
 
@@ -104,6 +109,15 @@ void Call_OnPlayerJump(int client, bool jumpbug)
 	Call_StartForward(H_OnPlayerJump);
 	Call_PushCell(client);
 	Call_PushCell(jumpbug);
+	Call_Finish();
+}
+
+void Call_OnPlayerEdgebug(int client, float origin[3], float velocity[3])
+{
+	Call_StartForward(H_OnPlayerEdgebug);
+	Call_PushCell(client);
+	Call_PushArray(origin, 3);
+	Call_PushArray(velocity, 3);
 	Call_Finish();
 }
 
@@ -260,6 +274,26 @@ Action Call_OnCategorizePositionPre(int client, float origin[3], float velocity[
 Action Call_OnCategorizePositionPost(int client, float origin[3], float velocity[3], Action &result)
 {
 	Call_StartForward(H_OnCategorizePositionPost);
+	Call_PushCell(client);
+	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
+	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
+	Call_Finish(result);
+	return result;
+}
+
+Action Call_OnTryPlayerMovePre(int client, float origin[3], float velocity[3], Action &result)
+{
+	Call_StartForward(H_OnTryPlayerMovePre);
+	Call_PushCell(client);
+	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
+	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
+	Call_Finish(result);
+	return result;
+}
+
+Action Call_OnTryPlayerMovePost(int client, float origin[3], float velocity[3], Action &result)
+{
+	Call_StartForward(H_OnTryPlayerMovePost);
 	Call_PushCell(client);
 	Call_PushArrayEx(origin, 3, SM_PARAM_COPYBACK);
 	Call_PushArrayEx(velocity, 3, SM_PARAM_COPYBACK);
