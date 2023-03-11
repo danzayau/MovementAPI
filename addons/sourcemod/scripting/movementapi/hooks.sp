@@ -567,12 +567,45 @@ public MRESReturn DHooks_OnTryPlayerMove_Post(Address pThis, DHookReturn hReturn
 
 	Address m_TouchList_m_pElements = LoadFromAddress(moveHelperAddr + view_as<Address>(8) + view_as<Address>(16), NumberType_Int32);
 
+	bool hitStandableSurface = false;
+	static ConVar sv_standable_normal;
+	if (sv_standable_normal == INVALID_HANDLE)
+	{
+		sv_standable_normal = FindConVar("sv_standable_normal");
+	}
 	for (int i = 0; i < gI_CollisionCount[client]; i++)
 	{
 		Trace trace = Trace(m_TouchList_m_pElements + view_as<Address>(i*96) + view_as<Address>(12));
 		trace.startpos.ToArray(gF_TraceStartOrigin[client][i]);
 		trace.endpos.ToArray(gF_TraceEndOrigin[client][i]);
 		trace.plane.normal.ToArray(gF_TraceNormal[client][i]);
+		if (trace.plane.normal.z >= sv_standable_normal.FloatValue)
+		{
+			hitStandableSurface = true;
+		}
+	}
+
+	// Edgebug detection
+	
+	if (hitStandableSurface)
+	{
+		float currentOrigin[3], groundEndPoint[3];
+		
+		GameMove_GetOrigin(pThis, currentOrigin);
+		groundEndPoint = currentOrigin;
+		groundEndPoint[2] -= 2.0;
+		float mins[3] = {-16.0, -16.0, 0.0};
+		float maxs[3] = {16.0, 16.0, 0.0};
+		TR_TraceHullFilter(currentOrigin, groundEndPoint, mins, maxs, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
+		
+		float groundPos[3];
+		TR_GetEndPosition(groundPos);
+		
+		// Note: Origin and velocity are not updated yet.
+		if (!TR_DidHit())
+		{
+			Call_OnPlayerEdgebug(client, gF_Origin[client], gF_Velocity[client]);
+		}
 	}
 
 	Action result = UpdateMoveData(pThis, client, Call_OnTryPlayerMovePost);
