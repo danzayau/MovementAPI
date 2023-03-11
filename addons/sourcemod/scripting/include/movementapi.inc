@@ -283,6 +283,28 @@ forward Action Movement_OnCategorizePositionPre(int client, float origin[3], flo
  */
 forward Action Movement_OnCategorizePositionPost(int client, float origin[3], float velocity[3]);
 
+/**
+ * Called before TryPlayerMove movement function is called.
+ * Modifying origin or velocity parameters will change player's origin and velocity accordingly.
+ *
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
+ */
+forward Action Movement_OnTryPlayerMovePre(int client, float origin[3], float velocity[3]);
+
+/**
+ * Called after TryPlayerMove movement function is called.
+ * Modifying origin or velocity parameters will change player's origin and velocity accordingly.
+ *
+ * @param client       Client index.
+ * @param origin       Player origin.
+ * @param velocity     Player velocity.
+ * @return             Plugin_Changed if origin or velocity is changed, Plugin_Continue otherwise.
+ */
+forward Action Movement_OnTryPlayerMovePost(int client, float origin[3], float velocity[3]);
+
 // =====[ NATIVES ]=====
 
 /**
@@ -485,12 +507,41 @@ native void Movement_SetTakeoffVelocity(int client, float velocity[3]);
 native void Movement_SetLandingOrigin(int client, float origin[3]);
 
 /**
+ * Get the player's number of collisions during movement processing.
+ * This function should ideally be called after inside Movement_OnTryPlayerMovePost.
+ * 
+ * @param client     Client index.
+ * @param origin	 Desired velocity.
+ */
+native int Movement_GetCollisionCount(int client);
+
+/**
  * Set the player's landing velocity.
+ * This function should ideally be called after inside Movement_OnTryPlayerMovePost.
+ *
+ * @param client     Client index.
+ * @param num		 Collision number, must not exceed Movement_GetCollisionCount's value.
+ * @param result	 Resultant vector.
+ */
+native void Movement_GetCollisionStartOrigin(int client, int num, float result[3]);
+
+/**
+ * Set the player's landing velocity.
+ * This function should ideally be called after inside Movement_OnTryPlayerMovePost.
  *
  * @param client     Client index.
  * @param origin	 Desired velocity.
  */
-native void Movement_SetLandingVelocity(int client, float velocity[3]);
+native void Movement_GetCollisionEndOrigin(int client, int num, float result[3]);
+
+/**
+ * Set the player's landing velocity.
+ * This function should ideally be called after inside Movement_OnTryPlayerMovePost.
+ *
+ * @param client     Client index.
+ * @param origin	 Desired velocity.
+ */
+native void Movement_GetCollisionNormal(int client, int num, float result[3]);
 
 // =====[ METHODMAP ]=====
 
@@ -608,6 +659,26 @@ methodmap MovementAPIPlayer < MovementPlayer {
 		}
 	}
 
+	property int CollisionCount {
+		public get() {
+			return Movement_GetCollisionCount(this.ID);
+		}
+	}
+	public void GetCollisionStartOrigin(int num, float buffer[3])
+	{
+		Movement_GetCollisionStartOrigin(this.ID, num, buffer);
+	}
+
+	public void GetCollisionEndOrigin(int num, float buffer[3])
+	{
+		Movement_GetCollisionEndOrigin(this.ID, num, buffer);
+	}
+
+	public void GetCollisionNormal(int num, float buffer[3])
+	{
+		Movement_GetCollisionNormal(this.ID, num, buffer);
+	}
+
 	public void GetProcessingVelocity(float buffer[3])
 	{
 		Movement_GetProcessingVelocity(this.ID, buffer);
@@ -659,5 +730,9 @@ public void __pl_movementapi_SetNTVOptional()
 	MarkNativeAsOptional("Movement_SetTakeoffVelocity");
 	MarkNativeAsOptional("Movement_SetLandingOrigin");
 	MarkNativeAsOptional("Movement_SetLandingVelocity");
+	MarkNativeAsOptional("Movement_GetCollisionCount");
+	MarkNativeAsOptional("Movement_GetCollisionStartOrigin");
+	MarkNativeAsOptional("Movement_GetCollisionEndOrigin");
+	MarkNativeAsOptional("Movement_GetCollisionNormal");
 }
 #endif

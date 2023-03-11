@@ -6,6 +6,9 @@ static DynamicDetour H_OnJump;
 static DynamicDetour H_OnAirAccelerate;
 static DynamicDetour H_OnWalkMove;
 static DynamicDetour H_OnCategorizePosition;
+static DynamicDetour H_OnTryPlayerMove;
+static Address moveHelperAddr;
+static bool tryPlayerMoveThisTick;
 
 float gF_Origin[MAXPLAYERS + 1][3];
 float gF_Velocity[MAXPLAYERS + 1][3];
@@ -31,6 +34,12 @@ float gF_PostAAVelocity[MAXPLAYERS + 1][3];
 
 bool gB_OldWalkMoved[MAXPLAYERS + 1];
 
+int gI_CollisionCount[MAXPLAYERS + 1];
+
+float gF_TraceStartOrigin[MAXPLAYERS + 1][MAX_BUMPS][3];
+float gF_TraceEndOrigin[MAXPLAYERS + 1][MAX_BUMPS][3];
+float gF_TraceNormal[MAXPLAYERS + 1][MAX_BUMPS][3];
+
 void HookGameMovementFunctions()
 {
 	HookGameMovementFunction(H_OnDuck, "CCSGameMovement::Duck", DHooks_OnDuck_Pre, DHooks_OnDuck_Post);
@@ -41,6 +50,13 @@ void HookGameMovementFunctions()
 	HookGameMovementFunction(H_OnJump, "CCSGameMovement::OnJump", DHooks_OnJump_Pre, DHooks_OnJump_Post);
 	HookGameMovementFunction(H_OnPlayerMove, "CCSGameMovement::PlayerMove", DHooks_OnPlayerMove_Pre, DHooks_OnPlayerMove_Post);
 	HookGameMovementFunction(H_OnCategorizePosition, "CGameMovement::CategorizePosition", DHooks_OnCategorizePosition_Pre, DHooks_OnCategorizePosition_Post);
+	HookGameMovementFunction(H_OnTryPlayerMove, "CGameMovement::TryPlayerMove", DHooks_OnTryPlayerMove_Pre, DHooks_OnTryPlayerMove_Post);
+	
+	moveHelperAddr = GameConfGetAddress(gH_GameData, "sm_pSingleton");
+	if (!moveHelperAddr)
+	{
+		SetFailState("Failed to find IMoveHelper::sm_pSingleton.");	
+	}
 }
 
 Action UpdateMoveData(Address pThis, int client, Function func)
@@ -429,7 +445,7 @@ public MRESReturn DHooks_OnPlayerMove_Post(Address pThis)
 		return MRES_Ignored;
 	}
 	Action result = UpdateMoveData(pThis, client, Call_OnPlayerMovePost);
-
+	tryPlayerMoveThisTick = false;
 	if (result != Plugin_Continue)
 	{
 		return MRES_Handled;
@@ -513,8 +529,74 @@ public MRESReturn DHooks_OnCategorizePosition_Post(Address pThis)
 	}
 }
 
+public MRESReturn DHooks_OnTryPlayerMove_Pre(Address pThis, DHookReturn hReturn, DHookParam hParams)
+{
+	int client = GetClientFromGameMovementAddress(pThis);
+	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	{
+		return MRES_Ignored;
+	}
+	Action result = UpdateMoveData(pThis, client, Call_OnTryPlayerMovePre);
+	
+	for (int i = 0; i < MAX_BUMPS; i++)
+	{
+		gF_TraceStartOrigin[client][i] = NULL_VECTOR;
+		gF_TraceEndOrigin[client][i] = NULL_VECTOR;
+		gF_TraceNormal[client][i] = NULL_VECTOR;
+	}
+
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
+}
+
+public MRESReturn DHooks_OnTryPlayerMove_Post(Address pThis, DHookReturn hReturn, DHookParam hParams)
+{
+	int client = GetClientFromGameMovementAddress(pThis);
+	if (!IsPlayerAlive(client) || IsFakeClient(client))
+	{
+		return MRES_Ignored;
+	}
+
+	tryPlayerMoveThisTick = true;
+	gI_CollisionCount[client] = LoadFromAddress(moveHelperAddr + view_as<Address>(8) + view_as<Address>(12), NumberType_Int32);
+
+	Address m_TouchList_m_pElements = LoadFromAddress(moveHelperAddr + view_as<Address>(8) + view_as<Address>(16), NumberType_Int32);
+
+	for (int i = 0; i < gI_CollisionCount[client]; i++)
+	{
+		Trace trace = Trace(m_TouchList_m_pElements + view_as<Address>(i*96) + view_as<Address>(12));
+		trace.startpos.ToArray(gF_TraceStartOrigin[client][i]);
+		trace.endpos.ToArray(gF_TraceEndOrigin[client][i]);
+		trace.plane.normal.ToArray(gF_TraceNormal[client][i]);
+	}
+
+	Action result = UpdateMoveData(pThis, client, Call_OnTryPlayerMovePost);
+	if (result != Plugin_Continue)
+	{
+		return MRES_Handled;
+	}
+	else
+	{
+		return MRES_Ignored;
+	}
+}
+
 static void NobugLandingOrigin(int client, float landingOrigin[3])
 {
+	// Jump is bugged, try to use the trace result of TryPlayerMove if possible.
+	if (tryPlayerMoveThisTick && gI_CollisionCount[client] > 0)
+	{
+		landingOrigin = gF_TraceEndOrigin[client][0];
+		return;
+	}
+	// Fallback when no collision happened during TryPlayerMove, or that function was not called.
+
 	// NOTE: Get ground position and distance to ground.
 	float groundEndPoint[3];
 	groundEndPoint = gF_Origin[client];
