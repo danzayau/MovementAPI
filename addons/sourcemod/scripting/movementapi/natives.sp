@@ -25,6 +25,11 @@ void CreateNatives()
 	CreateNative("Movement_SetTakeoffVelocity", Native_SetTakeoffVelocity);
 	CreateNative("Movement_SetLandingOrigin", Native_SetLandingOrigin);
 	CreateNative("Movement_SetLandingVelocity", Native_SetLandingVelocity);
+
+	CreateNative("Movement_GetCollisionCount", Native_GetCollisionCount);
+	CreateNative("Movement_GetCollisionStartOrigin", Native_GetCollisionStartOrigin);
+	CreateNative("Movement_GetCollisionEndOrigin", Native_GetCollisionEndOrigin);
+	CreateNative("Movement_GetCollisionNormal", Native_GetCollisionNormal);
 }
 
 public int Native_GetJumped(Handle plugin, int numParams)
@@ -179,5 +184,28 @@ public int Native_SetLandingVelocity(Handle plugin, int numParams)
 		gF_LandingVelocity[GetNativeCell(1)][i] = array[i];
 	}
 
+	return 0;
+}
+
+public int Native_GetCollisionCount(Handle plugin, int numParams)
+{
+	return gI_CollisionCount[GetNativeCell(1)];
+}
+
+public int Native_GetCollisionStartOrigin(Handle plugin, int numParams)
+{
+	SetNativeArray(3, gF_TraceStartOrigin[GetNativeCell(1)][GetNativeCell(2)], sizeof(gF_TraceStartOrigin[][]));
+	return 0;
+}
+
+public int Native_GetCollisionEndOrigin(Handle plugin, int numParams)
+{
+	SetNativeArray(3, gF_TraceEndOrigin[GetNativeCell(1)][GetNativeCell(2)], sizeof(gF_TraceEndOrigin[][]));
+	return 0;
+}
+
+public int Native_GetCollisionNormal(Handle plugin, int numParams)
+{
+	SetNativeArray(3, gF_TraceNormal[GetNativeCell(1)][GetNativeCell(2)], sizeof(gF_TraceNormal[][]));
 	return 0;
 }
