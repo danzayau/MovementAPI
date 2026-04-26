@@ -520,7 +520,7 @@ native void Movement_SetLandingOrigin(int client, float origin[3]);
  * Set the player's landing velocity.
  *
  * @param client     Client index.
- * @param origin	 Desired velocity.
+ * @param velocity	 Desired velocity.
  */
 native void Movement_SetLandingVelocity(int client, float velocity[3]);
 
