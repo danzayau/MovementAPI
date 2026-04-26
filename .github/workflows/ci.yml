@@ -12,15 +12,15 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        sm_version: [ "1.10", "1.11", "1.12" ]
+        sm_version: [ "1.11", "1.12" ]
 
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v6
 
       - name: Set environment variables
         run: |
@@ -47,7 +47,7 @@ jobs:
         working-directory: ${{ env.SCRIPTING_PATH }}/
 
       - name: Uploading artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v7
         with:
           name: movementapi-${{ env.GITHUB_SHA_SHORT }}
           path: ./
