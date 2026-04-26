@@ -4,6 +4,7 @@ static Handle H_OnStartTouchGround;
 static Handle H_OnStopTouchGround;
 static Handle H_OnChangeMovetype;
 static Handle H_OnPlayerJump;
+static Handle H_OnPlayerEdgebug;
 
 static Handle H_OnPlayerMovePre;
 static Handle H_OnPlayerMovePost;
@@ -32,6 +33,7 @@ void CreateGlobalForwards()
 	H_OnStopTouchGround = CreateGlobalForward("Movement_OnStopTouchGround", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
 	H_OnChangeMovetype = CreateGlobalForward("Movement_OnChangeMovetype", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
 	H_OnPlayerJump = CreateGlobalForward("Movement_OnPlayerJump", ET_Ignore, Param_Cell, Param_Cell);
+	H_OnPlayerEdgebug = CreateGlobalForward("Movement_OnPlayerEdgebug", ET_Ignore, Param_Cell, Param_Array, Param_Array);
 
 	H_OnPlayerMovePre = CreateGlobalForward("Movement_OnPlayerMovePre", ET_Event, Param_Cell, Param_Array, Param_Array);
 	H_OnPlayerMovePost = CreateGlobalForward("Movement_OnPlayerMovePost", ET_Event, Param_Cell, Param_Array, Param_Array);
@@ -90,8 +92,6 @@ void Call_OnStopTouchGround(int client, bool jumped, bool ladderJump, bool jumpb
 	Call_PushCell(ladderJump);
 	Call_PushCell(jumpbug);
 	Call_Finish();
-	// Immediately update OldOnGround state, so we can catch takeoffs that happen outside movement processing.
-	gB_OldOnGround[client] = false;
 }
 
 
@@ -109,6 +109,15 @@ void Call_OnPlayerJump(int client, bool jumpbug)
 	Call_StartForward(H_OnPlayerJump);
 	Call_PushCell(client);
 	Call_PushCell(jumpbug);
+	Call_Finish();
+}
+
+void Call_OnPlayerEdgebug(int client, float origin[3], float velocity[3])
+{
+	Call_StartForward(H_OnPlayerEdgebug);
+	Call_PushCell(client);
+	Call_PushArray(origin, 3);
+	Call_PushArray(velocity, 3);
 	Call_Finish();
 }
 

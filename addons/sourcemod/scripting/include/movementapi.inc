@@ -108,6 +108,16 @@ forward void Movement_OnStopDucking(int client);
 forward void Movement_OnPlayerJump(int client, bool jumpbug);
 
 /**
+ * Called when a player edgebugs
+ * Setting velocity when this is called may not be effective.
+ *
+ * @param client		Client index.
+ * @param origin		Player origin before edgebug.
+ * @param velocity		Player velocity before edgebug.
+ */
+forward void Movement_OnPlayerEdgebug(int client, float origin[3], float velocity[3]);
+
+/**
  * Called before PlayerMove movement function is called.
  * Modifying origin or velocity parameters will change player's origin and velocity accordingly.
  *
