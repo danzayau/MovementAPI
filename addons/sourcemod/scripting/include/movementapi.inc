@@ -487,7 +487,7 @@ native void Movement_GetProcessingOrigin(int client, float result[3]);
 /**
  * Get the player's velocity during movement processing.
  *
- * @param client     Param description
+ * @param client     Client index.
  * @param result     Resultant vector.
  */
 native void Movement_GetProcessingVelocity(int client, float result[3]);
@@ -504,7 +504,7 @@ native void Movement_SetTakeoffOrigin(int client, float origin[3]);
  * Set the player's takeoff velocity.
  *
  * @param client     Client index.
- * @param origin	 Desired velocity.
+ * @param velocity	 Desired velocity.
  */
 native void Movement_SetTakeoffVelocity(int client, float velocity[3]);
 
@@ -529,7 +529,7 @@ native void Movement_SetLandingVelocity(int client, float velocity[3]);
  * This function should ideally be called after inside Movement_OnTryPlayerMovePost.
  * 
  * @param client     Client index.
- * @param origin	 Desired velocity.
+ * @return           Number of collisions.
  */
 native int Movement_GetCollisionCount(int client);
 
@@ -544,20 +544,22 @@ native int Movement_GetCollisionCount(int client);
 native void Movement_GetCollisionStartOrigin(int client, int num, float result[3]);
 
 /**
- * Set the player's landing velocity.
+ * Get the end origin of a player's collision during movement processing.
  * This function should ideally be called after inside Movement_OnTryPlayerMovePost.
  *
  * @param client     Client index.
- * @param origin	 Desired velocity.
+ * @param num		 Collision number, must not exceed Movement_GetCollisionCount's value.
+ * @param result	 Resultant vector.
  */
 native void Movement_GetCollisionEndOrigin(int client, int num, float result[3]);
 
 /**
- * Set the player's landing velocity.
+ * Get the normal of a player's collision during movement processing.
  * This function should ideally be called after inside Movement_OnTryPlayerMovePost.
  *
  * @param client     Client index.
- * @param origin	 Desired velocity.
+ * @param num		 Collision number, must not exceed Movement_GetCollisionCount's value.
+ * @param result	 Resultant vector.
  */
 native void Movement_GetCollisionNormal(int client, int num, float result[3]);
 
