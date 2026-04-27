@@ -517,6 +517,14 @@ native void Movement_SetTakeoffVelocity(int client, float velocity[3]);
 native void Movement_SetLandingOrigin(int client, float origin[3]);
 
 /**
+ * Set the player's landing velocity.
+ *
+ * @param client     Client index.
+ * @param velocity	 Desired velocity.
+ */
+native void Movement_SetLandingVelocity(int client, float velocity[3]);
+
+/**
  * Get the player's number of collisions during movement processing.
  * This function should ideally be called after inside Movement_OnTryPlayerMovePost.
  * 
