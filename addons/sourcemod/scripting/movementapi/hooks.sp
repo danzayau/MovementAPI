@@ -622,14 +622,6 @@ public MRESReturn DHooks_OnTryPlayerMove_Post(Address pThis, DHookReturn hReturn
 
 static void NobugLandingOrigin(int client, float landingOrigin[3])
 {
-	// Jump is bugged, try to use the trace result of TryPlayerMove if possible.
-	if (tryPlayerMoveThisTick && gI_CollisionCount[client] > 0)
-	{
-		landingOrigin = gF_TraceEndOrigin[client][0];
-		return;
-	}
-	// Fallback when no collision happened during TryPlayerMove, or that function was not called.
-
 	// NOTE: Get ground position and distance to ground.
 	float groundEndPoint[3];
 	groundEndPoint = gF_Origin[client];
@@ -671,7 +663,14 @@ static void NobugLandingOrigin(int client, float landingOrigin[3])
 		velocity = gF_PostAAVelocity[client];
 		origin = gF_PostAAOrigin[client];
 	}
-	
+
+	// Jump is bugged, try to use the trace result of TryPlayerMove if possible.
+	if (tryPlayerMoveThisTick && gI_CollisionCount[client] > 0)
+	{
+		landingOrigin = gF_TraceEndOrigin[client][0];
+		return;
+	}
+	// Fallback when no collision happened during TryPlayerMove, or that function was not called.
 	float firstTraceEndpoint[3], scaledVelocity[3];
 	scaledVelocity = velocity;
 	ScaleVector(scaledVelocity, GetTickInterval());
