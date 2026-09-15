@@ -35,6 +35,11 @@
 	the same behavior as a duckbug/crouchbug, along with its effects such as maintaining 
 	speed due to no stamina loss.
 
+	Edgebug
+	When the player lands on the edge of a block and slides off it within the same tick.
+	The floor contact removes their downward velocity, but they stay airborne, keeping
+	their speed and taking no fall damage.
+
 	Distbug
 	Landing behavior varies depending on whether the player lands close to the edge of a 
 	block or not:
@@ -108,7 +113,7 @@ forward void Movement_OnStopDucking(int client);
 forward void Movement_OnPlayerJump(int client, bool jumpbug);
 
 /**
- * Called when a player edgebugs
+ * Called when a player edgebugs.
  * Setting velocity when this is called may not be effective.
  *
  * @param client		Client index.
