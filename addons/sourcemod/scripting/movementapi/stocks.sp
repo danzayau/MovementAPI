@@ -308,18 +308,22 @@ stock int GetEntityFromAddress(Address pEntity) {
 
 stock int GetClientFromGameMovementAddress(Address addr) 
 {
-	char buffer[8];
-	if (!gH_GameData.GetKeyValue("CGameMovement::player", buffer, sizeof(buffer)))
+	static int playerOffset;
+	if (!playerOffset)
 	{
-		ThrowError("Failed to get CGameMovement::player offset.");
-		return -1;
+		char buffer[8];
+		if (!gH_GameData.GetKeyValue("CGameMovement::player", buffer, sizeof(buffer)))
+		{
+			ThrowError("Failed to get CGameMovement::player offset.");
+			return -1;
+		}
+		playerOffset = StringToInt(buffer);
 	}
-	int offset = StringToInt(buffer);
-	Address playerAddr = view_as<Address>(LoadFromAddress(view_as<Address>(view_as<int>(addr) + offset), NumberType_Int32));
+	Address playerAddr = view_as<Address>(LoadFromAddress(view_as<Address>(view_as<int>(addr) + playerOffset), NumberType_Int32));
 	return GetEntityFromAddress(playerAddr);
 }
 
-stock void HookGameMovementFunction(DynamicDetour handle, char[] fName, DHookCallback preCallback, DHookCallback postCallback)
+stock void HookGameMovementFunction(DynamicDetour &handle, char[] fName, DHookCallback preCallback, DHookCallback postCallback)
 {
 	handle = DynamicDetour.FromConf(gH_GameData, fName);
 	if (!handle)
