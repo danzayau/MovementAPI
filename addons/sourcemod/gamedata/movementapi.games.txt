@@ -126,6 +126,36 @@
 					}
 				}
 			}
+			"CGameMovement::TracePlayerBBox"
+			{
+				"offset"	"TracePlayerBBox"
+				"hooktype"	"raw"
+				"this"		"address"
+				"return"	"void"
+				"arguments"
+				{
+					"start"
+					{
+						"type"	"vectorptr"
+					}
+					"end"
+					{
+						"type"	"vectorptr"
+					}
+					"fMask"
+					{
+						"type"	"int"
+					}
+					"collisionGroup"
+					{
+						"type"	"int"
+					}
+					"pm"
+					{
+						"type"	"objectptr"
+					}
+				}
+			}
 		}
 		"Offsets"
 		{
@@ -134,6 +164,11 @@
 				"windows"	"506"
 				"linux"		"507"
 				"mac"		"507"
+			}
+			"TracePlayerBBox"
+			{
+				"windows"	"15"
+				"linux"		"14"
 			}
 		}
 		"Signatures"
