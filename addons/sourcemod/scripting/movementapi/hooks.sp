@@ -1,5 +1,4 @@
 #define NON_JUMP_VELOCITY     140.0
-#define STANDABLE_NORMAL_Z    0.7
 
 static DynamicDetour H_OnPlayerMove;
 static DynamicDetour H_OnDuck;
@@ -625,6 +624,13 @@ public MRESReturn DHooks_OnTryPlayerMove_Post(Address pThis, DHookReturn hReturn
 
 static bool TraceGroundParity(int client, const float origin[3], float groundPos[3])
 {
+	static ConVar sv_standable_normal;
+	if (sv_standable_normal == INVALID_HANDLE)
+	{
+		sv_standable_normal = FindConVar("sv_standable_normal");
+	}
+	float standableZ = sv_standable_normal.FloatValue;
+
 	float hullMins[3], hullMaxs[3];
 	GetClientMins(client, hullMins);
 	GetClientMaxs(client, hullMaxs);
@@ -642,7 +648,7 @@ static bool TraceGroundParity(int client, const float origin[3], float groundPos
 
 	float normal[3];
 	TR_GetPlaneNormal(null, normal);
-	if (normal[2] >= STANDABLE_NORMAL_Z)
+	if (normal[2] >= standableZ)
 	{
 		return true;
 	}
@@ -667,7 +673,7 @@ static bool TraceGroundParity(int client, const float origin[3], float groundPos
 			continue;
 		}
 		TR_GetPlaneNormal(null, normal);
-		if (normal[2] >= STANDABLE_NORMAL_Z)
+		if (normal[2] >= standableZ)
 		{
 			return true;
 		}
