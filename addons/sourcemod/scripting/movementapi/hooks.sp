@@ -653,7 +653,7 @@ static bool TraceGroundParity(int client, const float origin[3], float groundPos
 		return true;
 	}
 
-	// Engine quadrant order. It clamps the far half to 0, which for a player hull IS 0.
+	// Same quadrant order as TracePlayerBBoxForGround.
 	for (int q = 0; q < 4; q++)
 	{
 		float mins[3], maxs[3];
@@ -683,14 +683,18 @@ static bool TraceGroundParity(int client, const float origin[3], float groundPos
 
 static void NobugLandingOrigin(int client, float landingOrigin[3])
 {
+	// NOTE: Get ground position and distance to ground.
 	float groundEndPoint[3];
 	groundEndPoint = gF_Origin[client];
 	groundEndPoint[2] -= 2.0;
 
 	float groundPos[3];
+	// NOTE: This is almost guaranteed to hit because CategorizePosition does
+	// the exact same trace to determine if the player is on the ground or not.
 	if (!TraceGroundParity(client, gF_Origin[client], groundPos))
 	{
-		// Use groundEndPoint, this MIGHT give less distance in this rare case.
+		// Use groundEndPoint if trace fails, because this MIGHT
+		// give less distance in this extremely rare case.
 		groundPos = groundEndPoint;
 	}
 	
@@ -723,7 +727,7 @@ static void NobugLandingOrigin(int client, float landingOrigin[3])
 		return;
 	}
 
-	// The engine never grounds a player rising this fast, so nothing to extrapolate.
+	// Engine doesn't ground players moving up this fast.
 	if (velocity[2] > NON_JUMP_VELOCITY)
 	{
 		landingOrigin = groundPos;
@@ -736,7 +740,6 @@ static void NobugLandingOrigin(int client, float landingOrigin[3])
 	ScaleVector(scaledVelocity, GetTickInterval());
 	AddVectors(origin, scaledVelocity, firstTraceEndpoint);
 
-	// Foot-level plate, not the full hull.
 	float mins[3] = {-16.0, -16.0, 0.0};
 	float maxs[3] = {16.0, 16.0, 0.0};
 	TR_TraceHullFilter(origin, firstTraceEndpoint, mins, maxs, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
