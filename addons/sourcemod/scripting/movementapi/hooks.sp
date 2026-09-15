@@ -16,6 +16,7 @@ float gF_Velocity[MAXPLAYERS + 1][3];
 bool gB_ProcessingLadderMove[MAXPLAYERS + 1];
 float gF_PreLadderMoveVelocity[MAXPLAYERS + 1][3];
 bool gB_TakeoffFromLadder[MAXPLAYERS + 1];
+float gF_TakeoffLadderNormal[MAXPLAYERS + 1][3];
 float gF_PostLadderMoveOrigin[MAXPLAYERS + 1][3];
 float gF_PostLadderMoveVelocity[MAXPLAYERS + 1][3];
 
@@ -176,6 +177,7 @@ public MRESReturn DHooks_OnLadderMove_Post(Address pThis, DHookReturn hReturn)
 		gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
 		gB_Jumped[client] = false;
 		gB_HitPerf[client] = false;
+		GetEntPropVector(client, Prop_Send, "m_vecLadderNormal", gF_TakeoffLadderNormal[client]);
 		Call_OnChangeMovetype(client, MOVETYPE_LADDER, MOVETYPE_WALK);
 	}
 	else if (returnValue && gMT_OldMovetype[client] != MOVETYPE_LADDER)
@@ -191,23 +193,19 @@ public MRESReturn DHooks_OnLadderMove_Post(Address pThis, DHookReturn hReturn)
 			Call_OnChangeMovetype(client, MOVETYPE_WALK, MOVETYPE_LADDER);
 		}
 	}
-	else if (returnValue && gMT_OldMovetype[client] == MOVETYPE_LADDER)
+	else if (returnValue && gMT_OldMovetype[client] == MOVETYPE_LADDER
+		&& Movement_GetMovetype(client) == MOVETYPE_WALK)
 	{
-		// Player is on the ladder and in the air, pressing jump pushes them away from the ladder.
-		float curtime = GetGameTime();
-		int buttons = GetClientButtons(client);
-		float ignoreLadderJumpTime = GetEntPropFloat(client, Prop_Data, "m_ignoreLadderJumpTime");
-		if (buttons & IN_JUMP && ignoreLadderJumpTime <= curtime)
-		{
-			gF_TakeoffVelocity[client] = gF_PostLadderMoveVelocity[client];
-			gF_TakeoffOrigin[client] = gF_PostLadderMoveOrigin[client];
-			gI_TakeoffTick[client] = gI_TickCount[client];
-			gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
-			gB_Jumped[client] = false;
-			gB_HitPerf[client] = false;
-			gB_TakeoffFromLadder[client] = true;
-			Call_OnChangeMovetype(client, MOVETYPE_LADDER, MOVETYPE_WALK);
-		}
+		// Jumping away from the ladder.
+		gF_TakeoffVelocity[client] = gF_PostLadderMoveVelocity[client];
+		gF_TakeoffOrigin[client] = gF_PostLadderMoveOrigin[client];
+		gI_TakeoffTick[client] = gI_TickCount[client];
+		gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
+		gB_Jumped[client] = false;
+		gB_HitPerf[client] = false;
+		gB_TakeoffFromLadder[client] = true;
+		GetEntPropVector(client, Prop_Send, "m_vecLadderNormal", gF_TakeoffLadderNormal[client]);
+		Call_OnChangeMovetype(client, MOVETYPE_LADDER, MOVETYPE_WALK);
 	}
 	Action result = UpdateMoveData(pThis, client, Call_OnLadderMovePost);
 	if (result != Plugin_Continue)
@@ -293,6 +291,10 @@ public MRESReturn DHooks_OnJump_Post(Address pThis, DHookParam hParams)
 	gF_TakeoffVelocity[client] = gF_Velocity[client];
 	gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
 	gI_TakeoffTick[client] = gI_TickCount[client];
+	if (!gB_TakeoffFromLadder[client])
+	{
+		gF_TakeoffLadderNormal[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
+	}
 
 	// OnJump will only be called if the client previously touched some sort of ground, so Call_OnStopTouchGround should always be called.
 	Call_OnStopTouchGround(client, true, gB_TakeoffFromLadder[client], gB_Jumpbugged[client]);
@@ -514,7 +516,16 @@ public MRESReturn DHooks_OnCategorizePosition_Post(Address pThis)
 			gB_Jumped[client] = false;
 			gB_HitPerf[client] = false;
 			bool hadLadderMoveType = Movement_GetMovetype(client) == MOVETYPE_LADDER || gMT_OldMovetype[client] == MOVETYPE_LADDER;
-			Call_OnStopTouchGround(client, false, hadLadderMoveType && !gB_WalkMoved[client], false);
+			bool ladderJump = hadLadderMoveType && !gB_WalkMoved[client];
+			if (ladderJump)
+			{
+				GetEntPropVector(client, Prop_Send, "m_vecLadderNormal", gF_TakeoffLadderNormal[client]);
+			}
+			else
+			{
+				gF_TakeoffLadderNormal[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
+			}
+			Call_OnStopTouchGround(client, false, ladderJump, false);
 		}
 	}
 

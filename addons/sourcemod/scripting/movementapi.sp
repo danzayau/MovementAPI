@@ -167,6 +167,7 @@ static void ResetClientData(int client)
 	gB_ProcessingLadderMove[client] = false;
 	gF_PreLadderMoveVelocity[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gB_TakeoffFromLadder[client] = false;
+	gF_TakeoffLadderNormal[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gF_PostLadderMoveOrigin[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gF_PostLadderMoveVelocity[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gB_ProcessingDuck[client] = false;
@@ -217,6 +218,7 @@ static void CheckNoclip(int client)
 			gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
 			gB_HitPerf[client] = false;
 			gB_Jumped[client] = false;
+			gF_TakeoffLadderNormal[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 		}
 		Call_OnChangeMovetype(client, gMT_OldMovetype[client], movetype);
 	}
@@ -234,6 +236,7 @@ static void CheckGround(int client)
 		gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
 		gB_HitPerf[client] = false;
 		gB_Jumped[client] = false;
+		gF_TakeoffLadderNormal[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 		Call_OnStopTouchGround(client, false, false, false);
 	}
 }
