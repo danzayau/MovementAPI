@@ -208,7 +208,7 @@ static void CheckNoclip(int client)
 	MoveType movetype = Movement_GetMovetype(client);
 	if (gMT_OldMovetype[client] != movetype)
 	{
-		// This runs outside movement processing, where gF_Origin and gF_Velocity are up to a tick stale.
+		// gF_Origin and gF_Velocity are stale outside movement processing.
 		float origin[3], velocity[3];
 		Movement_GetOrigin(client, origin);
 		Movement_GetVelocity(client, velocity);
