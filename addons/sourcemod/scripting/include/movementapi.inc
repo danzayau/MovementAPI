@@ -735,6 +735,7 @@ public void __pl_movementapi_SetNTVOptional()
 	MarkNativeAsOptional("Movement_GetTakeoffSpeed");
 	MarkNativeAsOptional("Movement_GetTakeoffTick");
 	MarkNativeAsOptional("Movement_GetTakeoffCmdNum");
+	MarkNativeAsOptional("Movement_GetNobugLandingOrigin");
 	MarkNativeAsOptional("Movement_GetLandingOrigin");
 	MarkNativeAsOptional("Movement_GetLandingVelocity");
 	MarkNativeAsOptional("Movement_GetLandingSpeed");
@@ -744,6 +745,8 @@ public void __pl_movementapi_SetNTVOptional()
 	MarkNativeAsOptional("Movement_GetTurningLeft");
 	MarkNativeAsOptional("Movement_GetTurningRight");
 	MarkNativeAsOptional("Movement_GetMaxSpeed");
+	MarkNativeAsOptional("Movement_GetDuckbugged");
+	MarkNativeAsOptional("Movement_GetJumpbugged");
 	MarkNativeAsOptional("Movement_GetProcessingOrigin");
 	MarkNativeAsOptional("Movement_GetProcessingVelocity");
 	MarkNativeAsOptional("Movement_SetTakeoffOrigin");
