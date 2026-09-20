@@ -533,22 +533,26 @@ native void Movement_SetLandingOrigin(int client, float origin[3]);
  */
 native void Movement_SetLandingVelocity(int client, float velocity[3]);
 
+#define MOVEMENT_MAX_COLLISIONS 4
+
 /**
  * Get the player's number of collisions during movement processing.
  * This function should ideally be called after inside Movement_OnTryPlayerMovePost.
- * 
+ * Collisions are from the last TryPlayerMove call, in bump order.
+ *
  * @param client     Client index.
- * @return           Number of collisions.
+ * @return           Number of collisions, up to MOVEMENT_MAX_COLLISIONS.
  */
 native int Movement_GetCollisionCount(int client);
 
 /**
- * Set the player's landing velocity.
+ * Get the start origin of a player's collision during movement processing.
  * This function should ideally be called after inside Movement_OnTryPlayerMovePost.
  *
  * @param client     Client index.
  * @param num		 Collision number, must not exceed Movement_GetCollisionCount's value.
  * @param result	 Resultant vector.
+ * @error            Invalid collision index.
  */
 native void Movement_GetCollisionStartOrigin(int client, int num, float result[3]);
 
@@ -559,6 +563,7 @@ native void Movement_GetCollisionStartOrigin(int client, int num, float result[3
  * @param client     Client index.
  * @param num		 Collision number, must not exceed Movement_GetCollisionCount's value.
  * @param result	 Resultant vector.
+ * @error            Invalid collision index.
  */
 native void Movement_GetCollisionEndOrigin(int client, int num, float result[3]);
 
@@ -569,6 +574,7 @@ native void Movement_GetCollisionEndOrigin(int client, int num, float result[3])
  * @param client     Client index.
  * @param num		 Collision number, must not exceed Movement_GetCollisionCount's value.
  * @param result	 Resultant vector.
+ * @error            Invalid collision index.
  */
 native void Movement_GetCollisionNormal(int client, int num, float result[3]);
 
@@ -749,6 +755,7 @@ public void __pl_movementapi_SetNTVOptional()
 	MarkNativeAsOptional("Movement_GetTakeoffTick");
 	MarkNativeAsOptional("Movement_GetTakeoffCmdNum");
 	MarkNativeAsOptional("Movement_GetTakeoffLadderNormal");
+	MarkNativeAsOptional("Movement_GetNobugLandingOrigin");
 	MarkNativeAsOptional("Movement_GetLandingOrigin");
 	MarkNativeAsOptional("Movement_GetLandingVelocity");
 	MarkNativeAsOptional("Movement_GetLandingSpeed");
@@ -758,6 +765,8 @@ public void __pl_movementapi_SetNTVOptional()
 	MarkNativeAsOptional("Movement_GetTurningLeft");
 	MarkNativeAsOptional("Movement_GetTurningRight");
 	MarkNativeAsOptional("Movement_GetMaxSpeed");
+	MarkNativeAsOptional("Movement_GetDuckbugged");
+	MarkNativeAsOptional("Movement_GetJumpbugged");
 	MarkNativeAsOptional("Movement_GetProcessingOrigin");
 	MarkNativeAsOptional("Movement_GetProcessingVelocity");
 	MarkNativeAsOptional("Movement_SetTakeoffOrigin");

@@ -123,10 +123,14 @@ public void OnPlayerJump(Event event, const char[] name, bool dontBroadcast)
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
 {
-	CheckNoclip(client);
-	CheckGround(client);
+	if (!IsPlayerAlive(client))
+	{
+		return Plugin_Continue;
+	}
 	gI_Cmdnum[client] = cmdnum;
 	gI_TickCount[client] = tickcount;
+	CheckNoclip(client);
+	CheckGround(client);
 	return Plugin_Continue;
 }
 
@@ -151,9 +155,12 @@ static void ResetClientData(int client)
 	gF_TakeoffOrigin[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gF_TakeoffVelocity[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gI_TakeoffTick[client] = 0;
+	gI_TakeoffCmdNum[client] = 0;
+	gF_NobugLandingOrigin[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gF_LandingOrigin[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gF_LandingVelocity[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gI_LandingTick[client] = 0;
+	gI_LandingCmdNum[client] = 0;
 	gB_Turning[client] = false;
 	gB_TurningLeft[client] = false;
 	
@@ -171,7 +178,6 @@ static void ResetClientData(int client)
 	gF_PostLadderMoveOrigin[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gF_PostLadderMoveVelocity[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gB_ProcessingDuck[client] = false;
-	gF_PreLadderMoveVelocity[client] = view_as<float>( { 0.0, 0.0, 0.0 } );
 	gB_Ducking[client] = false;
 	gB_PrevOnGround[client] = false;
 	gB_Duckbugged[client] = false;
@@ -186,6 +192,7 @@ static void ResetClientData(int client)
 	
 	gB_OldWalkMoved[client] = false;
 
+	gI_CollisionCount[client] = 0;
 }
 
 static void UpdateTurning(int client, const float oldEyeAngles[3], const float eyeAngles[3])
@@ -202,18 +209,24 @@ static void CheckNoclip(int client)
 	MoveType movetype = Movement_GetMovetype(client);
 	if (gMT_OldMovetype[client] != movetype)
 	{
+		// gF_Origin and gF_Velocity are stale outside movement processing.
+		float origin[3], velocity[3];
+		Movement_GetOrigin(client, origin);
+		Movement_GetVelocity(client, velocity);
+
 		// Entering noclip
 		if (movetype == MOVETYPE_NOCLIP)
 		{
-			gF_LandingOrigin[client] = gF_Origin[client];
-			gF_LandingVelocity[client] = gF_Velocity[client];
+			gF_LandingOrigin[client] = origin;
+			gF_NobugLandingOrigin[client] = origin;
+			gF_LandingVelocity[client] = velocity;
 			gI_LandingTick[client] = gI_TickCount[client];
 			gI_LandingCmdNum[client] = gI_Cmdnum[client];
 		}
 		else // Leaving noclip
 		{
-			gF_TakeoffOrigin[client] = gF_Origin[client];
-			gF_TakeoffVelocity[client] = gF_Velocity[client];
+			gF_TakeoffOrigin[client] = origin;
+			gF_TakeoffVelocity[client] = velocity;
 			gI_TakeoffTick[client] = gI_TickCount[client];
 			gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
 			gB_HitPerf[client] = false;
