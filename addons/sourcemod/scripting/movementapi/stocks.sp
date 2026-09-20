@@ -266,9 +266,9 @@ stock void GameMove_GetEyeAngles(Address addr, float result[3])
 			return;
 		}
 		mvOffset = StringToInt(buffer);
-		if (!gH_GameData.GetKeyValue("CMoveData::m_viewAngleOffset", buffer, sizeof(buffer)))
+		if (!gH_GameData.GetKeyValue("CMoveData::m_vecViewAngles", buffer, sizeof(buffer)))
 		{
-			ThrowError("Failed to get CMoveData::m_viewAngleOffset offset.");
+			ThrowError("Failed to get CMoveData::m_vecViewAngles offset.");
 			return;
 		}
 		viewAngleOffset = StringToInt(buffer);
