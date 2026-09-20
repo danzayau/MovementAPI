@@ -1,3 +1,5 @@
+#define NON_JUMP_VELOCITY     140.0
+
 static DynamicDetour H_OnPlayerMove;
 static DynamicDetour H_OnDuck;
 static DynamicDetour H_OnLadderMove;
@@ -622,22 +624,76 @@ public MRESReturn DHooks_OnTryPlayerMove_Post(Address pThis, DHookReturn hReturn
 	}
 }
 
+static bool TraceGroundParity(int client, const float origin[3], float groundPos[3])
+{
+	static ConVar sv_standable_normal;
+	if (sv_standable_normal == INVALID_HANDLE)
+	{
+		sv_standable_normal = FindConVar("sv_standable_normal");
+	}
+	float standableZ = sv_standable_normal.FloatValue;
+
+	float hullMins[3], hullMaxs[3];
+	GetClientMins(client, hullMins);
+	GetClientMaxs(client, hullMaxs);
+
+	float endPoint[3];
+	endPoint = origin;
+	endPoint[2] -= 2.0;
+
+	TR_TraceHullFilter(origin, endPoint, hullMins, hullMaxs, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
+	if (!TR_DidHit())
+	{
+		return false;
+	}
+	TR_GetEndPosition(groundPos);
+
+	float normal[3];
+	TR_GetPlaneNormal(null, normal);
+	if (normal[2] >= standableZ)
+	{
+		return true;
+	}
+
+	// Same quadrant order as TracePlayerBBoxForGround.
+	for (int q = 0; q < 4; q++)
+	{
+		float mins[3], maxs[3];
+		mins = hullMins;
+		maxs = hullMaxs;
+		switch (q)
+		{
+			case 0: { maxs[0] = 0.0; maxs[1] = 0.0; }
+			case 1: { mins[0] = 0.0; mins[1] = 0.0; }
+			case 2: { mins[1] = 0.0; maxs[0] = 0.0; }
+			case 3: { mins[0] = 0.0; maxs[1] = 0.0; }
+		}
+
+		TR_TraceHullFilter(origin, endPoint, mins, maxs, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
+		if (!TR_DidHit())
+		{
+			continue;
+		}
+		TR_GetPlaneNormal(null, normal);
+		if (normal[2] >= standableZ)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 static void NobugLandingOrigin(int client, float landingOrigin[3])
 {
 	// NOTE: Get ground position and distance to ground.
 	float groundEndPoint[3];
 	groundEndPoint = gF_Origin[client];
 	groundEndPoint[2] -= 2.0;
-	float mins[3] = {-16.0, -16.0, 0.0};
-	float maxs[3] = {16.0, 16.0, 0.0};
-	TR_TraceHullFilter(gF_Origin[client], groundEndPoint, mins, maxs, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
-	
+
 	float groundPos[3];
-	TR_GetEndPosition(groundPos);
-	
 	// NOTE: This is almost guaranteed to hit because CategorizePosition does
 	// the exact same trace to determine if the player is on the ground or not.
-	if (!TR_DidHit())
+	if (!TraceGroundParity(client, gF_Origin[client], groundPos))
 	{
 		// Use groundEndPoint if trace fails, because this MIGHT
 		// give less distance in this extremely rare case.
@@ -672,12 +728,22 @@ static void NobugLandingOrigin(int client, float landingOrigin[3])
 		landingOrigin = gF_TraceEndOrigin[client][0];
 		return;
 	}
+
+	// Engine doesn't ground players moving up this fast.
+	if (velocity[2] > NON_JUMP_VELOCITY)
+	{
+		landingOrigin = groundPos;
+		return;
+	}
+
 	// Fallback when no collision happened during TryPlayerMove, or that function was not called.
 	float firstTraceEndpoint[3], scaledVelocity[3];
 	scaledVelocity = velocity;
 	ScaleVector(scaledVelocity, GetTickInterval());
 	AddVectors(origin, scaledVelocity, firstTraceEndpoint);
-	
+
+	float mins[3] = {-16.0, -16.0, 0.0};
+	float maxs[3] = {16.0, 16.0, 0.0};
 	TR_TraceHullFilter(origin, firstTraceEndpoint, mins, maxs, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
 	if (!TR_DidHit())
 	{
