@@ -385,6 +385,15 @@ native int Movement_GetTakeoffTick(int client);
 native int Movement_GetTakeoffCmdNum(int client);
 
 /**
+ * Gets the plane normal of the ladder the player last took off from.
+ *
+ * @param client		Client index.
+ * @param result		Ladder normal, zero vector if the last takeoff was not from a ladder.
+ * @return				True if the last takeoff was from a ladder.
+ */
+native bool Movement_GetTakeoffLadderNormal(int client, float result[3]);
+
+/**
  * Gets a player's origin at the time of their last landing with the distbug fixed.
  *
  * @param client		Client index.
@@ -629,6 +638,10 @@ methodmap MovementAPIPlayer < MovementPlayer {
 			return Movement_GetTakeoffCmdNum(this.ID);
 		}
 	}
+
+	public bool GetTakeoffLadderNormal(float buffer[3]) {
+		return Movement_GetTakeoffLadderNormal(this.ID, buffer);
+	}
 	
 	public void GetLandingOrigin(float buffer[3]) {
 		Movement_GetLandingOrigin(this.ID, buffer);
@@ -746,6 +759,7 @@ public void __pl_movementapi_SetNTVOptional()
 	MarkNativeAsOptional("Movement_GetTakeoffSpeed");
 	MarkNativeAsOptional("Movement_GetTakeoffTick");
 	MarkNativeAsOptional("Movement_GetTakeoffCmdNum");
+	MarkNativeAsOptional("Movement_GetTakeoffLadderNormal");
 	MarkNativeAsOptional("Movement_GetNobugLandingOrigin");
 	MarkNativeAsOptional("Movement_GetLandingOrigin");
 	MarkNativeAsOptional("Movement_GetLandingVelocity");
