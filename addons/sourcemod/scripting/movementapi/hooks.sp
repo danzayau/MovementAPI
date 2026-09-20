@@ -8,7 +8,7 @@ static DynamicDetour H_OnWalkMove;
 static DynamicDetour H_OnCategorizePosition;
 static DynamicDetour H_OnTryPlayerMove;
 static Address moveHelperAddr;
-static bool tryPlayerMoveThisTick;
+static bool gB_TryPlayerMoveThisTick[MAXPLAYERS + 1];
 
 float gF_Origin[MAXPLAYERS + 1][3];
 float gF_Velocity[MAXPLAYERS + 1][3];
@@ -424,7 +424,9 @@ public MRESReturn DHooks_OnPlayerMove_Pre(Address pThis)
 	gB_Jumpbugged[client] = false;
 	gB_Jumped[client] = false;
 	gB_TakeoffFromLadder[client] = false;
-	
+	gB_TryPlayerMoveThisTick[client] = false;
+	gI_CollisionCount[client] = 0;
+
 	Action result = UpdateMoveData(pThis, client, Call_OnPlayerMovePre);
 
 	if (result != Plugin_Continue)
@@ -445,7 +447,7 @@ public MRESReturn DHooks_OnPlayerMove_Post(Address pThis)
 		return MRES_Ignored;
 	}
 	Action result = UpdateMoveData(pThis, client, Call_OnPlayerMovePost);
-	tryPlayerMoveThisTick = false;
+	gB_TryPlayerMoveThisTick[client] = false;
 	if (result != Plugin_Continue)
 	{
 		return MRES_Handled;
@@ -563,7 +565,7 @@ public MRESReturn DHooks_OnTryPlayerMove_Post(Address pThis, DHookReturn hReturn
 		return MRES_Ignored;
 	}
 
-	tryPlayerMoveThisTick = true;
+	gB_TryPlayerMoveThisTick[client] = true;
 	gI_CollisionCount[client] = LoadFromAddress(moveHelperAddr + view_as<Address>(8) + view_as<Address>(12), NumberType_Int32);
 
 	Address m_TouchList_m_pElements = LoadFromAddress(moveHelperAddr + view_as<Address>(8) + view_as<Address>(16), NumberType_Int32);
@@ -665,7 +667,7 @@ static void NobugLandingOrigin(int client, float landingOrigin[3])
 	}
 
 	// Jump is bugged, try to use the trace result of TryPlayerMove if possible.
-	if (tryPlayerMoveThisTick && gI_CollisionCount[client] > 0)
+	if (gB_TryPlayerMoveThisTick[client] && gI_CollisionCount[client] > 0)
 	{
 		landingOrigin = gF_TraceEndOrigin[client][0];
 		return;
