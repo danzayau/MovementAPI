@@ -9,8 +9,23 @@ static DynamicDetour H_OnAirAccelerate;
 static DynamicDetour H_OnWalkMove;
 static DynamicDetour H_OnCategorizePosition;
 static DynamicDetour H_OnTryPlayerMove;
+static DynamicHook H_OnTracePlayerBBox;
+static bool gB_TraceHookAvailable;
+static bool gB_TraceHookAttempted;
+static bool gB_TraceHookFired;
 static Address moveHelperAddr;
 static bool gB_TryPlayerMoveThisTick[MAXPLAYERS + 1];
+
+// trace_t offsets
+#define TRACE_STARTPOS   0
+#define TRACE_ENDPOS     12
+#define TRACE_NORMAL     24
+#define TRACE_FRACTION   44
+#define TRACE_ALLSOLID   54
+
+static bool gB_InTryPlayerMove[MAXPLAYERS + 1];
+static bool gB_SeededFirstTrace[MAXPLAYERS + 1];
+static float gF_SeedFirstDest[MAXPLAYERS + 1][3];
 
 float gF_Origin[MAXPLAYERS + 1][3];
 float gF_Velocity[MAXPLAYERS + 1][3];
@@ -58,6 +73,13 @@ void HookGameMovementFunctions()
 	if (!moveHelperAddr)
 	{
 		SetFailState("Failed to find IMoveHelper::sm_pSingleton.");	
+	}
+
+	H_OnTracePlayerBBox = DynamicHook.FromConf(gH_GameData, "CGameMovement::TracePlayerBBox");
+	gB_TraceHookAvailable = H_OnTracePlayerBBox != null;
+	if (!gB_TraceHookAvailable)
+	{
+		LogError("CGameMovement::TracePlayerBBox unavailable, using the MoveHelper touch list instead.");
 	}
 }
 
@@ -548,6 +570,40 @@ public MRESReturn DHooks_OnTryPlayerMove_Pre(Address pThis, DHookReturn hReturn,
 		gF_TraceEndOrigin[client][i] = NULL_VECTOR;
 		gF_TraceNormal[client][i] = NULL_VECTOR;
 	}
+	gI_CollisionCount[client] = 0;
+	gB_InTryPlayerMove[client] = true;
+	gB_SeededFirstTrace[client] = false;
+
+	// CGameMovement is a singleton, hook it once. HookRaw can throw, so never retry.
+	if (gB_TraceHookAvailable && !gB_TraceHookAttempted)
+	{
+		gB_TraceHookAttempted = true;
+		gB_TraceHookAvailable = false;
+		if (H_OnTracePlayerBBox.HookRaw(Hook_Post, pThis, DHooks_OnTracePlayerBBox_Post) == INVALID_HOOK_ID)
+		{
+			LogError("Failed to hook CGameMovement::TracePlayerBBox, using the MoveHelper touch list instead.");
+		}
+		else
+		{
+			gB_TraceHookAvailable = true;
+		}
+	}
+
+	// Bump 0 can reuse pFirstTrace without tracing.
+	if (!DHookIsNullParam(hParams, 2))
+	{
+		float fraction = DHookGetParamObjectPtrVar(hParams, 2, TRACE_FRACTION, ObjectValueType_Float);
+		bool allsolid = view_as<bool>(DHookGetParamObjectPtrVar(hParams, 2, TRACE_ALLSOLID, ObjectValueType_Bool));
+		if (fraction < 1.0 && !allsolid)
+		{
+			DHookGetParamObjectPtrVarVector(hParams, 2, TRACE_STARTPOS, ObjectValueType_Vector, gF_TraceStartOrigin[client][0]);
+			DHookGetParamObjectPtrVarVector(hParams, 2, TRACE_ENDPOS, ObjectValueType_Vector, gF_TraceEndOrigin[client][0]);
+			DHookGetParamObjectPtrVarVector(hParams, 2, TRACE_NORMAL, ObjectValueType_Vector, gF_TraceNormal[client][0]);
+			gI_CollisionCount[client] = 1;
+			gB_SeededFirstTrace[client] = true;
+			DHookGetParamVector(hParams, 1, gF_SeedFirstDest[client]);
+		}
+	}
 
 	if (result != Plugin_Continue)
 	{
@@ -559,18 +615,104 @@ public MRESReturn DHooks_OnTryPlayerMove_Pre(Address pThis, DHookReturn hReturn,
 	}
 }
 
+static bool VectorsNearEqual(const float a[3], const float b[3])
+{
+	return FloatAbs(a[0] - b[0]) < 0.001 && FloatAbs(a[1] - b[1]) < 0.001 && FloatAbs(a[2] - b[2]) < 0.001;
+}
+
+public MRESReturn DHooks_OnTracePlayerBBox_Post(Address pThis, DHookParam hParams)
+{
+	int client = GetClientFromGameMovementAddress(pThis);
+	if (client < 1 || !gB_InTryPlayerMove[client])
+	{
+		return MRES_Ignored;
+	}
+	gB_TraceHookFired = true;
+
+	float start[3], end[3];
+	DHookGetParamVector(hParams, 1, start);
+	DHookGetParamVector(hParams, 2, end);
+	// Skip stuck tests.
+	if (VectorsNearEqual(start, end))
+	{
+		return MRES_Ignored;
+	}
+
+	float fraction = DHookGetParamObjectPtrVar(hParams, 5, TRACE_FRACTION, ObjectValueType_Float);
+	bool allsolid = view_as<bool>(DHookGetParamObjectPtrVar(hParams, 5, TRACE_ALLSOLID, ObjectValueType_Bool));
+	if (fraction >= 1.0 || allsolid)
+	{
+		return MRES_Ignored;
+	}
+
+	int idx = gI_CollisionCount[client];
+	// Engine traced bump 0 anyway, replace the seed.
+	if (gB_SeededFirstTrace[client] && idx == 1
+		&& VectorsNearEqual(start, gF_TraceStartOrigin[client][0])
+		&& FloatAbs(end[0] - gF_SeedFirstDest[client][0]) < 0.01
+		&& FloatAbs(end[1] - gF_SeedFirstDest[client][1]) < 0.01)
+	{
+		idx = 0;
+	}
+	gB_SeededFirstTrace[client] = false;
+	if (idx >= MAX_BUMPS)
+	{
+		return MRES_Ignored;
+	}
+
+	DHookGetParamObjectPtrVarVector(hParams, 5, TRACE_STARTPOS, ObjectValueType_Vector, gF_TraceStartOrigin[client][idx]);
+	DHookGetParamObjectPtrVarVector(hParams, 5, TRACE_ENDPOS, ObjectValueType_Vector, gF_TraceEndOrigin[client][idx]);
+	DHookGetParamObjectPtrVarVector(hParams, 5, TRACE_NORMAL, ObjectValueType_Vector, gF_TraceNormal[client][idx]);
+	if (idx == gI_CollisionCount[client])
+	{
+		gI_CollisionCount[client] = idx + 1;
+	}
+	return MRES_Ignored;
+}
+
+static void ReadTouchListCollisions(int client)
+{
+	int touchCount = LoadFromAddress(moveHelperAddr + view_as<Address>(8) + view_as<Address>(12), NumberType_Int32);
+	if (touchCount > MAX_BUMPS)
+	{
+		touchCount = MAX_BUMPS;
+	}
+	else if (touchCount < 0)
+	{
+		touchCount = 0;
+	}
+
+	Address elements = LoadFromAddress(moveHelperAddr + view_as<Address>(8) + view_as<Address>(16), NumberType_Int32);
+	for (int i = 0; i < touchCount; i++)
+	{
+		Trace trace = Trace(elements + view_as<Address>(i * 96) + view_as<Address>(12));
+		trace.startpos.ToArray(gF_TraceStartOrigin[client][i]);
+		trace.endpos.ToArray(gF_TraceEndOrigin[client][i]);
+		trace.plane.normal.ToArray(gF_TraceNormal[client][i]);
+	}
+	gI_CollisionCount[client] = touchCount;
+}
+
 public MRESReturn DHooks_OnTryPlayerMove_Post(Address pThis, DHookReturn hReturn, DHookParam hParams)
 {
 	int client = GetClientFromGameMovementAddress(pThis);
+	if (client >= 1)
+	{
+		gB_InTryPlayerMove[client] = false;
+		gB_SeededFirstTrace[client] = false;
+	}
 	if (!IsPlayerAlive(client) || IsFakeClient(client))
 	{
 		return MRES_Ignored;
 	}
 
 	gB_TryPlayerMoveThisTick[client] = true;
-	gI_CollisionCount[client] = LoadFromAddress(moveHelperAddr + view_as<Address>(8) + view_as<Address>(12), NumberType_Int32);
 
-	Address m_TouchList_m_pElements = LoadFromAddress(moveHelperAddr + view_as<Address>(8) + view_as<Address>(16), NumberType_Int32);
+	// Use the touch list until the hook is seen working.
+	if (!gB_TraceHookFired && gI_CollisionCount[client] == 0)
+	{
+		ReadTouchListCollisions(client);
+	}
 
 	bool hitStandableSurface = false;
 	static ConVar sv_standable_normal;
@@ -580,11 +722,7 @@ public MRESReturn DHooks_OnTryPlayerMove_Post(Address pThis, DHookReturn hReturn
 	}
 	for (int i = 0; i < gI_CollisionCount[client]; i++)
 	{
-		Trace trace = Trace(m_TouchList_m_pElements + view_as<Address>(i*96) + view_as<Address>(12));
-		trace.startpos.ToArray(gF_TraceStartOrigin[client][i]);
-		trace.endpos.ToArray(gF_TraceEndOrigin[client][i]);
-		trace.plane.normal.ToArray(gF_TraceNormal[client][i]);
-		if (trace.plane.normal.z >= sv_standable_normal.FloatValue)
+		if (gF_TraceNormal[client][i][2] >= sv_standable_normal.FloatValue)
 		{
 			hitStandableSurface = true;
 		}

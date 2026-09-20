@@ -192,20 +192,53 @@ public int Native_GetCollisionCount(Handle plugin, int numParams)
 	return gI_CollisionCount[GetNativeCell(1)];
 }
 
+static bool ValidCollisionIndex(int client, int num)
+{
+	if (num < 0 || num >= MAX_BUMPS)
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Collision index %d out of range, must be 0 to %d.", num, MAX_BUMPS - 1);
+		return false;
+	}
+	if (num >= gI_CollisionCount[client])
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Collision index %d exceeds this tick's collision count of %d.", num, gI_CollisionCount[client]);
+		return false;
+	}
+	return true;
+}
+
 public int Native_GetCollisionStartOrigin(Handle plugin, int numParams)
 {
-	SetNativeArray(3, gF_TraceStartOrigin[GetNativeCell(1)][GetNativeCell(2)], sizeof(gF_TraceStartOrigin[][]));
+	int client = GetNativeCell(1);
+	int num = GetNativeCell(2);
+	if (!ValidCollisionIndex(client, num))
+	{
+		return 0;
+	}
+	SetNativeArray(3, gF_TraceStartOrigin[client][num], sizeof(gF_TraceStartOrigin[][]));
 	return 0;
 }
 
 public int Native_GetCollisionEndOrigin(Handle plugin, int numParams)
 {
-	SetNativeArray(3, gF_TraceEndOrigin[GetNativeCell(1)][GetNativeCell(2)], sizeof(gF_TraceEndOrigin[][]));
+	int client = GetNativeCell(1);
+	int num = GetNativeCell(2);
+	if (!ValidCollisionIndex(client, num))
+	{
+		return 0;
+	}
+	SetNativeArray(3, gF_TraceEndOrigin[client][num], sizeof(gF_TraceEndOrigin[][]));
 	return 0;
 }
 
 public int Native_GetCollisionNormal(Handle plugin, int numParams)
 {
-	SetNativeArray(3, gF_TraceNormal[GetNativeCell(1)][GetNativeCell(2)], sizeof(gF_TraceNormal[][]));
+	int client = GetNativeCell(1);
+	int num = GetNativeCell(2);
+	if (!ValidCollisionIndex(client, num))
+	{
+		return 0;
+	}
+	SetNativeArray(3, gF_TraceNormal[client][num], sizeof(gF_TraceNormal[][]));
 	return 0;
 }
