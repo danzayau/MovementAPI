@@ -27,6 +27,10 @@ static bool gB_InTryPlayerMove[MAXPLAYERS + 1];
 static bool gB_SeededFirstTrace[MAXPLAYERS + 1];
 static float gF_SeedFirstDest[MAXPLAYERS + 1][3];
 
+static bool gB_PendingEdgebug[MAXPLAYERS + 1];
+static float gF_PendingEdgebugOrigin[MAXPLAYERS + 1][3];
+static float gF_PendingEdgebugVelocity[MAXPLAYERS + 1][3];
+
 float gF_Origin[MAXPLAYERS + 1][3];
 float gF_Velocity[MAXPLAYERS + 1][3];
 
@@ -450,6 +454,7 @@ public MRESReturn DHooks_OnPlayerMove_Pre(Address pThis)
 	gB_TakeoffFromLadder[client] = false;
 	gB_TryPlayerMoveThisTick[client] = false;
 	gI_CollisionCount[client] = 0;
+	gB_PendingEdgebug[client] = false;
 
 	Action result = UpdateMoveData(pThis, client, Call_OnPlayerMovePre);
 
@@ -511,6 +516,16 @@ public MRESReturn DHooks_OnCategorizePosition_Post(Address pThis)
 		return MRES_Ignored;
 	}
 	bool ground = Movement_GetOnGround(client);
+
+	if (gB_PendingEdgebug[client])
+	{
+		gB_PendingEdgebug[client] = false;
+		if (!ground)
+		{
+			Call_OnPlayerEdgebug(client, gF_PendingEdgebugOrigin[client], gF_PendingEdgebugVelocity[client]);
+		}
+	}
+
 	// Ground state changed!
 	if (gB_PrevOnGround[client] != ground)
 	{
@@ -714,40 +729,24 @@ public MRESReturn DHooks_OnTryPlayerMove_Post(Address pThis, DHookReturn hReturn
 		ReadTouchListCollisions(client);
 	}
 
-	bool hitStandableSurface = false;
-	static ConVar sv_standable_normal;
-	if (sv_standable_normal == INVALID_HANDLE)
+	// Edgebug detection, confirmed in CategorizePosition.
+	// Note: Origin and velocity are not updated yet.
+	if (!(GetEntityFlags(client) & FL_ONGROUND) && gF_Velocity[client][2] < 0.0)
 	{
-		sv_standable_normal = FindConVar("sv_standable_normal");
-	}
-	for (int i = 0; i < gI_CollisionCount[client]; i++)
-	{
-		if (gF_TraceNormal[client][i][2] >= sv_standable_normal.FloatValue)
+		static ConVar sv_walkable_normal;
+		if (sv_walkable_normal == INVALID_HANDLE)
 		{
-			hitStandableSurface = true;
+			sv_walkable_normal = FindConVar("sv_walkable_normal");
 		}
-	}
-
-	// Edgebug detection
-	
-	if (hitStandableSurface)
-	{
-		float currentOrigin[3], groundEndPoint[3];
-		
-		GameMove_GetOrigin(pThis, currentOrigin);
-		groundEndPoint = currentOrigin;
-		groundEndPoint[2] -= 2.0;
-		float mins[3] = {-16.0, -16.0, 0.0};
-		float maxs[3] = {16.0, 16.0, 0.0};
-		TR_TraceHullFilter(currentOrigin, groundEndPoint, mins, maxs, MASK_PLAYERSOLID, TraceEntityFilterPlayers, client);
-		
-		float groundPos[3];
-		TR_GetEndPosition(groundPos);
-		
-		// Note: Origin and velocity are not updated yet.
-		if (!TR_DidHit())
+		for (int i = 0; i < gI_CollisionCount[client]; i++)
 		{
-			Call_OnPlayerEdgebug(client, gF_Origin[client], gF_Velocity[client]);
+			if (gF_TraceNormal[client][i][2] > sv_walkable_normal.FloatValue)
+			{
+				gB_PendingEdgebug[client] = true;
+				gF_PendingEdgebugOrigin[client] = gF_Origin[client];
+				gF_PendingEdgebugVelocity[client] = gF_Velocity[client];
+				break;
+			}
 		}
 	}
 
