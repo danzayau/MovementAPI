@@ -124,7 +124,7 @@ stock void Movement_GetOriginEx(int client, float result[3])
 	delete trace;
 }
 
-public bool TraceEntityFilterPlayers(int entity, int contentsMask)
+stock bool TraceEntityFilterPlayers(int entity, int contentsMask)
 {
 	return entity > MaxClients;
 }
