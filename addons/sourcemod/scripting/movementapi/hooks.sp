@@ -616,7 +616,8 @@ public MRESReturn DHooks_OnTryPlayerMove_Pre(Address pThis, DHookReturn hReturn,
 	}
 
 	// Bump 0 can reuse pFirstTrace without tracing.
-	if (!DHookIsNullParam(hParams, 2))
+	// A forward that changed origin or velocity breaks that reuse, which would leave the seed stale.
+	if (result == Plugin_Continue && !DHookIsNullParam(hParams, 2))
 	{
 		float fraction = DHookGetParamObjectPtrVar(hParams, 2, TRACE_FRACTION, ObjectValueType_Float);
 		bool allsolid = view_as<bool>(DHookGetParamObjectPtrVar(hParams, 2, TRACE_ALLSOLID, ObjectValueType_Bool));
