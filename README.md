@@ -1,6 +1,6 @@
 # MovementAPI
 
-[![Build Status](https://travis-ci.org/danzayau/MovementAPI.svg?branch=master)](https://travis-ci.org/danzayau/MovementAPI)
+[![Build Status](https://github.com/danzayau/MovementAPI/actions/workflows/ci.yml/badge.svg)](https://github.com/danzayau/MovementAPI/actions/workflows/ci.yml)
 
 A SourceMod API focused on player movement in the form of a [function stock libary](addons/sourcemod/scripting/include/movement.inc) and an optional plugin with [forwards and natives](addons/sourcemod/scripting/include/movementapi.inc). MovementAPI officially supports CS:GO servers only.
 
