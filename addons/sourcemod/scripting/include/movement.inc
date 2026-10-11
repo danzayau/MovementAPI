@@ -183,7 +183,7 @@ stock void Movement_SetSpeed(int client, float value, bool applyBaseVel = false)
 {
 	float velocity[3];
 	Movement_GetVelocity(client, velocity);
-	SetVectorHorizontalLength(velocity, value)
+	SetVectorHorizontalLength(velocity, value);
 	if (applyBaseVel)
 	{
 		float baseVelocity[3];
