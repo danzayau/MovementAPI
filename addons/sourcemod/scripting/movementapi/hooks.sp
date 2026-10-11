@@ -78,7 +78,7 @@ void HookGameMovementFunctions()
 	moveHelperAddr = GameConfGetAddress(gH_GameData, "sm_pSingleton");
 	if (!moveHelperAddr)
 	{
-		SetFailState("Failed to find IMoveHelper::sm_pSingleton.");	
+		LogError("Failed to find IMoveHelper::sm_pSingleton, the touch list fallback is disabled.");
 	}
 
 	H_OnTracePlayerBBox = DynamicHook.FromConf(gH_GameData, "CGameMovement::TracePlayerBBox");
@@ -701,6 +701,10 @@ public MRESReturn DHooks_OnTracePlayerBBox_Post(Address pThis, DHookParam hParam
 
 static int GetTouchListCount()
 {
+	if (!moveHelperAddr)
+	{
+		return 0;
+	}
 	return LoadFromAddress(moveHelperAddr + view_as<Address>(8) + view_as<Address>(12), NumberType_Int32);
 }
 
@@ -716,6 +720,10 @@ static void ReadTouchListCollisions(int client)
 	else if (touchCount < 0)
 	{
 		touchCount = 0;
+	}
+	if (touchCount == 0)
+	{
+		return;
 	}
 
 	Address elements = LoadFromAddress(moveHelperAddr + view_as<Address>(8) + view_as<Address>(16), NumberType_Int32);
