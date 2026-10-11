@@ -20,13 +20,14 @@
 	Becoming airborne, including jumping, falling, getting off a ladder and leaving noclip.
 
 	Landing
-	Leaving the air, including landing on the ground, grabbing a ladder and entering noclip.
+	Leaving the air, including landing on the ground, grabbing a ladder, leaving noclip
+	while on ground and entering noclip.
 
 	Perfect Bunnyhop (Perf)
 	When the player has jumped in the tick after landing and keeps their speed.
 
  	Duckbug/Crouchbug
-	When the player sucessfully lands due to uncrouching from mid air and not by falling 
+	When the player successfully lands due to uncrouching from mid air and not by falling 
 	down. This causes no stamina loss or fall damage upon landing.
 
 	Jumpbug
@@ -113,7 +114,7 @@ forward void Movement_OnStopDucking(int client);
 forward void Movement_OnPlayerJump(int client, bool jumpbug);
 
 /**
- * Called when a player edgebugs.
+ * Called when a player edgebugs. Not called for bots.
  * Setting velocity when this is called may not be effective.
  *
  * @param client		Client index.
@@ -299,7 +300,7 @@ forward Action Movement_OnCategorizePositionPre(int client, float origin[3], flo
 forward Action Movement_OnCategorizePositionPost(int client, float origin[3], float velocity[3]);
 
 /**
- * Called before TryPlayerMove movement function is called.
+ * Called before TryPlayerMove movement function is called. Not called for bots.
  * Modifying origin or velocity parameters will change player's origin and velocity accordingly.
  *
  * @param client       Client index.
@@ -310,7 +311,7 @@ forward Action Movement_OnCategorizePositionPost(int client, float origin[3], fl
 forward Action Movement_OnTryPlayerMovePre(int client, float origin[3], float velocity[3]);
 
 /**
- * Called after TryPlayerMove movement function is called.
+ * Called after TryPlayerMove movement function is called. Not called for bots.
  * Modifying origin or velocity parameters will change player's origin and velocity accordingly.
  *
  * @param client       Client index.
@@ -323,10 +324,11 @@ forward Action Movement_OnTryPlayerMovePost(int client, float origin[3], float v
 // =====[ NATIVES ]=====
 
 /**
- * Gets whether a player's last takeoff was a jump.
+ * Gets whether a player jumped this tick.
+ * Reset at the start of each tick's movement processing.
  *
  * @param client		Client index.
- * @return				Whether player's last takeoff was a jump.
+ * @return				Whether player jumped this tick.
  */
 native bool Movement_GetJumped(int client);
 
@@ -544,6 +546,7 @@ native void Movement_SetLandingVelocity(int client, float velocity[3]);
  * Get the player's number of collisions during movement processing.
  * This function should ideally be called after inside Movement_OnTryPlayerMovePost.
  * Collisions are from the last TryPlayerMove call, in bump order.
+ * Always 0 for bots, their TryPlayerMove calls are not tracked.
  *
  * @param client     Client index.
  * @return           Number of collisions, up to MOVEMENT_MAX_COLLISIONS.
@@ -555,7 +558,7 @@ native int Movement_GetCollisionCount(int client);
  * This function should ideally be called after inside Movement_OnTryPlayerMovePost.
  *
  * @param client     Client index.
- * @param num		 Collision number, must not exceed Movement_GetCollisionCount's value.
+ * @param num		 Collision number, must be less than Movement_GetCollisionCount's value.
  * @param result	 Resultant vector.
  * @error            Invalid collision index.
  */
@@ -566,7 +569,7 @@ native void Movement_GetCollisionStartOrigin(int client, int num, float result[3
  * This function should ideally be called after inside Movement_OnTryPlayerMovePost.
  *
  * @param client     Client index.
- * @param num		 Collision number, must not exceed Movement_GetCollisionCount's value.
+ * @param num		 Collision number, must be less than Movement_GetCollisionCount's value.
  * @param result	 Resultant vector.
  * @error            Invalid collision index.
  */
@@ -577,7 +580,7 @@ native void Movement_GetCollisionEndOrigin(int client, int num, float result[3])
  * This function should ideally be called after inside Movement_OnTryPlayerMovePost.
  *
  * @param client     Client index.
- * @param num		 Collision number, must not exceed Movement_GetCollisionCount's value.
+ * @param num		 Collision number, must be less than Movement_GetCollisionCount's value.
  * @param result	 Resultant vector.
  * @error            Invalid collision index.
  */
