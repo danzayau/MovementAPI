@@ -543,20 +543,25 @@ public MRESReturn DHooks_OnCategorizePosition_Post(Address pThis)
 		else // Takeoff
 		{
 			gF_TakeoffOrigin[client] = gF_OldOrigin[client];
+			bool hadLadderMoveType = Movement_GetMovetype(client) == MOVETYPE_LADDER || gMT_OldMovetype[client] == MOVETYPE_LADDER;
 			// Note: Jumping isn't detected here.
 			if (gB_WalkMoved[client])
 			{
 				gF_TakeoffVelocity[client] = gF_PostWalkMoveVelocity[client];
 			}
-			else
+			else if (hadLadderMoveType)
 			{
 				gF_TakeoffVelocity[client] = gF_PostLadderMoveVelocity[client];
+			}
+			else
+			{
+				// Can run before this tick's LadderMove, where gF_PostLadderMoveVelocity is still last tick's.
+				gF_TakeoffVelocity[client] = gF_Velocity[client];
 			}
 			gI_TakeoffTick[client] = gI_TickCount[client];
 			gI_TakeoffCmdNum[client] = gI_Cmdnum[client];
 			gB_Jumped[client] = false;
 			gB_HitPerf[client] = false;
-			bool hadLadderMoveType = Movement_GetMovetype(client) == MOVETYPE_LADDER || gMT_OldMovetype[client] == MOVETYPE_LADDER;
 			bool ladderJump = hadLadderMoveType && !gB_WalkMoved[client];
 			if (ladderJump)
 			{
@@ -772,14 +777,19 @@ public MRESReturn DHooks_OnTryPlayerMove_Post(Address pThis, DHookReturn hReturn
 	}
 }
 
-static bool TraceGroundParity(int client, const float origin[3], float groundPos[3])
+static float GetStandableNormalZ()
 {
 	static ConVar sv_standable_normal;
 	if (sv_standable_normal == INVALID_HANDLE)
 	{
 		sv_standable_normal = FindConVar("sv_standable_normal");
 	}
-	float standableZ = sv_standable_normal.FloatValue;
+	return sv_standable_normal.FloatValue;
+}
+
+static bool TraceGroundParity(int client, const float origin[3], float groundPos[3])
+{
+	float standableZ = GetStandableNormalZ();
 
 	float hullMins[3], hullMaxs[3];
 	GetClientMins(client, hullMins);
@@ -871,10 +881,18 @@ static void NobugLandingOrigin(int client, float landingOrigin[3])
 	}
 
 	// Jump is bugged, try to use the trace result of TryPlayerMove if possible.
-	if (gB_TryPlayerMoveThisTick[client] && gI_CollisionCount[client] > 0)
+	// First standable contact only, a wall clipped before the floor would give the wall contact point.
+	if (gB_TryPlayerMoveThisTick[client])
 	{
-		landingOrigin = gF_TraceEndOrigin[client][0];
-		return;
+		float standableZ = GetStandableNormalZ();
+		for (int i = 0; i < gI_CollisionCount[client]; i++)
+		{
+			if (gF_TraceNormal[client][i][2] >= standableZ)
+			{
+				landingOrigin = gF_TraceEndOrigin[client][i];
+				return;
+			}
+		}
 	}
 
 	// Engine doesn't ground players moving up this fast.
