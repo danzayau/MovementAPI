@@ -115,7 +115,6 @@ public MRESReturn DHooks_OnDuck_Pre(Address pThis)
 	}
 	Action result = UpdateMoveData(pThis, client, Call_OnDuckPre);
 	
-	gB_Ducking[client] = Movement_GetDucking(client);
 	gB_ProcessingDuck[client] = true;
 
 	if (result != Plugin_Continue)
@@ -136,6 +135,7 @@ public MRESReturn DHooks_OnDuck_Post(Address pThis)
 		return MRES_Ignored;
 	}
 	
+	gB_Ducking[client] = Movement_GetDucking(client);
 	if (gB_Ducking[client] && !gB_OldDucking[client])
 	{
 		Call_OnStartDucking(client);
