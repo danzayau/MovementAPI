@@ -146,6 +146,10 @@ static void PrepSDKCalls()
 	PrepSDKCall_SetFromConf(gH_GameData, SDKConf_Virtual, "GetPlayerMaxSpeed");
 	PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_ByValue);
 	gH_GetMaxSpeed = EndPrepSDKCall();
+	if (!gH_GetMaxSpeed)
+	{
+		SetFailState("Failed to prepare GetPlayerMaxSpeed SDKCall.");
+	}
 }
 
 static void ResetClientData(int client)

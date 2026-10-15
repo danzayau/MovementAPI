@@ -57,6 +57,7 @@ float gF_PostAAVelocity[MAXPLAYERS + 1][3];
 bool gB_OldWalkMoved[MAXPLAYERS + 1];
 
 int gI_CollisionCount[MAXPLAYERS + 1];
+static int gI_PreMoveTouchCount[MAXPLAYERS + 1];
 
 float gF_TraceStartOrigin[MAXPLAYERS + 1][MAX_BUMPS][3];
 float gF_TraceEndOrigin[MAXPLAYERS + 1][MAX_BUMPS][3];
@@ -77,7 +78,7 @@ void HookGameMovementFunctions()
 	moveHelperAddr = GameConfGetAddress(gH_GameData, "sm_pSingleton");
 	if (!moveHelperAddr)
 	{
-		SetFailState("Failed to find IMoveHelper::sm_pSingleton.");	
+		LogError("Failed to find IMoveHelper::sm_pSingleton, the touch list fallback is disabled.");
 	}
 
 	H_OnTracePlayerBBox = DynamicHook.FromConf(gH_GameData, "CGameMovement::TracePlayerBBox");
@@ -602,6 +603,7 @@ public MRESReturn DHooks_OnTryPlayerMove_Pre(Address pThis, DHookReturn hReturn,
 		gF_TraceNormal[client][i] = NULL_VECTOR;
 	}
 	gI_CollisionCount[client] = 0;
+	gI_PreMoveTouchCount[client] = GetTouchListCount();
 	gB_InTryPlayerMove[client] = true;
 	gB_SeededFirstTrace[client] = false;
 
@@ -621,7 +623,8 @@ public MRESReturn DHooks_OnTryPlayerMove_Pre(Address pThis, DHookReturn hReturn,
 	}
 
 	// Bump 0 can reuse pFirstTrace without tracing.
-	if (!DHookIsNullParam(hParams, 2))
+	// A forward that changed origin or velocity breaks that reuse, which would leave the seed stale.
+	if (result == Plugin_Continue && !DHookIsNullParam(hParams, 2))
 	{
 		float fraction = DHookGetParamObjectPtrVar(hParams, 2, TRACE_FRACTION, ObjectValueType_Float);
 		bool allsolid = view_as<bool>(DHookGetParamObjectPtrVar(hParams, 2, TRACE_ALLSOLID, ObjectValueType_Bool));
@@ -701,9 +704,20 @@ public MRESReturn DHooks_OnTracePlayerBBox_Post(Address pThis, DHookParam hParam
 	return MRES_Ignored;
 }
 
+static int GetTouchListCount()
+{
+	if (!moveHelperAddr)
+	{
+		return 0;
+	}
+	return LoadFromAddress(moveHelperAddr + view_as<Address>(8) + view_as<Address>(12), NumberType_Int32);
+}
+
+// The touch list is only reset once per tick, so earlier entries are from a previous TryPlayerMove.
 static void ReadTouchListCollisions(int client)
 {
-	int touchCount = LoadFromAddress(moveHelperAddr + view_as<Address>(8) + view_as<Address>(12), NumberType_Int32);
+	int first = gI_PreMoveTouchCount[client];
+	int touchCount = GetTouchListCount() - first;
 	if (touchCount > MAX_BUMPS)
 	{
 		touchCount = MAX_BUMPS;
@@ -712,11 +726,15 @@ static void ReadTouchListCollisions(int client)
 	{
 		touchCount = 0;
 	}
+	if (touchCount == 0)
+	{
+		return;
+	}
 
 	Address elements = LoadFromAddress(moveHelperAddr + view_as<Address>(8) + view_as<Address>(16), NumberType_Int32);
 	for (int i = 0; i < touchCount; i++)
 	{
-		Trace trace = Trace(elements + view_as<Address>(i * 96) + view_as<Address>(12));
+		Trace trace = Trace(elements + view_as<Address>((first + i) * 96) + view_as<Address>(12));
 		trace.startpos.ToArray(gF_TraceStartOrigin[client][i]);
 		trace.endpos.ToArray(gF_TraceEndOrigin[client][i]);
 		trace.plane.normal.ToArray(gF_TraceNormal[client][i]);
