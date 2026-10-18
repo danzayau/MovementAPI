@@ -82,6 +82,9 @@ void Call_OnStartTouchGround(int client)
 	Call_StartForward(H_OnStartTouchGround);
 	Call_PushCell(client);
 	Call_Finish();
+
+	// Immediately update OldOnGround state, so we can catch takeoffs that happen outside movement processing.
+	gB_OldOnGround[client] = true;
 }
 
 void Call_OnStopTouchGround(int client, bool jumped, bool ladderJump, bool jumpbug)
