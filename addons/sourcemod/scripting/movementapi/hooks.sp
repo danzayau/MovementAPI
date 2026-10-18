@@ -15,6 +15,7 @@ static bool gB_TraceHookAttempted;
 static bool gB_TraceHookFired;
 static Address moveHelperAddr;
 static bool gB_TryPlayerMoveThisTick[MAXPLAYERS + 1];
+static bool gB_AirAcceleratedThisTick[MAXPLAYERS + 1];
 
 // trace_t offsets
 #define TRACE_STARTPOS   0
@@ -388,6 +389,7 @@ public MRESReturn DHooks_OnAirAccelerate_Post(Address pThis, DHookParam hParams)
 	
 	GameMove_GetOrigin(pThis, gF_PostAAOrigin[client]);
 	GameMove_GetVelocity(pThis, gF_PostAAVelocity[client]);
+	gB_AirAcceleratedThisTick[client] = true;
 
 	Action result = UpdateMoveData(pThis, client, Call_OnAirAcceleratePost);
 	if (result != Plugin_Continue)
@@ -456,6 +458,7 @@ public MRESReturn DHooks_OnPlayerMove_Pre(Address pThis)
 	gB_Jumped[client] = false;
 	gB_TakeoffFromLadder[client] = false;
 	gB_TryPlayerMoveThisTick[client] = false;
+	gB_AirAcceleratedThisTick[client] = false;
 	gI_CollisionCount[client] = 0;
 	gB_PendingEdgebug[client] = false;
 
@@ -883,7 +886,8 @@ static void NobugLandingOrigin(int client, float landingOrigin[3])
 	
 	// It seems like sometimes the player can end up ever so slighly above this "ground" value,
 	// likely due to floating point precision error. Treat it as a bugged jump as well.
-	if (distanceToGround > 0.001 || gB_ProcessingDuck[client])
+	// PostAA is stale when a landing comes before or without AirMove (teleport, ladder, water).
+	if (distanceToGround > 0.001 || gB_ProcessingDuck[client] || !gB_AirAcceleratedThisTick[client])
 	{
 		// Use the current origin and velocity if we're not touching the ground
 		gF_LandingVelocity[client] = gF_Velocity[client];
