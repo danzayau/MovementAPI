@@ -117,8 +117,7 @@ public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 public void OnPlayerJump(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
-	bool jumpbug = !gB_OldOnGround[client];	
-	Call_OnPlayerJump(client, jumpbug);
+	Call_OnPlayerJump(client, gB_Jumpbugged[client]);
 }
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
