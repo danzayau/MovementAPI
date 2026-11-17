@@ -540,6 +540,29 @@ native void Movement_SetLandingOrigin(int client, float origin[3]);
  */
 native void Movement_SetLandingVelocity(int client, float velocity[3]);
 
+#define MOVEMENT_STATE_SIZE 64
+
+/**
+ * Get what MovementAPI tracks about the player between ticks (takeoff, landing, perf, turning),
+ * to restore it later with Movement_SetState. Ticks and cmdnums are kept relative to the last usercmd.
+ *
+ * @param client     Client index.
+ * @param state      Buffer to store the state in.
+ * @param size       Size of the buffer, must be MOVEMENT_STATE_SIZE.
+ * @error            Wrong buffer size.
+ */
+native void Movement_GetState(int client, any[] state, int size = MOVEMENT_STATE_SIZE);
+
+/**
+ * Set the player's state from Movement_GetState. Call it between the player's usercmds.
+ *
+ * @param client     Client index.
+ * @param state      State to set.
+ * @param size       Size of the state, must be MOVEMENT_STATE_SIZE.
+ * @error            Wrong state size, or a state version this MovementAPI doesn't read.
+ */
+native void Movement_SetState(int client, const any[] state, int size = MOVEMENT_STATE_SIZE);
+
 #define MOVEMENT_MAX_COLLISIONS 4
 
 /**
@@ -735,6 +758,16 @@ methodmap MovementAPIPlayer < MovementPlayer {
 	{
 		Movement_GetProcessingOrigin(this.ID, buffer);
 	}
+
+	public void GetState(any[] state, int size = MOVEMENT_STATE_SIZE)
+	{
+		Movement_GetState(this.ID, state, size);
+	}
+
+	public void SetState(const any[] state, int size = MOVEMENT_STATE_SIZE)
+	{
+		Movement_SetState(this.ID, state, size);
+	}
 }
 
 
@@ -781,6 +814,8 @@ public void __pl_movementapi_SetNTVOptional()
 	MarkNativeAsOptional("Movement_SetTakeoffVelocity");
 	MarkNativeAsOptional("Movement_SetLandingOrigin");
 	MarkNativeAsOptional("Movement_SetLandingVelocity");
+	MarkNativeAsOptional("Movement_GetState");
+	MarkNativeAsOptional("Movement_SetState");
 	MarkNativeAsOptional("Movement_GetCollisionCount");
 	MarkNativeAsOptional("Movement_GetCollisionStartOrigin");
 	MarkNativeAsOptional("Movement_GetCollisionEndOrigin");
